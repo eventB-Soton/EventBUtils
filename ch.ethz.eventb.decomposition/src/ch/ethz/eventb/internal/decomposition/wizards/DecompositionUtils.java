@@ -514,14 +514,15 @@ public class DecompositionUtils {
 	}
 
 	private static void decomposeGuards(IEvent dest, IEvent src,
-			Set<String> accessedVars) throws RodinDBException {
-		// Getting the assigned variables that are not accessed (w).
-		List<String> assignedVars = EventBUtils.getAccessedVars(src);
+			Set<String> vars) throws RodinDBException {
+		// Getting the event's accessed variables that are not accessed by the
+		// distribution.
+		List<String> accessedVars = EventBUtils.getAccessedVars(src);
 		
 		List<String> wList = new ArrayList<String>();
-		for (String assignedVar : assignedVars) {
-			if (!accessedVars.contains(assignedVar)) {
-				wList.add(assignedVar);
+		for (String accessedVar : accessedVars) {
+			if (!vars.contains(accessedVar)) {
+				wList.add(accessedVar);
 			}
 		}
 		
