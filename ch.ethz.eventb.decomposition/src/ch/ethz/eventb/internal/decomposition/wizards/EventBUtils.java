@@ -868,6 +868,10 @@ public class EventBUtils {
 		
 		// Normalise the actions (Rewriting rules 1-4).
 		IAction[] acts = evt.getActions();
+		
+		if (acts.length == 0)
+			return evt;
+		
 		for (IAction act : acts) {
 			normalise(act);
 		}
