@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: ch.ethz.eventb.decomposition;singleton:=true
+Bundle-Version: 0.5.0
+Bundle-Activator: ch.ethz.eventb.decomposition.DecompositionPlugin
+Bundle-Vendor: %providerName
+Require-Bundle: org.eclipse.ui;visibility:=reexport,
+ org.eclipse.core.runtime;visibility:=reexport,
+ org.eventb.core;bundle-version="1.0.0";visibility:=reexport
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Export-Package: ch.ethz.eventb.internal.decomposition.wizards;x-friends:="ch.ethz.eventb.decomposition.tests"

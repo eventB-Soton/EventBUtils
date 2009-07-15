@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="org.eventb.ui.wizards"
+            class="ch.ethz.eventb.internal.decomposition.wizards.DecompositionWizard"
+            finalPerspective="org.eventb.ui.perspective.eventb"
+            icon="icons/sample.gif"
+            id="ch.ethz.eventb.decomposition.wizard"
+            name="Event-B Decomposition (A-Style) wizard">
+      </wizard>
+   </extension>
+
+</plugin>
