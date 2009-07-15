@@ -410,12 +410,16 @@ public class EventBUtils {
 	 *             </ul>
 	 */
 	private static IEvent getAbstract(IEvent event) throws RodinDBException {
-		IRefinesEvent[] evtRefinesClauses = event.getRefinesClauses();
-		if (evtRefinesClauses.length != 1)
-			return null;
-
-		String absEvtLabel = evtRefinesClauses[0].getAbstractEventLabel();
-
+		String absEvtLabel;
+		if (event.isInitialisation())
+			absEvtLabel = IEvent.INITIALISATION;
+		else {
+			IRefinesEvent[] evtRefinesClauses = event.getRefinesClauses();
+			if (evtRefinesClauses.length != 1)
+				return null;
+			absEvtLabel = evtRefinesClauses[0].getAbstractEventLabel();
+		}
+		
 		IMachineRoot mch = (IMachineRoot) event.getRoot();
 
 		IRefinesMachine[] refinesClauses = mch.getRefinesClauses();
