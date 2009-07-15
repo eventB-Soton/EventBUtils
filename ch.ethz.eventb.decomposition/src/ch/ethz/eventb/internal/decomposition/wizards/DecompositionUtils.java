@@ -554,6 +554,8 @@ public class DecompositionUtils {
 		IAction[] acts = src.getActions();
 		for (IAction act : acts) {
 			String newAssignmentStr = decomposeAction(act, vars);
+			if (newAssignmentStr == null)
+				continue;
 			IAction newAct = dest.createChild(IAction.ELEMENT_TYPE, null,
 					new NullProgressMonitor());
 			newAct.setLabel(act.getLabel(), new NullProgressMonitor());
