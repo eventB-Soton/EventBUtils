@@ -418,7 +418,8 @@ public class DecompositionUtils {
 			if (isRelevant(inv, vars)) {
 				IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE,
 						null, new NullProgressMonitor());
-				newInv.setLabel(inv.getLabel(), new NullProgressMonitor());
+				newInv.setLabel(src.getComponentName() + "_" + inv.getLabel(),
+						new NullProgressMonitor());
 				newInv.setPredicateString(inv.getPredicateString(),
 						new NullProgressMonitor());
 				newInv.setTheorem(inv.isTheorem(), new NullProgressMonitor());
