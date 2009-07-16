@@ -17,8 +17,11 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eventb.core.IAction;
+import org.eventb.core.IContextRoot;
 import org.eventb.core.IEvent;
+import org.eventb.core.IEventBProject;
 import org.eventb.core.IGuard;
 import org.eventb.core.IInvariant;
 import org.eventb.core.IMachineRoot;
@@ -32,6 +35,8 @@ import org.eventb.core.ast.FreeIdentifier;
 import org.eventb.core.ast.Predicate;
 import org.eventb.core.ast.SourceLocation;
 import org.eventb.core.seqprover.eventbExtensions.Lib;
+import org.rodinp.core.IRodinFile;
+import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinDBException;
 
 /**
@@ -79,6 +84,111 @@ public class DecompositionUtils {
 		public int getCode() {
 			return code;
 		}
+	}
+
+	/**
+	 * Utility method for decomposing a model, given a model distribution.
+	 * 
+	 * @param modelDist
+	 *            a model distribution.
+	 * @param monitor
+	 *            a progress monitor.
+	 * @throws RodinDBException
+	 *             if some errors occurred when creating any sub-models
+	 *             according to the model distribution
+	 *             {@link #createSubModel(IElementDistribution, SubProgressMonitor)}.
+	 */
+	public static void decomposeModel(IModelDistribution modelDist,
+			IProgressMonitor monitor) throws RodinDBException {
+		IElementDistribution[] distributions = modelDist
+				.getElementDistributions();
+
+		// The number of work is the number of distributions.
+		monitor.beginTask("Generating sub-models", distributions.length);
+		for (IElementDistribution dist : distributions) {
+			// For each distribution, create the corresponding model.
+			monitor.subTask("Create sub-model");
+			createSubModel(dist, new SubProgressMonitor(monitor, 1));
+		}
+		monitor.done();
+		return;
+	}
+
+	/**
+	 * Utility method for creating a model, given an element distribution.
+	 * 
+	 * @param dist
+	 *            an element distribution.
+	 * @param monitor
+	 *            a progress monitor.
+	 * @throws RodinDBException
+	 *             if some errors occurred when
+	 *             <ul>
+	 *             <li>creating a new event project
+	 *             {@link EventBUtils#createProject(String, IProgressMonitor)}.</li>
+	 *             <li>copying all contexts from the original project to the
+	 *             newly created project
+	 *             {@link EventBUtils#copyContexts(IEventBProject, IEventBProject, IProgressMonitor)}.</li>
+	 *             <li>creating a new machine
+	 *             {@link EventBUtils#createMachine(IEventBProject, String, IProgressMonitor)}.</li>
+	 *             <li>copying all SEES clauses from the decomposing model
+	 *             {@link EventBUtils#copySeesClauses(IMachineRoot, IMachineRoot, IProgressMonitor)}.</li>
+	 *             <li>decomposing variables
+	 *             {@link DecompositionUtils#decomposeVariables(IMachineRoot, IElementDistribution, IProgressMonitor)}, invariants
+	 *             {@link DecompositionUtils#decomposeInvariants(IMachineRoot, IElementDistribution, IProgressMonitor)}
+	 *             and events
+	 *             {@link DecompositionUtils#decomposeEvents(IMachineRoot, IElementDistribution, IProgressMonitor)}.</li>
+	 *             <li>saving the newly created model
+	 *             {@link IRodinFile#save(IProgressMonitor, boolean)}.</li>
+	 *             </ul>
+	 */
+	private static void createSubModel(IElementDistribution dist,
+			SubProgressMonitor monitor) throws RodinDBException {
+		// Monitor has 8 works.
+		monitor.beginTask("Create sub-model", 8);
+		IMachineRoot src = dist.getMachineRoot();
+		
+		// 1: Create project
+		monitor.subTask("Creating new projects");
+		IEventBProject prj = EventBUtils.createProject(dist.getProjectName(),
+				new NullProgressMonitor());
+		monitor.worked(1);
+
+		// 2: Copy contexts from the original project
+		monitor.subTask("Copying contexts");
+		EventBUtils.copyContexts(src.getEventBProject(), prj,
+				new NullProgressMonitor());
+		monitor.worked(1);
+
+		// 3: Create machine.
+		monitor.subTask("Create machine");
+		IMachineRoot dest = EventBUtils.createMachine(prj, src.getElementName(),
+				new NullProgressMonitor());
+		monitor.worked(1);
+
+		// 4: Copy SEES clause.
+		monitor.subTask("Copy SEES clause");
+		EventBUtils.copySeesClauses(src, dest, new NullProgressMonitor());
+		monitor.worked(1);
+
+		// 5: Create variables.
+		monitor.subTask("Create common variables");
+		DecompositionUtils.decomposeVariables(dest, dist, new SubProgressMonitor(
+				monitor, 1));
+
+		// 6: Create invariants.
+		monitor.subTask("Create invariants");
+		DecompositionUtils.decomposeInvariants(dest, dist, new SubProgressMonitor(
+				monitor, 1));
+
+		// 7: Create events.
+		monitor.subTask("Create external events");
+		DecompositionUtils.decomposeEvents(dest, dist, new SubProgressMonitor(
+				monitor, 1));
+
+		// 8: Save the resulting sub-model.
+		dest.getRodinFile().save(new SubProgressMonitor(monitor, 1), false);
+		monitor.done();
 	}
 
 	/**
@@ -784,6 +894,49 @@ public class DecompositionUtils {
 			newAct.setAssignmentString(act.getAssignmentString(),
 					new NullProgressMonitor());
 		}
+	}
+
+	/**
+	 * Utility method for cleaning up the decomposition process. Make the
+	 * decomposing machine consistent and all the contexts in the same project
+	 * as the decomposing machine consistent.
+	 * 
+	 * @param modelDist
+	 *            a model distribution.
+	 * @param monitor
+	 *            a progress monitor.
+	 */
+	public static void cleanUp(IModelDistribution modelDist,
+			IProgressMonitor monitor) {
+		monitor.subTask("Cleanup");
+
+		// Make the machine consistent.
+		IMachineRoot mch = modelDist.getMachineRoot();
+		try {
+			IRodinFile rodinFile = mch.getRodinFile();
+			if (rodinFile.hasUnsavedChanges())
+				rodinFile.makeConsistent(monitor);
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+		}
+		
+		// Make all the contexts consistent.
+		IRodinProject prj = mch.getRodinProject();
+		IContextRoot[] ctxs;
+		try {
+			ctxs = prj
+					.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
+			for (IContextRoot ctx : ctxs) {
+				IRodinFile rodinFile = ctx.getRodinFile();
+				if (rodinFile.hasUnsavedChanges())
+					rodinFile.makeConsistent(monitor);
+			}
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+		}
+		
+		monitor.worked(1);
+		monitor.done();
 	}
 
 }
