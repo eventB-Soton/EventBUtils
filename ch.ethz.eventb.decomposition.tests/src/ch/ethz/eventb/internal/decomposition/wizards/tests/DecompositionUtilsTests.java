@@ -37,12 +37,12 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 
 	/**
 	 * Test method
-	 * {@link DecompositionUtils#createVariables(org.eventb.core.IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
+	 * {@link DecompositionUtils#decomposeVariables(org.eventb.core.IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
 	 */
 	@Test
 	public void testCreateVariables() {
 		try {
-			DecompositionUtils.createVariables(mch2_1, elemDist1,
+			DecompositionUtils.decomposeVariables(mch2_1, elemDist1,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -54,7 +54,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				"v: Shared variable, DO NOT REFINE");
 
 		try {
-			DecompositionUtils.createVariables(mch3_1, elemDist2,
+			DecompositionUtils.decomposeVariables(mch3_1, elemDist2,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -67,7 +67,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				"u: Shared variable, DO NOT REFINE");
 
 		try {
-			DecompositionUtils.createVariables(mch4_1, elemDist3,
+			DecompositionUtils.decomposeVariables(mch4_1, elemDist3,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -82,7 +82,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 
 	/**
 	 * Utility method for testing
-	 * {@link DecompositionUtils#createVariables(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
+	 * {@link DecompositionUtils#decomposeVariables(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
 	 * 
 	 * @param message
 	 *            a message.
@@ -120,12 +120,12 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 	}
 
 	/**
-	 * Test method for {@link DecompositionUtils#createInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
+	 * Test method for {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
 	 */
 	@Test
 	public void testCreateInvariants() {
 		try {
-			DecompositionUtils.createInvariants(mch2_1, elemDist1,
+			DecompositionUtils.decomposeInvariants(mch2_1, elemDist1,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -138,7 +138,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				"thm1_2_3: v ≥ 0: true");
 
 		try {
-			DecompositionUtils.createInvariants(mch3_1, elemDist2,
+			DecompositionUtils.decomposeInvariants(mch3_1, elemDist2,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -153,7 +153,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				"inv1_2_2: v ∈ ℕ: false", "thm1_2_3: v ≥ 0: true");
 
 		try {
-			DecompositionUtils.createInvariants(mch4_1, elemDist3,
+			DecompositionUtils.decomposeInvariants(mch4_1, elemDist3,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -170,7 +170,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 
 	/**
 	 * Utility method for testing
-	 * {@link DecompositionUtils#createInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
+	 * {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
 	 * 
 	 * @param message
 	 *            a message.
@@ -203,7 +203,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 	@Test
 	public void testCreateEvents() {
 		try {
-			DecompositionUtils.createEvents(mch2_1, elemDist1,
+			DecompositionUtils.decomposeEvents(mch2_1, elemDist1,
 					new NullProgressMonitor());
 			
 			// Test number of events.
