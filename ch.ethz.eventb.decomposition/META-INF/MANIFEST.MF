@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: ch.ethz.eventb.decomposition;singleton:=true
-Bundle-Version: 0.5.3
+Bundle-Version: 0.6.0
 Bundle-Activator: ch.ethz.eventb.decomposition.DecompositionPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui;visibility:=reexport,

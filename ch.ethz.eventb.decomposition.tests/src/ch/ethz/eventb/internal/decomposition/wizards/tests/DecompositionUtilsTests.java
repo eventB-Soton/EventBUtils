@@ -134,8 +134,8 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 		}
 		
 		testInvariants("Create invariants 1", mch2_1, "typing_z: z ∈ ℤ: true",
-				"typing_v: v ∈ ℤ: true", "inv1_2_2: v ∈ ℕ: false",
-				"thm1_2_3: v ≥ 0: true");
+				"typing_v: v ∈ ℤ: true", "mch1_2_inv1_2_2: v ∈ ℕ: false",
+				"mch1_2_thm1_2_3: v ≥ 0: true");
 
 		try {
 			DecompositionUtils.decomposeInvariants(mch3_1, elemDist2,
@@ -148,9 +148,9 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 		
 		testInvariants("Create invariants 2", mch3_1,
 				"typing_u: u ∈ U: true", "typing_y: y ∈ ℤ: true",
-				"typing_v: v ∈ ℤ: true", "inv1_1_2: y ∈ ℕ: false",
-				"thm1_1_3: y ≥ 0: true", "inv1_2_1: u ∈ U: false",
-				"inv1_2_2: v ∈ ℕ: false", "thm1_2_3: v ≥ 0: true");
+				"typing_v: v ∈ ℤ: true", "mch1_1_inv1_1_2: y ∈ ℕ: false",
+				"mch1_1_thm1_1_3: y ≥ 0: true", "mch1_2_inv1_2_1: u ∈ U: false",
+				"mch1_2_inv1_2_2: v ∈ ℕ: false", "mch1_2_thm1_2_3: v ≥ 0: true");
 
 		try {
 			DecompositionUtils.decomposeInvariants(mch4_1, elemDist3,
@@ -164,8 +164,8 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 		testInvariants("Create invariants 3", mch4_1, "typing_u: u ∈ U: true",
 				"typing_p: p ∈ ℙ(ℤ × V): true",
 				"typing_v: v ∈ ℤ: true", 
-				"inv1_2_1: u ∈ U: false", "inv1_2_2: v ∈ ℕ: false",
-				"thm1_2_3: v ≥ 0: true", "inv1_3_5: p ∈ ℕ → V: false");
+				"mch1_2_inv1_2_1: u ∈ U: false", "mch1_2_inv1_2_2: v ∈ ℕ: false",
+				"mch1_2_thm1_2_3: v ≥ 0: true", "mch1_3_inv1_3_5: p ∈ ℕ → V: false");
 	}
 
 	/**
@@ -221,8 +221,8 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			testEventGuards("Create events 1", evt);
 			testEventWitnesses("Create events 1", evt);
 			testEventActions("Create events 1", evt,
-					"act_init1_3_2: v :∣ ∃u'·u' = e ∧ v' = 0",
-					"act_init1_3_3: z :∣ ∃p'·z' = 0 ∧ p' = ℕ × {g}");
+					"act_init1_3_2: v ≔ 0",
+					"act_init1_3_3: z ≔ 0");
 			
 			// Test evt1_3_1 (internal).
 			evt = getEventWithLabel(mch2_1, "evt1_3_1");
@@ -255,7 +255,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 					"grd1_3_2_2: u = f: false");
 			testEventWitnesses("Create events 2", evt);
 			testEventActions("Create events 2", evt,
-					"merged_act: v :∣ ∃y', u'·y' = y + 2 ∧ u' = e ∧ v' = v + 1");
+					"act1_3_2_3: v ≔ v + 1");
 			
 			// Test evt1_3_3 (external).
 			evt = getEventWithLabel(mch2_1, "evt1_3_3");
@@ -268,7 +268,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 					"grd1_3_3_3: y > v: false");
 			testEventWitnesses("Create events 2", evt);
 			testEventActions("Create events 5", evt,
-					"merged_act: v :∣ ∃y'·y' = y − 4 ∧ v' = v + 1");
+					"act1_3_3_2: v ≔ v + 1");
 
 			// Test evt1_3_4 (external).
 			evt = getEventWithLabel(mch2_1, "evt1_3_4");
@@ -282,11 +282,11 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 					"grd1_3_4_2: p(r) = g: false");
 			testEventWitnesses("Create events 2", evt);
 			testEventActions("Create events 6", evt,
-					"merged_act: v :∣ ∃u', p'·v' = v − 1 ∧ u' = e ∧ p' = p{r ↦ h}");
+					"act1_2_4_1: v ≔ v − 1");
 
 		} catch (RodinDBException e) {
 			e.printStackTrace();
-			fail("Create events 1: There should be no exception");
+			fail("Create events: There should be no exception");
 			return;
 		}
 	
@@ -310,15 +310,15 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			
 			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_2, vars);
 			assertEquals("Incorrect decomposed action 2", assignmentStr,
-					"v :∣ ∃u'·u' = e ∧ v' = 0");
+					"v ≔ 0");
 			
 			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_3, vars);
 			assertEquals("Incorrect decomposed action 3", assignmentStr,
-					"z :∣ ∃p'·z' = 0 ∧ p' = ℕ × {g}");
+					"z ≔ 0");
 
 			assignmentStr = DecompositionUtils.decomposeAction(act1_3_1_1, vars);
 			assertEquals("Incorrect decomposed action 4", assignmentStr,
-					"v :∣ v' = 2");
+					"v ≔ 2");
 
 			assignmentStr = DecompositionUtils.decomposeAction(act1_3_2_1, vars);
 			assertNull("Incorrect decomposed action 5", assignmentStr);
@@ -328,21 +328,21 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			
 			assignmentStr = DecompositionUtils.decomposeAction(act1_3_2_3, vars);
 			assertEquals("Incorrect decomposed action 7", assignmentStr,
-					"v :∣ v' = v + 1");
+					"v ≔ v + 1");
 
 			assignmentStr = DecompositionUtils.decomposeAction(act1_3_3_1, vars);
 			assertNull("Incorrect decomposed action 8", assignmentStr);
 
 			assignmentStr = DecompositionUtils.decomposeAction(act1_3_3_2, vars);
 			assertEquals("Incorrect decomposed action 9", assignmentStr,
-					"v :∣ v' = v + 1");
+					"v ≔ v + 1");
 
 			assignmentStr = DecompositionUtils.decomposeAction(act1_3_4_1, vars);
 			assertNull("Incorrect decomposed action 10", assignmentStr);
 
 			assignmentStr = DecompositionUtils.decomposeAction(act1_3_5_1, vars);
 			assertEquals("Incorrect decomposed action 11", assignmentStr,
-					"z :∣ z' = z − 1");
+					"z ≔ z − 1");
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");

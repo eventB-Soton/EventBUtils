@@ -30,7 +30,9 @@ import org.eventb.core.IRefinesMachine;
 import org.eventb.core.IVariable;
 import org.eventb.core.IConvergenceElement.Convergence;
 import org.eventb.core.ast.Assignment;
+import org.eventb.core.ast.BecomesEqualTo;
 import org.eventb.core.ast.BecomesSuchThat;
+import org.eventb.core.ast.Expression;
 import org.eventb.core.ast.FreeIdentifier;
 import org.eventb.core.ast.Predicate;
 import org.eventb.core.ast.SourceLocation;
@@ -166,20 +168,20 @@ public class DecompositionUtils {
 				new NullProgressMonitor());
 		monitor.worked(1);
 
-		// 4: Copy SEES clause.
-		monitor.subTask("Copy SEES clause");
+		// 4: Copy SEES clauses.
+		monitor.subTask("Copy SEES clauses");
 		EventBUtils.copySeesClauses(src, dest, new NullProgressMonitor());
 		monitor.worked(1);
 
 		// 5: Create variables.
-		monitor.subTask("Create common variables");
-		DecompositionUtils.decomposeVariables(dest, dist, new SubProgressMonitor(
-				monitor, 1));
+		monitor.subTask("Create variables");
+		DecompositionUtils.decomposeVariables(dest, dist,
+				new SubProgressMonitor(monitor, 1));
 
 		// 6: Create invariants.
 		monitor.subTask("Create invariants");
-		DecompositionUtils.decomposeInvariants(dest, dist, new SubProgressMonitor(
-				monitor, 1));
+		DecompositionUtils.decomposeInvariants(dest, dist,
+				new SubProgressMonitor(monitor, 1));
 
 		// 7: Create events.
 		monitor.subTask("Create external events");
@@ -219,12 +221,12 @@ public class DecompositionUtils {
 	public static void decomposeVariables(IMachineRoot mch,
 			IElementDistribution dist, IProgressMonitor monitor)
 			throws RodinDBException {
-		Set<String> vars = dist.getAccessedVariables();
+		Set<String> accessedVars = dist.getAccessedVariables();
 		IModelDistribution modelDist = dist.getModelDistribution();
 
 		Collection<String> sharedVars = modelDist.getSharedVariables();
-		monitor.beginTask("Create variables", vars.size());
-		for (String var : vars) {
+		monitor.beginTask("Create variables", accessedVars.size());
+		for (String var : accessedVars) {
 			monitor.subTask("Create variable " + var);
 			if (sharedVars.contains(var)) {
 				createSharedVariable(mch, var);
@@ -330,15 +332,14 @@ public class DecompositionUtils {
 			throws RodinDBException {
 		IMachineRoot src = dist.getMachineRoot();
 		Set<String> vars = dist.getAccessedVariables();
-		monitor.beginTask("Create invariants", 1);
+		monitor.beginTask("Create invariants", 2);
 
 		// Create the typing theorems.
-		createTypingTheorems(mch, src, vars);
-
+		createTypingTheorems(mch, src, vars, new SubProgressMonitor(monitor, 1));
+		
 		// Copy relevant invariants.
-		copyInvariants(mch, src, vars);
-
-		monitor.worked(1);
+		copyInvariants(mch, src, vars, new SubProgressMonitor(monitor, 1));
+		
 		monitor.done();
 	}
 
@@ -359,7 +360,9 @@ public class DecompositionUtils {
 	 *             .</li>
 	 */
 	private static void createTypingTheorems(IMachineRoot mch,
-			IMachineRoot src, Set<String> vars) throws RodinDBException {
+			IMachineRoot src, Set<String> vars, IProgressMonitor monitor)
+			throws RodinDBException {
+		monitor.beginTask("Create typing theorems", vars.size());
 		for (String var : vars) {
 			IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE, null,
 					new NullProgressMonitor());
@@ -367,7 +370,9 @@ public class DecompositionUtils {
 			newInv.setTheorem(true, new NullProgressMonitor());
 			newInv.setPredicateString(EventBUtils.getTypingTheorem(src, var),
 					new NullProgressMonitor());
+			monitor.worked(1);
 		}
+		monitor.done();
 	}
 
 	/**
@@ -404,12 +409,12 @@ public class DecompositionUtils {
 	 *             </ul>
 	 */
 	private static void copyInvariants(IMachineRoot mch, IMachineRoot src,
-			Set<String> vars) throws RodinDBException {
+			Set<String> vars, IProgressMonitor monitor) throws RodinDBException {
 		// Recursively copy from the abstract machine.
 		IRefinesMachine[] refinesClauses = src.getRefinesClauses();
 		if (refinesClauses.length != 0) {
 			copyInvariants(mch, (IMachineRoot) refinesClauses[0]
-					.getAbstractMachine().getRoot(), vars);
+					.getAbstractMachine().getRoot(), vars, monitor);
 		}
 
 		// Check local invariants
@@ -473,21 +478,17 @@ public class DecompositionUtils {
 	 *             if some errors occurred when
 	 *             <ul>
 	 *             <li>creating the initialisation
-	 *             {@link #createInitialisation(IMachineRoot, IElementDistribution, IProgressMonitor)}
-	 *             .</li>
+	 *             {@link #createInitialisation(IMachineRoot, IElementDistribution, IProgressMonitor)}.</li>
 	 *             <li>getting the the events of the source machine associated
 	 *             with the input element distribution
 	 *             {@link IMachineRoot#getEvents()}.</li>
 	 *             <li>getting the event type of any input event
 	 *             {@link #getEventType(IElementDistribution, IEvent)}.</li>
 	 *             <li>creating external event
-	 *             {@link #createExternalEvent(IMachineRoot, IElementDistribution, IEvent)}
-	 *             .</li>
+	 *             {@link #createExternalEvent(IMachineRoot, IElementDistribution, IEvent)}.</li>
 	 *             <li>creating internal event
-	 *             {@link #createInternalEvent(IMachineRoot, IElementDistribution, IEvent)}
-	 *             .</li>
+	 *             {@link #createInternalEvent(IMachineRoot, IElementDistribution, IEvent)}.</li>
 	 *             </ul>
-	 *             TODO The initialistion is just another external event.
 	 */
 	public static void decomposeEvents(IMachineRoot dest,
 			IElementDistribution dist, IProgressMonitor monitor)
@@ -583,20 +584,18 @@ public class DecompositionUtils {
 	 */
 	public static String decomposeAction(IAction act, Set<String> vars)
 			throws RodinDBException {
-		// Normalise the action first.
-		EventBUtils.normalise(act);
 
 		// Parsing the assignment string and getting assigned variables.
 		String assignmentStr = act.getAssignmentString();
 		Assignment parseAssignment = Lib.parseAssignment(assignmentStr);
-		FreeIdentifier[] idents = parseAssignment.getAssignedIdentifiers();
-
+		FreeIdentifier[] assignedVars = parseAssignment.getAssignedIdentifiers();
+		
 		// Getting the set of assigned variables which are also accessed
 		// variables (v) and the set of assigned variables which are not
 		// accessed variables (w).
 		List<FreeIdentifier> v = new ArrayList<FreeIdentifier>();
 		List<FreeIdentifier> w = new ArrayList<FreeIdentifier>();
-		for (FreeIdentifier ident : idents) {
+		for (FreeIdentifier ident : assignedVars) {
 			if (vars.contains(ident.getName())) {
 				v.add(ident);
 			} else {
@@ -604,30 +603,69 @@ public class DecompositionUtils {
 			}
 		}
 
-		// Return nothing if it does not modify any accessed variables.
+
+		// Return nothing if it does not modify any accessed variables. 
+		// This covers the cases for
+		//    w :: E(v, w)
+		//    w :| P(v, w, w')
+		//    w := E(v, w)
+		//    w(E) := F
 		if (v.isEmpty()) {
 			return null;
 		}
 
 		// Do nothing if all assigned variables are accessed variables.
+		// This covers the cases for
+		//    v :: E(v, w)
+		//    v :| P(v, w, w')
+		//    v := E(v, w)
+		//    v(E) := F
 		if (w.isEmpty()) {
 			return act.getAssignmentString();
 		}
 
+		// v, w := E(v,w), F(v, w) => v := E(v, w)
+		if (parseAssignment instanceof BecomesEqualTo) {
+			BecomesEqualTo bcmeq = (BecomesEqualTo) parseAssignment;
+			Expression[] exps = bcmeq.getExpressions();
+			assert exps.length == assignedVars.length;
+			String newAssignmentStr = EventBUtils.identsToCSVString(
+					assignmentStr, v.toArray(new FreeIdentifier[v.size()]));
+			newAssignmentStr += " ≔ ";
+			boolean fst = true;
+			for (int i = 0; i < exps.length; i++) {
+				FreeIdentifier ident = assignedVars[i];
+				if (v.contains(ident)) {
+					if (fst) {
+						fst = false;
+					} else {
+						newAssignmentStr += ", ";
+					}
+					newAssignmentStr += exps[i];
+				} else {
+					continue;
+				}
+			}
+			return newAssignmentStr;
+		}
+		
 		// v, w :| P(v',w') ==> v :| #w'.P(v',w')
-		assert parseAssignment instanceof BecomesSuchThat;
-		BecomesSuchThat bcmsuch = (BecomesSuchThat) parseAssignment;
-		Predicate P = bcmsuch.getCondition();
-		String vList = EventBUtils.identsToCSVString(assignmentStr, v
-				.toArray(new FreeIdentifier[v.size()]));
-		String wPrimedList = EventBUtils.identsToPrimedCSVString(assignmentStr,
-				w.toArray(new FreeIdentifier[w.size()]));
+		else {
+			assert parseAssignment instanceof BecomesSuchThat;
+			BecomesSuchThat bcmsuch = (BecomesSuchThat) parseAssignment;
+			Predicate P = bcmsuch.getCondition();
+			String vList = EventBUtils.identsToCSVString(assignmentStr, v
+					.toArray(new FreeIdentifier[v.size()]));
+			String wPrimedList = EventBUtils.identsToPrimedCSVString(
+					assignmentStr, w.toArray(new FreeIdentifier[w.size()]));
 
-		SourceLocation srcLoc = P.getSourceLocation();
-		String strP = assignmentStr.substring(srcLoc.getStart(), srcLoc
-				.getEnd() + 1);
-		String newAssignmentStr = vList + " :∣ ∃" + wPrimedList + "·" + strP;
-		return newAssignmentStr;
+			SourceLocation srcLoc = P.getSourceLocation();
+			String strP = assignmentStr.substring(srcLoc.getStart(), srcLoc
+					.getEnd() + 1);
+			String newAssignmentStr = vList + " :∣ ∃" + wPrimedList + "·"
+					+ strP;
+			return newAssignmentStr;
+		}
 	}
 
 	/**
@@ -690,7 +728,6 @@ public class DecompositionUtils {
 			IElementDistribution dist, IEvent evt) throws RodinDBException {
 		// Flatten the original event.
 		evt = EventBUtils.flatten(evt);
-		evt = EventBUtils.normalise(evt);
 
 		// Create the new event.
 		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null,
