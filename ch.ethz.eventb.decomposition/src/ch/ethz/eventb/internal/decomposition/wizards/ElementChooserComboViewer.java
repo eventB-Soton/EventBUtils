@@ -41,15 +41,15 @@ import org.rodinp.core.RodinDBException;
  *         {@link ch.ethz.eventb.internal.patterns.wizards.ElementChooserViewer}
  *         </p>
  * @param <T>
- *            any type which extends IRodinElement
+ *            a type which extends IRodinElement
  */
 public class ElementChooserComboViewer<T extends IRodinElement> extends ComboViewer {
 
 	/**
 	 * @author htson
-	 * <p>
-	 *  Utility class to provide the content of the combo list.
-	 * </p>
+	 *         <p>
+	 *         Utility class to provide the content of the combo list.
+	 *         </p>
 	 */
 	private class ContentProvider implements IStructuredContentProvider {
 
@@ -140,9 +140,9 @@ public class ElementChooserComboViewer<T extends IRodinElement> extends ComboVie
 	
 	/**
 	 * @author htson
-	 * <p>
-	 * Utility class provides labels for elements in the combo list.
-	 * </p>
+	 *         <p>
+	 *         Utility class provides labels for elements in the combo list.
+	 *         </p>
 	 */
 	private class LabelProvider implements ILabelProvider {
 

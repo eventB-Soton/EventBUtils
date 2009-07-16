@@ -1,3 +1,13 @@
+/*****************************************************************************
+ * Copyright (c) 2009 ETH Zurich.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * Contributors:
+ *     ETH Zurich - initial API and implementation
+ ****************************************************************************/
+
 package ch.ethz.eventb.internal.decomposition.wizards;
 
 import java.util.ArrayList;
@@ -24,17 +34,48 @@ import org.eventb.core.ast.SourceLocation;
 import org.eventb.core.seqprover.eventbExtensions.Lib;
 import org.rodinp.core.RodinDBException;
 
+/**
+ * @author htson
+ *         <p>
+ *         Utility class contains method for decomposing models.
+ *         </p>
+ */
 public class DecompositionUtils {
 
+	/**
+	 * @author htson
+	 *         <p>
+	 *         Enumerated event types:
+	 *         <ul>
+	 *         <li>{@value #EXTERNAL}: External events.</li>
+	 *         <li>{@value #INTERNAL}: Internal events.</li>
+	 *         <li>{@value #NONE}: Events does not accessed any variables of the
+	 *         distribution.</li>
+	 *         </ul>
+	 *         </p> {@see DecompositionUtils#getEventType(IElementDistribution,
+	 *         IEvent)}.
+	 */
 	enum DecomposedEventType {
-		EXTERNAL(1), INTERNAL(2), NONE(0);
+		EXTERNAL(2), INTERNAL(1), NONE(0);
 
+		// The code.
 		private final int code;
 
+		/**
+		 * Constructor.
+		 * 
+		 * @param code
+		 *            the internal code.
+		 */
 		DecomposedEventType(int code) {
 			this.code = code;
 		}
 
+		/**
+		 * Return the internal code.
+		 * 
+		 * @return the internal code.
+		 */
 		public int getCode() {
 			return code;
 		}
@@ -65,7 +106,7 @@ public class DecompositionUtils {
 	 *             {@link #createPrivateVariable(IMachineRoot, String)}.</li>
 	 *             </ul>
 	 */
-	public static void createVariables(IMachineRoot mch,
+	public static void decomposeVariables(IMachineRoot mch,
 			IElementDistribution dist, IProgressMonitor monitor)
 			throws RodinDBException {
 		Set<String> vars = dist.getAccessedVariables();
@@ -174,7 +215,7 @@ public class DecompositionUtils {
 	 *             {@link #copyInvariants(IMachineRoot, IMachineRoot, Set)}.</li>
 	 *             </ul>
 	 */
-	public static void createInvariants(IMachineRoot mch,
+	public static void decomposeInvariants(IMachineRoot mch,
 			IElementDistribution dist, IProgressMonitor monitor)
 			throws RodinDBException {
 		IMachineRoot src = dist.getMachineRoot();
@@ -210,8 +251,8 @@ public class DecompositionUtils {
 	private static void createTypingTheorems(IMachineRoot mch,
 			IMachineRoot src, Set<String> vars) throws RodinDBException {
 		for (String var : vars) {
-			IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE,
-					null, new NullProgressMonitor());
+			IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE, null,
+					new NullProgressMonitor());
 			newInv.setLabel("typing_" + var, new NullProgressMonitor());
 			newInv.setTheorem(true, new NullProgressMonitor());
 			newInv.setPredicateString(EventBUtils.getTypingTheorem(src, var),
@@ -307,7 +348,37 @@ public class DecompositionUtils {
 		return vars.containsAll(idents);
 	}
 
-	public static void createEvents(IMachineRoot dest,
+	/**
+	 * Utility method for creating the event in an input machine given an
+	 * element distribution.
+	 * 
+	 * @param dest
+	 *            the destination machine.
+	 * @param dist
+	 *            the element distribution
+	 * @param monitor
+	 *            a progress monitor.
+	 * @throws RodinDBException
+	 *             if some errors occurred when
+	 *             <ul>
+	 *             <li>creating the initialisation
+	 *             {@link #createInitialisation(IMachineRoot, IElementDistribution, IProgressMonitor)}
+	 *             .</li>
+	 *             <li>getting the the events of the source machine associated
+	 *             with the input element distribution
+	 *             {@link IMachineRoot#getEvents()}.</li>
+	 *             <li>getting the event type of any input event
+	 *             {@link #getEventType(IElementDistribution, IEvent)}.</li>
+	 *             <li>creating external event
+	 *             {@link #createExternalEvent(IMachineRoot, IElementDistribution, IEvent)}
+	 *             .</li>
+	 *             <li>creating internal event
+	 *             {@link #createInternalEvent(IMachineRoot, IElementDistribution, IEvent)}
+	 *             .</li>
+	 *             </ul>
+	 *             TODO The initialistion is just another external event.
+	 */
+	public static void decomposeEvents(IMachineRoot dest,
 			IElementDistribution dist, IProgressMonitor monitor)
 			throws RodinDBException {
 		IMachineRoot src = dist.getMachineRoot();
@@ -323,11 +394,24 @@ public class DecompositionUtils {
 			if (type == DecomposedEventType.EXTERNAL) {
 				createExternalEvent(dest, dist, evt);
 			} else if (type == DecomposedEventType.INTERNAL) {
-				createInternalEvent(dest, dist, evt);
+				createInternalEvent(dest, evt);
 			}
 		}
 	}
 
+	/**
+	 * Create the initialisation in an input machine given an element
+	 * distribution.
+	 * 
+	 * @param dest
+	 *            the destination machine.
+	 * @param dist
+	 *            an element distribution.
+	 * @param monitor
+	 *            a progress monitor.
+	 * @throws RodinDBException
+	 *             if some errors occurred. TODO List the errors.
+	 */
 	private static void createInitialisation(IMachineRoot dest,
 			IElementDistribution dist, IProgressMonitor monitor)
 			throws RodinDBException {
@@ -382,14 +466,15 @@ public class DecompositionUtils {
 	 *             <li>getting the assignment string of the action
 	 *             {@link IAction#getAssignmentString()}.</li>
 	 *             <li>setting the assignment string of the action
-	 *             {@link IAction#setAssignmentString(String, IProgressMonitor)}.</li>
+	 *             {@link IAction#setAssignmentString(String, IProgressMonitor)}
+	 *             .</li>
 	 *             </ul>
 	 */
 	public static String decomposeAction(IAction act, Set<String> vars)
 			throws RodinDBException {
 		// Normalise the action first.
 		EventBUtils.normalise(act);
-		
+
 		// Parsing the assignment string and getting assigned variables.
 		String assignmentStr = act.getAssignmentString();
 		Assignment parseAssignment = Lib.parseAssignment(assignmentStr);
@@ -407,25 +492,25 @@ public class DecompositionUtils {
 				w.add(ident);
 			}
 		}
-		
+
 		// Return nothing if it does not modify any accessed variables.
 		if (v.isEmpty()) {
 			return null;
 		}
-		
+
 		// Do nothing if all assigned variables are accessed variables.
 		if (w.isEmpty()) {
 			return act.getAssignmentString();
 		}
-		
+
 		// v, w :| P(v',w') ==> v :| #w'.P(v',w')
 		assert parseAssignment instanceof BecomesSuchThat;
 		BecomesSuchThat bcmsuch = (BecomesSuchThat) parseAssignment;
 		Predicate P = bcmsuch.getCondition();
 		String vList = EventBUtils.identsToCSVString(assignmentStr, v
 				.toArray(new FreeIdentifier[v.size()]));
-		String wPrimedList = EventBUtils.identsToPrimedCSVString(assignmentStr, w
-				.toArray(new FreeIdentifier[w.size()]));
+		String wPrimedList = EventBUtils.identsToPrimedCSVString(assignmentStr,
+				w.toArray(new FreeIdentifier[w.size()]));
 
 		SourceLocation srcLoc = P.getSourceLocation();
 		String strP = assignmentStr.substring(srcLoc.getStart(), srcLoc
@@ -434,7 +519,29 @@ public class DecompositionUtils {
 		return newAssignmentStr;
 	}
 
-
+	/**
+	 * Utility method for getting the type of an input event, given an element
+	 * distribution.
+	 * <ul>
+	 * <li>An event is {@link DecomposedEventType#INTERNAL} if it belongs to the
+	 * distribution.</li>
+	 * <li>An event is {@link DecomposedEventType#EXTERNAL} if it does not
+	 * belong to the distribution, but accesses some variables belong to the
+	 * distribution.</li>
+	 * <li>Otherwise (i.e. the event does not access any variable belong to the
+	 * distribution), the type of the event is {@link DecomposedEventType#NONE}
+	 * and will be ignore when creating the decomposed model.</li>
+	 * </ul>
+	 * 
+	 * @param dist
+	 *            an element distribution
+	 * @param evt
+	 *            an event
+	 * @return the type of the input event according to the element
+	 *         distribution.
+	 * @throws RodinDBException
+	 *             if some errors occurred. TODO: List the errors.
+	 */
 	private static DecomposedEventType getEventType(IElementDistribution dist,
 			IEvent evt) throws RodinDBException {
 		String[] evtLabels = dist.getEventLabels();
@@ -454,6 +561,20 @@ public class DecompositionUtils {
 		return DecomposedEventType.NONE;
 	}
 
+	/**
+	 * Utility method for creating an external event in the input machine
+	 * corresponding to the input event, given an element distribution.
+	 * 
+	 * @param mch
+	 *            the destination machine.
+	 * @param dist
+	 *            an element distribution.
+	 * @param evt
+	 *            an event.
+	 * @throws RodinDBException
+	 *             if some errors occurred. 
+	 *             TODO: List the possible errors.
+	 */
 	private static void createExternalEvent(IMachineRoot mch,
 			IElementDistribution dist, IEvent evt) throws RodinDBException {
 		// Flatten the original event.
@@ -475,14 +596,30 @@ public class DecompositionUtils {
 
 		// Decomposing parameters.
 		decomposeParameters(newEvt, evt, vars);
-		
+
 		// Decomposing guards.
 		decomposeGuards(newEvt, evt, vars);
-		
+
 		// Decomposing actions.
-		decomposingActions(newEvt, evt, vars);
+		decomposeActions(newEvt, evt, vars);
 	}
 
+	/**
+	 * Utility method for creating the parameters of an external event, given
+	 * the source event and the set of variables accessed by the distribution.
+	 * First the parameters of the source event are copied. Then the parameters
+	 * corresponding to the variables that accessed by the source event, but not
+	 * by the distribution are created.
+	 * 
+	 * @param dest
+	 *            the destination event.
+	 * @param src
+	 *            the source event.
+	 * @param vars
+	 *            the set of variables accessed by the distribution.
+	 * @throws RodinDBException
+	 *             if some errors occurred. TODO List the possible errors.
+	 */
 	private static void decomposeParameters(IEvent dest, IEvent src,
 			Set<String> vars) throws RodinDBException {
 		// Copy parameters from the source event.
@@ -493,18 +630,18 @@ public class DecompositionUtils {
 			newParam.setIdentifierString(param.getIdentifierString(),
 					new NullProgressMonitor());
 		}
-		
+
 		// Getting the event's accessed variables that are not accessed by the
 		// distribution.
 		List<String> accessedVars = EventBUtils.getAccessedVars(src);
-		
+
 		List<String> wList = new ArrayList<String>();
 		for (String assignedVar : accessedVars) {
 			if (!vars.contains(assignedVar)) {
 				wList.add(assignedVar);
 			}
 		}
-		
+
 		// Create the parameters with the same identifiers as w.
 		for (String w : wList) {
 			IParameter newParam = dest.createChild(IParameter.ELEMENT_TYPE,
@@ -513,19 +650,33 @@ public class DecompositionUtils {
 		}
 	}
 
+	/**
+	 * Utility method for creating guards in a destination machine given the
+	 * source machine and the set of accessed variables by an element
+	 * distribution.
+	 * 
+	 * @param dest
+	 *            the destination event.
+	 * @param src
+	 *            the source event.
+	 * @param vars
+	 *            the set of accessed variable by an element distribution.
+	 * @throws RodinDBException
+	 *             if some errors occurred. TODO List the possible errors.
+	 */
 	private static void decomposeGuards(IEvent dest, IEvent src,
 			Set<String> vars) throws RodinDBException {
 		// Getting the event's accessed variables that are not accessed by the
 		// distribution.
 		List<String> accessedVars = EventBUtils.getAccessedVars(src);
-		
+
 		List<String> wList = new ArrayList<String>();
 		for (String accessedVar : accessedVars) {
 			if (!vars.contains(accessedVar)) {
 				wList.add(accessedVar);
 			}
 		}
-		
+
 		// Create the typing theorems for w.
 		for (String w : wList) {
 			String predicateStr = EventBUtils.getTypingTheorem(
@@ -536,8 +687,7 @@ public class DecompositionUtils {
 			newGrd.setPredicateString(predicateStr, new NullProgressMonitor());
 			newGrd.setTheorem(true, new NullProgressMonitor());
 		}
-		
-		
+
 		// Copy guards from the source event.
 		IGuard[] grds = src.getGuards();
 		for (IGuard grd : grds) {
@@ -550,7 +700,20 @@ public class DecompositionUtils {
 		}
 	}
 
-	private static void decomposingActions(IEvent dest, IEvent src,
+	/**
+	 * Utility method for creating actions in a destination event given the
+	 * source event and a set of accessed variables by an element distribution.
+	 * 
+	 * @param dest
+	 *            the destination event.
+	 * @param src
+	 *            the source event.
+	 * @param vars
+	 *            the accessed variables of an element distribution.
+	 * @throws RodinDBException
+	 *             if some errors occurred. TODO List of the possible errors.
+	 */
+	private static void decomposeActions(IEvent dest, IEvent src,
 			Set<String> vars) throws RodinDBException {
 		IAction[] acts = src.getActions();
 		for (IAction act : acts) {
@@ -565,20 +728,33 @@ public class DecompositionUtils {
 		}
 	}
 
-	private static void createInternalEvent(IMachineRoot mch,
-			IElementDistribution dist, IEvent evt) throws RodinDBException {
+	/**
+	 * Utility method for creating an internal event in a destination machine
+	 * given the source event.
+	 * 
+	 * @param mch
+	 *            the destination machine.
+	 * @param evt
+	 *            the source event.
+	 * @throws RodinDBException
+	 *             if some errors occurred. TODO List of the possible errors.
+	 *             TODO This is just copying the source event into the
+	 *             destination machine.
+	 */
+	private static void createInternalEvent(IMachineRoot mch, IEvent evt)
+			throws RodinDBException {
 		// Flatten the original event.
 		evt = EventBUtils.flatten(evt);
-		
+
 		// Create the new event.
 		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null,
 				new NullProgressMonitor());
-		
+
 		// Set event signature.
 		newEvt.setLabel(evt.getLabel(), new NullProgressMonitor());
 		newEvt.setConvergence(Convergence.ORDINARY, new NullProgressMonitor());
 		newEvt.setExtended(false, new NullProgressMonitor());
-		
+
 		// Copy the parameters.
 		IParameter[] params = evt.getParameters();
 		for (IParameter param : params) {
@@ -587,7 +763,7 @@ public class DecompositionUtils {
 			newParam.setIdentifierString(param.getIdentifierString(),
 					new NullProgressMonitor());
 		}
-		
+
 		// Copy the guards.
 		IGuard[] grds = evt.getGuards();
 		for (IGuard grd : grds) {
@@ -598,7 +774,7 @@ public class DecompositionUtils {
 					new NullProgressMonitor());
 			newGrd.setTheorem(grd.isTheorem(), new NullProgressMonitor());
 		}
-		
+
 		// Copy the actions.
 		IAction[] acts = evt.getActions();
 		for (IAction act : acts) {
@@ -609,6 +785,5 @@ public class DecompositionUtils {
 					new NullProgressMonitor());
 		}
 	}
-	
-	
+
 }

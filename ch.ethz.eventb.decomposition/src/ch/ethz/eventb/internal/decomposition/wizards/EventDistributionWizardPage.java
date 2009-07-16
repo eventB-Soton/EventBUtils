@@ -43,24 +43,30 @@ import org.rodinp.core.RodinDBException;
 /**
  * @author htson
  *         <p>
- *         The wizard page for matching variables and events. The user needs to
- *         select both problem machine and pattern machine in order to continue.
+ *         The wizard page for choosing events' distribution.
  *         </p>
  */
 public class EventDistributionWizardPage extends WizardPage {
 
+	// The current selection. 
 	private ISelection selection;
 	
+	// The model distribution.
 	private IModelDistribution modelDist;
 	
+	// The tree viewer for displaying an choosing element distributions.
 	private TreeViewer viewer;
 	
+	// A machine chooser group for choosing the machine to be decomposed.
 	private MachineChooserGroup machineGroup;
 	
+	// "Add" element distribution.
 	private Button addButton;
 	
+	// "Edit" element distribution.
 	private Button editButton;
 	
+	// "Remove" element distribution.
 	private Button removeButton;
 	
 	/**
@@ -142,6 +148,7 @@ public class EventDistributionWizardPage extends WizardPage {
 			}
 			
 		});
+
 		viewer.setLabelProvider(new LabelProvider() {
 
 			@Override
@@ -212,7 +219,7 @@ public class EventDistributionWizardPage extends WizardPage {
 					dialog.open();
 					if (dialog.getReturnCode() == Dialog.OK) {
 						elemDist.setProjectName(dialog.getProjectName());
-						elemDist.setEventLabels(dialog.getEvents());
+						elemDist.setEventLabels(dialog.getEventLabels());
 						viewer.refresh();
 						updateButtons();
 					}
@@ -268,6 +275,11 @@ public class EventDistributionWizardPage extends WizardPage {
 	}
 
 
+	/**
+	 * Return the current selected element distribution.
+	 * 
+	 * @return the current selected element distribution.
+	 */
 	protected IElementDistribution getSelectedElementDistribution() {
 		IStructuredSelection ssel = (IStructuredSelection) viewer.getSelection();
 
@@ -279,6 +291,9 @@ public class EventDistributionWizardPage extends WizardPage {
 		return null;
 	}
 
+	/**
+	 * Update the status of the buttons.
+	 */
 	protected void updateButtons() {
 		if (modelDist.getMachineRoot() == null) {
 			addButton.setEnabled(false);
@@ -300,7 +315,8 @@ public class EventDistributionWizardPage extends WizardPage {
 	}
 
 	/**
-	 * Utility method to initialise the widgets according to the current selection.
+	 * Utility method to initialise the widgets according to the current
+	 * selection.
 	 * <ul>
 	 * <li>The input to the machine chooser group is the RodinDB.</li>
 	 * </ul>
@@ -362,10 +378,21 @@ public class EventDistributionWizardPage extends WizardPage {
 		setPageComplete(message == null);
 	}
 
+	/**
+	 * Return the machine to be decomposed.
+	 * 
+	 * @return the machine to be decomposed. TODO This could be removed since
+	 *         this can be get from the model distribution.
+	 */
 	public IMachineRoot getDecomposingMachine() {
 		return machineGroup.getMachineChooser().getElement();
 	}
 
+	/**
+	 * Return the model distribution.
+	 * 
+	 * @return the model distribution.
+	 */
 	public IModelDistribution getElementDistribution() {
 		return modelDist;
 	}

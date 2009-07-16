@@ -23,7 +23,7 @@ import org.rodinp.core.RodinDBException;
  * @author htson
  *         <p>
  *         Implementation of {@link IElementDistribution}. Each element
- *         distribution is associated with an model distribution. The element
+ *         distribution is associated with a model distribution. The element
  *         distribution depends on an array of event labels, which can be set by
  *         the method {@link #setEventLabels(String...)}.
  *         </p>

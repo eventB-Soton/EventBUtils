@@ -19,7 +19,7 @@ import org.eventb.core.IMachineRoot;
 /**
  * @author htson
  *         <p>
- *         An interface for element distribution
+ *         An interface for element distribution.
  *         </p>
  */
 public interface IElementDistribution {

@@ -1081,6 +1081,24 @@ public class EventBUtils {
 		return null;
 	}
 
+	/**
+	 * Utility method for getting the list of accessed variables of an input
+	 * event. They are the free identifiers of the event except any carrier sets
+	 * and constants.
+	 * 
+	 * @param evt
+	 *            an event
+	 * @return the list of accessed variables by the event.
+	 * @throws RodinDBException
+	 *             if errors occurred when
+	 *             <ul>
+	 *             <li>getting the free identifiers of the event
+	 *             {@link #getFreeIdentifiers(IEvent)}.</li>
+	 *             <li>getting the seen carrier sets and constants of the
+	 *             machine contains the event
+	 *             {@link #getSeenCarrierSetsAndConstants(IMachineRoot)}.</li>
+	 *             </ul>
+	 */
 	public static List<String> getAccessedVars(IEvent evt)
 			throws RodinDBException {
 		List<String> idents = getFreeIdentifiers(evt);
@@ -1091,9 +1109,37 @@ public class EventBUtils {
 		return idents;
 	}
 
+	/**
+	 * Getting the predicate string corresponding to a variable identifier given
+	 * an input machine. This is done by checking the static checked version of
+	 * the machine. Return <code>null</code> the source machine or the static
+	 * checked version of it do not exists, or there is no static checked
+	 * variable is the input identifier.
+	 * 
+	 * @param src
+	 *            a source machine.
+	 * @param var
+	 *            a variable identifier.
+	 * @return the typing predicate string for the input variable identifier.
+	 * @throws RodinDBException
+	 *             if some errors occurred when
+	 *             <ul>
+	 *             <li>getting the list of static checked variables from the
+	 *             static checked machine
+	 *             {@link ISCMachineRoot#getSCVariables()}.</li>
+	 *             <li>getting the identifier string of any static checked
+	 *             variable {@link ISCVariable#getIdentifierString()}.</li>
+	 *             <li>getting the type of the static checked variable
+	 *             {@link ISCVariable#getType(FormulaFactory)}.</li>
+	 *             </ul>
+	 */
 	public static String getTypingTheorem(IMachineRoot src, String var)
 			throws RodinDBException {
+		if (!src.exists())
+			return null;
 		ISCMachineRoot mchSC = src.getSCMachineRoot();
+		if (!mchSC.exists())
+			return null;
 		ISCVariable[] varSCs = mchSC.getSCVariables();
 		for (ISCVariable varSC : varSCs) {
 			if (varSC.getIdentifierString().equals(var)) {
@@ -1104,6 +1150,5 @@ public class EventBUtils {
 		}
 		return null;
 	}
-
 
 }

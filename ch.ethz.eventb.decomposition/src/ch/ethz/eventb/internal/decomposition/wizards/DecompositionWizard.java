@@ -7,6 +7,7 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  ****************************************************************************/
+
 package ch.ethz.eventb.internal.decomposition.wizards;
 
 import java.lang.reflect.InvocationTargetException;
@@ -157,17 +158,17 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 
 		// 5: Create variables.
 		monitor.subTask("Create common variables");
-		DecompositionUtils.createVariables(dest, dist, new SubProgressMonitor(
+		DecompositionUtils.decomposeVariables(dest, dist, new SubProgressMonitor(
 				monitor, 1));
 
 		// 6: Create invariants.
 		monitor.subTask("Create invariants");
-		DecompositionUtils.createInvariants(dest, dist, new SubProgressMonitor(
+		DecompositionUtils.decomposeInvariants(dest, dist, new SubProgressMonitor(
 				monitor, 1));
 
 		// 7: Create events.
 		monitor.subTask("Create external events");
-		DecompositionUtils.createEvents(dest, dist, new SubProgressMonitor(
+		DecompositionUtils.decomposeEvents(dest, dist, new SubProgressMonitor(
 				monitor, 1));
 
 		// 8: Save the resulting sub-model.

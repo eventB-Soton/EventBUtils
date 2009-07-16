@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.IRodinProject;
 
-
 /**
  * @author htson
  *         <p>

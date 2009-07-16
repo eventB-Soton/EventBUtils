@@ -9,7 +9,7 @@
             finalPerspective="org.eventb.ui.perspective.eventb"
             icon="icons/sample.gif"
             id="ch.ethz.eventb.decomposition.wizard"
-            name="Event-B Decomposition (A-Style) wizard">
+            name="%wizardName">
       </wizard>
    </extension>
 
