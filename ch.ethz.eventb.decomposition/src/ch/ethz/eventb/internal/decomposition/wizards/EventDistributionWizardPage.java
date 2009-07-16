@@ -379,21 +379,11 @@ public class EventDistributionWizardPage extends WizardPage {
 	}
 
 	/**
-	 * Return the machine to be decomposed.
-	 * 
-	 * @return the machine to be decomposed. TODO This could be removed since
-	 *         this can be get from the model distribution.
-	 */
-	public IMachineRoot getDecomposingMachine() {
-		return machineGroup.getMachineChooser().getElement();
-	}
-
-	/**
 	 * Return the model distribution.
 	 * 
 	 * @return the model distribution.
 	 */
-	public IModelDistribution getElementDistribution() {
+	public IModelDistribution getModelDistribution() {
 		return modelDist;
 	}
 
