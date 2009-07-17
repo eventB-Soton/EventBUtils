@@ -359,7 +359,7 @@ public class EventBUtilsTests extends EventBTests {
 			String... expected) {
 		try {
 			List<String> freeIdents = EventBUtils.getFreeIdentifiers(evt);
-			testFreeIdentifiers(message, expected, freeIdents);
+			testFreeIdentifiers(message, freeIdents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -372,13 +372,13 @@ public class EventBUtilsTests extends EventBTests {
 	 * 
 	 * @param message
 	 *            a message.
-	 * @param expected
-	 *            an array of expected free identifiers (in {@link String}).
 	 * @param actual
 	 *            a set of of actual free identifiers.
+	 * @param expected
+	 *            an array of expected free identifiers (in {@link String}).
 	 */
-	private void testFreeIdentifiers(String message, String[] expected,
-			List<String> actual) {
+	private void testFreeIdentifiers(String message, List<String> actual,
+			String... expected) {
 		assertEquals(message
 				+ ": Incorrect number of expected free identfiers ",
 				expected.length, actual.size());
@@ -576,7 +576,7 @@ public class EventBUtilsTests extends EventBTests {
 			String... expected) {
 		try {
 			List<String> freeIdents = EventBUtils.getFreeIdentifiers(grd);
-			testFreeIdentifiers(message, expected, freeIdents);
+			testFreeIdentifiers(message, freeIdents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -612,7 +612,7 @@ public class EventBUtilsTests extends EventBTests {
 			String predicateString, String... expected) {
 		List<String> freeIdents = EventBUtils
 				.getPredicateFreeIdentifiers(predicateString);
-		testFreeIdentifiers(message, expected, freeIdents);
+		testFreeIdentifiers(message, freeIdents, expected);
 	}
 
 	/**
@@ -675,7 +675,7 @@ public class EventBUtilsTests extends EventBTests {
 			String... expected) {
 		try {
 			List<String> freeIdents = EventBUtils.getFreeIdentifiers(act);
-			testFreeIdentifiers(message, expected, freeIdents);
+			testFreeIdentifiers(message, freeIdents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -713,7 +713,7 @@ public class EventBUtilsTests extends EventBTests {
 			String assignmentString, String... expected) {
 		List<String> freeIdents = EventBUtils
 				.getAssignmentFreeIdentifiers(assignmentString);
-		testFreeIdentifiers(message, expected, freeIdents);
+		testFreeIdentifiers(message, freeIdents, expected);
 	}
 
 	/**
@@ -750,7 +750,7 @@ public class EventBUtilsTests extends EventBTests {
 		try {
 			List<String> idents = EventBUtils
 					.getSeenCarrierSetsAndConstants(mch);
-			testFreeIdentifiers(message, expected, idents);
+			testFreeIdentifiers(message, idents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -789,7 +789,7 @@ public class EventBUtilsTests extends EventBTests {
 			IContextRoot ctx, String... expected) {
 		try {
 			List<String> idents = EventBUtils.getCarrierSetsAndConstants(ctx);
-			testFreeIdentifiers(message, expected, idents);
+			testFreeIdentifiers(message, idents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -1037,7 +1037,7 @@ public class EventBUtilsTests extends EventBTests {
 			IInvariant inv, String... expected) {
 		try {
 			List<String> freeIdents = EventBUtils.getFreeIdentifiers(inv);
-			testFreeIdentifiers(message, expected, freeIdents);
+			testFreeIdentifiers(message, freeIdents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -1204,4 +1204,5 @@ public class EventBUtilsTests extends EventBTests {
 			return;
 		}
 	}
+
 }

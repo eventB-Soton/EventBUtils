@@ -199,9 +199,13 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			return;
 		}
 	}
-	
+
+	/**
+	 * Test method for
+	 * {@link DecompositionUtils#decomposeEvents(IMachineRoot, IElementDistribution, IProgressMonitor)}.
+	 */
 	@Test
-	public void testCreateEvents() {
+	public void testDecomposeEvents() {
 		try {
 			DecompositionUtils.decomposeEvents(mch2_1, elemDist1,
 					new NullProgressMonitor());
@@ -275,9 +279,9 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			assertNotNull("Create events 6: Cannot find event evt1_3_4", evt);
 			testEventSignature("Create events 6", evt, "evt1_3_4", false,
 					Convergence.ORDINARY);
-			testEventParameters("Create events 6", evt, "r", "p", "u");
+			testEventParameters("Create events 6", evt, "r", "p");
 			testEventGuards("Create events 6", evt,
-					"typing_p: p ∈ ℙ(ℤ × V): true", "typing_u: u ∈ U: true",
+					"typing_p: p ∈ ℙ(ℤ × V): true",
 					"grd1_2_4_1: v ≥ 3: false", "grd1_3_4_1: r ∈ ℕ: false",
 					"grd1_3_4_2: p(r) = g: false");
 			testEventWitnesses("Create events 2", evt);

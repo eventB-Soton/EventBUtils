@@ -920,34 +920,6 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting the list of accessed variables of an input
-	 * event. They are the free identifiers of the event except any carrier sets
-	 * and constants.
-	 * 
-	 * @param evt
-	 *            an event
-	 * @return the list of accessed variables by the event.
-	 * @throws RodinDBException
-	 *             if errors occurred when
-	 *             <ul>
-	 *             <li>getting the free identifiers of the event
-	 *             {@link #getFreeIdentifiers(IEvent)}.</li>
-	 *             <li>getting the seen carrier sets and constants of the
-	 *             machine contains the event
-	 *             {@link #getSeenCarrierSetsAndConstants(IMachineRoot)}.</li>
-	 *             </ul>
-	 */
-	public static List<String> getAccessedVars(IEvent evt)
-			throws RodinDBException {
-		List<String> idents = getFreeIdentifiers(evt);
-
-		idents.removeAll(getSeenCarrierSetsAndConstants((IMachineRoot) evt
-				.getRoot()));
-
-		return idents;
-	}
-
-	/**
 	 * Getting the predicate string corresponding to a variable identifier given
 	 * an input machine. This is done by checking the static checked version of
 	 * the machine. Return <code>null</code> the source machine or the static

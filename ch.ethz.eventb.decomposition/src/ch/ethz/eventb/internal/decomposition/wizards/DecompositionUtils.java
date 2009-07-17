@@ -495,70 +495,15 @@ public class DecompositionUtils {
 			throws RodinDBException {
 		IMachineRoot src = dist.getMachineRoot();
 
-		createInitialisation(dest, dist, monitor);
-
 		// Create other events.
 		IEvent[] evts = src.getEvents();
 		for (IEvent evt : evts) {
-			if (evt.isInitialisation())
-				continue;
 			DecomposedEventType type = getEventType(dist, evt);
 			if (type == DecomposedEventType.EXTERNAL) {
 				createExternalEvent(dest, dist, evt);
 			} else if (type == DecomposedEventType.INTERNAL) {
 				createInternalEvent(dest, evt);
 			}
-		}
-	}
-
-	/**
-	 * Create the initialisation in an input machine given an element
-	 * distribution.
-	 * 
-	 * @param dest
-	 *            the destination machine.
-	 * @param dist
-	 *            an element distribution.
-	 * @param monitor
-	 *            a progress monitor.
-	 * @throws RodinDBException
-	 *             if some errors occurred. TODO List the errors.
-	 */
-	private static void createInitialisation(IMachineRoot dest,
-			IElementDistribution dist, IProgressMonitor monitor)
-			throws RodinDBException {
-		IMachineRoot src = dist.getMachineRoot();
-
-		// Create the new INITIALISATION.
-		IEvent newInit = dest.createChild(IEvent.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		newInit.setLabel(IEvent.INITIALISATION, new NullProgressMonitor());
-		newInit.setConvergence(Convergence.ORDINARY, new NullProgressMonitor());
-		newInit.setExtended(false, new NullProgressMonitor());
-
-		// Get the source INITIALISATION and flatten it.
-		IEvent init = EventBUtils.getInitialisation(src);
-		EventBUtils.flatten(init);
-		assert init != null;
-		IAction[] acts = init.getActions();
-		Set<String> vars = dist.getAccessedVariables();
-
-		// Decomposing the actions.
-		for (IAction act : acts) {
-			// Decompose the action according to the accessed variables.
-			String newAssignmentStr = decomposeAction(act, vars);
-
-			// If there is no decomposed action, then skip it.
-			if (newAssignmentStr == null)
-				continue;
-
-			// Otherwise, create the new action in the new INITIALISATION.
-			IAction newAct = newInit.createChild(IAction.ELEMENT_TYPE, null,
-					new NullProgressMonitor());
-
-			newAct.setLabel(act.getLabel(), new NullProgressMonitor());
-			newAct.setAssignmentString(newAssignmentStr,
-					new NullProgressMonitor());
 		}
 	}
 
@@ -681,6 +626,7 @@ public class DecompositionUtils {
 	 * distribution), the type of the event is {@link DecomposedEventType#NONE}
 	 * and will be ignore when creating the decomposed model.</li>
 	 * </ul>
+	 * Note: The INITIALISATION is an always external event.
 	 * 
 	 * @param dist
 	 *            an element distribution
@@ -693,6 +639,9 @@ public class DecompositionUtils {
 	 */
 	private static DecomposedEventType getEventType(IElementDistribution dist,
 			IEvent evt) throws RodinDBException {
+		if (evt.isInitialisation())
+			return DecomposedEventType.EXTERNAL;
+		
 		String[] evtLabels = dist.getEventLabels();
 		for (String evtLabel : evtLabels) {
 			if (evt.getLabel().equals(evtLabel))
@@ -740,37 +689,23 @@ public class DecompositionUtils {
 		newEvt.setComment("External event, DO NOT REFINE",
 				new NullProgressMonitor());
 
+		// Copying the parameters from the source event.
+		copyParameters(newEvt, evt);
+		
+		// Copying the guards from the source event.
+		copyGuards(newEvt, evt);
+		
+		
 		Set<String> vars = dist.getAccessedVariables();
-
-		// Decomposing parameters.
-		decomposeParameters(newEvt, evt, vars);
-
-		// Decomposing guards.
-		decomposeGuards(newEvt, evt, vars);
 
 		// Decomposing actions.
 		decomposeActions(newEvt, evt, vars);
+
+		creatingExtraParametersAndGuards(dist.getMachineRoot(), newEvt, vars);
 	}
 
-	/**
-	 * Utility method for creating the parameters of an external event, given
-	 * the source event and the set of variables accessed by the distribution.
-	 * First the parameters of the source event are copied. Then the parameters
-	 * corresponding to the variables that accessed by the source event, but not
-	 * by the distribution are created.
-	 * 
-	 * @param dest
-	 *            the destination event.
-	 * @param src
-	 *            the source event.
-	 * @param vars
-	 *            the set of variables accessed by the distribution.
-	 * @throws RodinDBException
-	 *             if some errors occurred. TODO List the possible errors.
-	 */
-	private static void decomposeParameters(IEvent dest, IEvent src,
-			Set<String> vars) throws RodinDBException {
-		// Copy parameters from the source event.
+	private static void copyParameters(IEvent dest, IEvent src)
+			throws RodinDBException {
 		IParameter[] params = src.getParameters();
 		for (IParameter param : params) {
 			IParameter newParam = dest.createChild(IParameter.ELEMENT_TYPE,
@@ -778,64 +713,10 @@ public class DecompositionUtils {
 			newParam.setIdentifierString(param.getIdentifierString(),
 					new NullProgressMonitor());
 		}
-
-		// Getting the event's accessed variables that are not accessed by the
-		// distribution.
-		List<String> accessedVars = EventBUtils.getAccessedVars(src);
-
-		List<String> wList = new ArrayList<String>();
-		for (String assignedVar : accessedVars) {
-			if (!vars.contains(assignedVar)) {
-				wList.add(assignedVar);
-			}
-		}
-
-		// Create the parameters with the same identifiers as w.
-		for (String w : wList) {
-			IParameter newParam = dest.createChild(IParameter.ELEMENT_TYPE,
-					null, new NullProgressMonitor());
-			newParam.setIdentifierString(w, new NullProgressMonitor());
-		}
 	}
 
-	/**
-	 * Utility method for creating guards in a destination machine given the
-	 * source machine and the set of accessed variables by an element
-	 * distribution.
-	 * 
-	 * @param dest
-	 *            the destination event.
-	 * @param src
-	 *            the source event.
-	 * @param vars
-	 *            the set of accessed variable by an element distribution.
-	 * @throws RodinDBException
-	 *             if some errors occurred. TODO List the possible errors.
-	 */
-	private static void decomposeGuards(IEvent dest, IEvent src,
-			Set<String> vars) throws RodinDBException {
-		// Getting the event's accessed variables that are not accessed by the
-		// distribution.
-		List<String> accessedVars = EventBUtils.getAccessedVars(src);
-
-		List<String> wList = new ArrayList<String>();
-		for (String accessedVar : accessedVars) {
-			if (!vars.contains(accessedVar)) {
-				wList.add(accessedVar);
-			}
-		}
-
-		// Create the typing theorems for w.
-		for (String w : wList) {
-			String predicateStr = EventBUtils.getTypingTheorem(
-					(IMachineRoot) src.getRoot(), w);
-			IGuard newGrd = dest.createChild(IGuard.ELEMENT_TYPE, null,
-					new NullProgressMonitor());
-			newGrd.setLabel("typing_" + w, new NullProgressMonitor());
-			newGrd.setPredicateString(predicateStr, new NullProgressMonitor());
-			newGrd.setTheorem(true, new NullProgressMonitor());
-		}
-
+	private static void copyGuards(IEvent dest, IEvent src)
+			throws RodinDBException {
 		// Copy guards from the source event.
 		IGuard[] grds = src.getGuards();
 		for (IGuard grd : grds) {
@@ -845,6 +726,42 @@ public class DecompositionUtils {
 			newGrd.setPredicateString(grd.getPredicateString(),
 					new NullProgressMonitor());
 			newGrd.setTheorem(grd.isTheorem(), new NullProgressMonitor());
+		}
+	}
+
+	/**
+	 * @param evt
+	 * @param vars
+	 * @throws RodinDBException
+	 */
+	private static void creatingExtraParametersAndGuards(IMachineRoot src,
+			IEvent evt, Set<String> vars) throws RodinDBException {
+		List<String> idents = EventBUtils.getFreeIdentifiers(evt);
+		idents.removeAll(EventBUtils.getSeenCarrierSetsAndConstants(src));
+		idents.removeAll(vars);
+		IParameter[] params = evt.getParameters();
+		for (IParameter param : params) {
+			idents.remove(param.getIdentifierString());
+		}
+		
+		for (String ident : idents) {
+			IParameter newParam = evt.createChild(IParameter.ELEMENT_TYPE,
+					null, new NullProgressMonitor());
+			newParam.setIdentifierString(ident, new NullProgressMonitor());
+		}
+		
+		IGuard fstGrd = null;
+		IGuard[] grds = evt.getGuards();
+		if (grds.length != 0)
+			fstGrd = grds[0];
+		
+		for (String ident : idents) {
+			String typThm = EventBUtils.getTypingTheorem(src, ident);
+			IGuard newGrd = evt.createChild(IGuard.ELEMENT_TYPE, fstGrd,
+					new NullProgressMonitor());
+			newGrd.setLabel("typing_" + ident, new NullProgressMonitor());
+			newGrd.setPredicateString(typThm, new NullProgressMonitor());
+			newGrd.setTheorem(true, new NullProgressMonitor());
 		}
 	}
 
