@@ -435,7 +435,8 @@ public class DecompositionUtils {
 
 	/**
 	 * Utility method for checking if an invariant is relevant or to a set of
-	 * variables or not.
+	 * variables or not. Currently, these are the invariants whose variables are
+	 * contained by the input set of variables.
 	 * 
 	 * @param inv
 	 *            an invariant
@@ -504,112 +505,6 @@ public class DecompositionUtils {
 			} else if (type == DecomposedEventType.INTERNAL) {
 				createInternalEvent(dest, evt);
 			}
-		}
-	}
-
-	/**
-	 * Utility method for decomposing an action according to a set of given
-	 * accessed variables.
-	 * 
-	 * @param act
-	 *            an action.
-	 * @param vars
-	 *            a set of variables (in {@link String}.
-	 * @return the resulting decomposed action.
-	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>normalising the action {@link #normalise(IAction)}.</li>
-	 *             <li>getting the assignment string of the action
-	 *             {@link IAction#getAssignmentString()}.</li>
-	 *             <li>setting the assignment string of the action
-	 *             {@link IAction#setAssignmentString(String, IProgressMonitor)}
-	 *             .</li>
-	 *             </ul>
-	 */
-	public static String decomposeAction(IAction act, Set<String> vars)
-			throws RodinDBException {
-
-		// Parsing the assignment string and getting assigned variables.
-		String assignmentStr = act.getAssignmentString();
-		Assignment parseAssignment = Lib.parseAssignment(assignmentStr);
-		FreeIdentifier[] assignedVars = parseAssignment.getAssignedIdentifiers();
-		
-		// Getting the set of assigned variables which are also accessed
-		// variables (v) and the set of assigned variables which are not
-		// accessed variables (w).
-		List<FreeIdentifier> v = new ArrayList<FreeIdentifier>();
-		List<FreeIdentifier> w = new ArrayList<FreeIdentifier>();
-		for (FreeIdentifier ident : assignedVars) {
-			if (vars.contains(ident.getName())) {
-				v.add(ident);
-			} else {
-				w.add(ident);
-			}
-		}
-
-
-		// Return nothing if it does not modify any accessed variables. 
-		// This covers the cases for
-		//    w :: E(v, w)
-		//    w :| P(v, w, w')
-		//    w := E(v, w)
-		//    w(E) := F
-		if (v.isEmpty()) {
-			return null;
-		}
-
-		// Do nothing if all assigned variables are accessed variables.
-		// This covers the cases for
-		//    v :: E(v, w)
-		//    v :| P(v, w, w')
-		//    v := E(v, w)
-		//    v(E) := F
-		if (w.isEmpty()) {
-			return act.getAssignmentString();
-		}
-
-		// v, w := E(v,w), F(v, w) => v := E(v, w)
-		if (parseAssignment instanceof BecomesEqualTo) {
-			BecomesEqualTo bcmeq = (BecomesEqualTo) parseAssignment;
-			Expression[] exps = bcmeq.getExpressions();
-			assert exps.length == assignedVars.length;
-			String newAssignmentStr = EventBUtils.identsToCSVString(
-					assignmentStr, v.toArray(new FreeIdentifier[v.size()]));
-			newAssignmentStr += " ≔ ";
-			boolean fst = true;
-			for (int i = 0; i < exps.length; i++) {
-				FreeIdentifier ident = assignedVars[i];
-				if (v.contains(ident)) {
-					if (fst) {
-						fst = false;
-					} else {
-						newAssignmentStr += ", ";
-					}
-					newAssignmentStr += exps[i];
-				} else {
-					continue;
-				}
-			}
-			return newAssignmentStr;
-		}
-		
-		// v, w :| P(v',w') ==> v :| #w'.P(v',w')
-		else {
-			assert parseAssignment instanceof BecomesSuchThat;
-			BecomesSuchThat bcmsuch = (BecomesSuchThat) parseAssignment;
-			Predicate P = bcmsuch.getCondition();
-			String vList = EventBUtils.identsToCSVString(assignmentStr, v
-					.toArray(new FreeIdentifier[v.size()]));
-			String wPrimedList = EventBUtils.identsToPrimedCSVString(
-					assignmentStr, w.toArray(new FreeIdentifier[w.size()]));
-
-			SourceLocation srcLoc = P.getSourceLocation();
-			String strP = assignmentStr.substring(srcLoc.getStart(), srcLoc
-					.getEnd() + 1);
-			String newAssignmentStr = vList + " :∣ ∃" + wPrimedList + "·"
-					+ strP;
-			return newAssignmentStr;
 		}
 	}
 
@@ -704,6 +599,17 @@ public class DecompositionUtils {
 		creatingExtraParametersAndGuards(dist.getMachineRoot(), newEvt, vars);
 	}
 
+	/**
+	 * Utility method for copying all parameters of a source event to a
+	 * destination event.
+	 * 
+	 * @param dest
+	 *            the destination event.
+	 * @param src
+	 *            the source event.
+	 * @throws RodinDBException
+	 *             if some errors occurred. TODO List the possible errors.
+	 */
 	private static void copyParameters(IEvent dest, IEvent src)
 			throws RodinDBException {
 		IParameter[] params = src.getParameters();
@@ -715,6 +621,16 @@ public class DecompositionUtils {
 		}
 	}
 
+	/**
+	 * Utility method for copying all guards of a source event to a destination
+	 * event.
+	 * 
+	 * @param dest
+	 *            the destination event.
+	 * @param src
+	 *            the source event.
+	 * @throws RodinDBException
+	 */
 	private static void copyGuards(IEvent dest, IEvent src)
 			throws RodinDBException {
 		// Copy guards from the source event.
@@ -730,9 +646,19 @@ public class DecompositionUtils {
 	}
 
 	/**
+	 * Utility method for creating extra parameters corresponding to variables
+	 * that are not accessed by the distribution and but used by the decomposed
+	 * event. The extra guards are the typing theorems of the extra parameters.
+	 * This is the last step in decomposing event.
+	 * 
+	 * @param src
+	 *            the source machine for getting the typing theorem.
 	 * @param evt
+	 *            the current decomposed event.
 	 * @param vars
+	 *            the set of accessed variables
 	 * @throws RodinDBException
+	 *             if some errors occurred. TODO List possible errors.
 	 */
 	private static void creatingExtraParametersAndGuards(IMachineRoot src,
 			IEvent evt, Set<String> vars) throws RodinDBException {
@@ -790,6 +716,112 @@ public class DecompositionUtils {
 			newAct.setLabel(act.getLabel(), new NullProgressMonitor());
 			newAct.setAssignmentString(newAssignmentStr,
 					new NullProgressMonitor());
+		}
+	}
+
+	/**
+	 * Utility method for decomposing an action according to a set of given
+	 * accessed variables.
+	 * 
+	 * @param act
+	 *            an action.
+	 * @param vars
+	 *            a set of variables (in {@link String}.
+	 * @return the resulting decomposed action.
+	 * @throws RodinDBException
+	 *             if some errors occurred when
+	 *             <ul>
+	 *             <li>normalising the action {@link #normalise(IAction)}.</li>
+	 *             <li>getting the assignment string of the action
+	 *             {@link IAction#getAssignmentString()}.</li>
+	 *             <li>setting the assignment string of the action
+	 *             {@link IAction#setAssignmentString(String, IProgressMonitor)}
+	 *             .</li>
+	 *             </ul>
+	 */
+	public static String decomposeAction(IAction act, Set<String> vars)
+			throws RodinDBException {
+	
+		// Parsing the assignment string and getting assigned variables.
+		String assignmentStr = act.getAssignmentString();
+		Assignment parseAssignment = Lib.parseAssignment(assignmentStr);
+		FreeIdentifier[] assignedVars = parseAssignment.getAssignedIdentifiers();
+		
+		// Getting the set of assigned variables which are also accessed
+		// variables (v) and the set of assigned variables which are not
+		// accessed variables (w).
+		List<FreeIdentifier> v = new ArrayList<FreeIdentifier>();
+		List<FreeIdentifier> w = new ArrayList<FreeIdentifier>();
+		for (FreeIdentifier ident : assignedVars) {
+			if (vars.contains(ident.getName())) {
+				v.add(ident);
+			} else {
+				w.add(ident);
+			}
+		}
+	
+	
+		// Return nothing if it does not modify any accessed variables. 
+		// This covers the cases for
+		//    w :: E(v, w)
+		//    w :| P(v, w, w')
+		//    w := E(v, w)
+		//    w(E) := F
+		if (v.isEmpty()) {
+			return null;
+		}
+	
+		// Do nothing if all assigned variables are accessed variables.
+		// This covers the cases for
+		//    v :: E(v, w)
+		//    v :| P(v, w, w')
+		//    v := E(v, w)
+		//    v(E) := F
+		if (w.isEmpty()) {
+			return act.getAssignmentString();
+		}
+	
+		// v, w := E(v,w), F(v, w) => v := E(v, w)
+		if (parseAssignment instanceof BecomesEqualTo) {
+			BecomesEqualTo bcmeq = (BecomesEqualTo) parseAssignment;
+			Expression[] exps = bcmeq.getExpressions();
+			assert exps.length == assignedVars.length;
+			String newAssignmentStr = EventBUtils.identsToCSVString(
+					assignmentStr, v.toArray(new FreeIdentifier[v.size()]));
+			newAssignmentStr += " ≔ ";
+			boolean fst = true;
+			for (int i = 0; i < exps.length; i++) {
+				FreeIdentifier ident = assignedVars[i];
+				if (v.contains(ident)) {
+					if (fst) {
+						fst = false;
+					} else {
+						newAssignmentStr += ", ";
+					}
+					newAssignmentStr += exps[i];
+				} else {
+					continue;
+				}
+			}
+			return newAssignmentStr;
+		}
+		
+		// v, w :| P(v',w') ==> v :| #w'.P(v',w')
+		else {
+			assert parseAssignment instanceof BecomesSuchThat;
+			BecomesSuchThat bcmsuch = (BecomesSuchThat) parseAssignment;
+			Predicate P = bcmsuch.getCondition();
+			String vList = EventBUtils.identsToCSVString(assignmentStr, v
+					.toArray(new FreeIdentifier[v.size()]));
+			String wPrimedList = EventBUtils.identsToPrimedCSVString(
+					assignmentStr, w.toArray(new FreeIdentifier[w.size()]));
+	
+			SourceLocation srcLoc = P.getSourceLocation();
+			String strP = assignmentStr.substring(srcLoc.getStart(), srcLoc
+					.getEnd() + 1);
+			String newAssignmentStr = vList + " :∣ ∃" + wPrimedList + "·"
+					+ strP;
+			return newAssignmentStr;
 		}
 	}
 
