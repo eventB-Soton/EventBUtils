@@ -1,4 +1,4 @@
-package ch.ethz.eventb.internal.decomposition.wizards;
+package ch.ethz.eventb.internal.decomposition.utils;
 
 import static org.eventb.core.IConfigurationElement.DEFAULT_CONFIGURATION;
 
@@ -50,8 +50,8 @@ import org.rodinp.core.RodinDBException;
 /**
  * @author htson
  *         <p>
- *         Utility class contains utility methods related to manipulating
- *         Event-B elements (e.g. Event-B projects, machines, contexts).
+ *         Utility class containing some utility methods to handle Event-B 
+ *         elements (e.g. Event-B projects, machines, contexts).
  *         </p>
  */
 public class EventBUtils {
@@ -84,7 +84,7 @@ public class EventBUtils {
 				public void run(IProgressMonitor pMonitor) throws CoreException {
 					IProject project = rodinProject.getProject();
 					Assert.isTrue(!project.exists(),
-							"The underlying project should not exist.");
+							Messages.decomposition_error_existingproject);
 					project.create(null);
 					project.open(null);
 					IProjectDescription description = project.getDescription();
@@ -134,8 +134,8 @@ public class EventBUtils {
 
 	/**
 	 * Utility method to create a new machine (*.bum) with the given name within
-	 * an existing project. There must be no construct with the same bare-name
-	 * exists already.
+	 * an existing project. There must be no existing construct with the same 
+	 * bare-name.
 	 * 
 	 * @param project
 	 *            The Event-B project.
@@ -155,9 +155,9 @@ public class EventBUtils {
 	 */
 	public static IMachineRoot createMachine(IEventBProject project,
 			String fileName, IProgressMonitor monitor) throws RodinDBException {
-		monitor.beginTask("Create new machine", 1);
+		monitor.beginTask(Messages.decomposition_machine, 1);
 		IRodinFile machine = project.getMachineFile(fileName);
-		Assert.isTrue(!machine.exists(), "Machine should not exist");
+		Assert.isTrue(!machine.exists(), Messages.decomposition_error_existingmachine);
 		machine.create(false, new NullProgressMonitor());
 		IInternalElement root = machine.getRoot();
 		((IConfigurationElement) root).setConfiguration(DEFAULT_CONFIGURATION,
@@ -168,7 +168,7 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for copying the sees clauses from a source machine to a
+	 * Utility method to copy the SEES clauses from a source machine to a
 	 * destination machine.
 	 * 
 	 * @param src
@@ -191,7 +191,7 @@ public class EventBUtils {
 	public static void copySeesClauses(IMachineRoot src, IMachineRoot dest,
 			IProgressMonitor monitor) throws RodinDBException {
 		ISeesContext[] seesClauses = src.getSeesClauses();
-		monitor.beginTask("Copy sees context clause", seesClauses.length);
+		monitor.beginTask(Messages.decomposition_seesclauses, seesClauses.length);
 		for (ISeesContext seesClause : seesClauses) {
 			ISeesContext newSeesClause = dest.createChild(
 					ISeesContext.ELEMENT_TYPE, null, new NullProgressMonitor());
@@ -203,7 +203,7 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting the display text of an Event-B element which
+	 * Utility method to get the displayed text of an Event-B element which
 	 * is a sub-type of {@link IRodinElement}.
 	 * 
 	 * <ul>
@@ -227,9 +227,9 @@ public class EventBUtils {
 	 * 
 	 * @param element
 	 *            an Event-B element.
-	 * @return the display text corresponding to the input element.
+	 * @return the displayed text corresponding to the input element.
 	 */
-	public static String getDisplayText(IRodinElement element) {
+	public static String getDisplayedText(IRodinElement element) {
 
 		// If the element is a guard element then return the predicate of the
 		// element.
@@ -237,7 +237,7 @@ public class EventBUtils {
 			try {
 				return ((IGuard) element).getPredicateString();
 			} catch (RodinDBException e) {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		}
 
@@ -247,7 +247,7 @@ public class EventBUtils {
 			try {
 				return ((IAction) element).getAssignmentString();
 			} catch (RodinDBException e) {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		}
 
@@ -257,7 +257,7 @@ public class EventBUtils {
 			try {
 				return ((IInvariant) element).getPredicateString();
 			} catch (RodinDBException e) {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		}
 
@@ -266,7 +266,7 @@ public class EventBUtils {
 			try {
 				return ((ILabeledElement) element).getLabel();
 			} catch (RodinDBException e) {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		}
 
@@ -275,7 +275,7 @@ public class EventBUtils {
 			try {
 				return ((IIdentifierElement) element).getIdentifierString();
 			} catch (RodinDBException e) {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		}
 
@@ -284,12 +284,12 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting the set of free identifiers of an input event.
+	 * Utility method to get the set of free identifiers of an input event.
 	 * The order of the free identifiers is determined syntactically.
 	 * 
 	 * @param evt
 	 *            an event.
-	 * @return the set of free identifiers .
+	 * @return the set of free identifiers.
 	 * @throws RodinDBException
 	 *             if some errors occurred when
 	 *             <ul>
@@ -313,10 +313,10 @@ public class EventBUtils {
 		// First flatten the event.
 		evt = flatten(evt);
 
-		// Initialised the list of free identifiers.
+		// Initialize the list of free identifiers.
 		List<String> idents = new ArrayList<String>();
 
-		// Copy the free identifiers from all guards
+		// Copy the free identifiers from all guards.
 		IGuard[] grds = evt.getGuards();
 		for (IGuard grd : grds) {
 			List<String> grdIdents = getFreeIdentifiers(grd);
@@ -326,7 +326,7 @@ public class EventBUtils {
 			}
 		}
 
-		// Copy the free identifiers from all actions
+		// Copy the free identifiers from all actions.
 		IAction[] acts = evt.getActions();
 		for (IAction act : acts) {
 			List<String> actIdents = getFreeIdentifiers(act);
@@ -336,7 +336,7 @@ public class EventBUtils {
 			}
 		}
 
-		// Remove the parameters
+		// Remove the parameters.
 		IParameter[] params = evt.getParameters();
 		for (IParameter param : params) {
 			idents.remove(param.getIdentifierString());
@@ -346,12 +346,11 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for flatten an Event-B event:
+	 * Utility method to flatten an Event-B event:
 	 * <ul>
 	 * <li>If the input event is not extended then return the event.</li>
-	 * <li>If the input event is extended then this is the merge
-	 * {@link #merge(IEvent, IEvent)} of the event with the flatten of the
-	 * abstract event.</li>
+	 * <li>If the input event is extended then it is merged 
+	 * {@link #merge(IEvent, IEvent)} with the abstract event.</li>
 	 * </ul>
 	 * 
 	 * @param evt
@@ -379,9 +378,9 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting the abstract event of an input event. Return
-	 * <code>null</code> if there is no abstract event (e.g. there is no refines
-	 * event clause or the abstract machine does not exist).
+	 * Utility method to get the abstract event of an input event. Returns
+	 * <code>null</code> if there is no abstract event (<i>e.g.</i> there is no 
+	 * REFINES event clause or the abstract machine does not exist).
 	 * 
 	 * @param event
 	 *            an event.
@@ -435,8 +434,8 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for merging two events by copying the content of the
-	 * source event to the destination event.
+	 * Utility method to merge two events by copying the content of the source 
+	 * event to the destination event.
 	 * 
 	 * @param dest
 	 *            the destination event.
@@ -534,12 +533,12 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting free identifiers of a guard. The order of the
+	 * Utility method to get free identifiers of a guard. The order of the
 	 * free identifiers is determined syntactically.
 	 * 
 	 * @param grd
 	 *            a guard.
-	 * @return the set of free identifiers appeared in the guard.
+	 * @return the set of free identifiers appearing in the guard.
 	 * @throws RodinDBException
 	 *             if some errors occurred when getting the predicate string of
 	 *             the input guard {@link IGuard#getPredicateString()}.
@@ -550,13 +549,13 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting free identifiers of a predicate. The order of
+	 * Utility method to get free identifiers of a predicate. The order of
 	 * the free identifiers is determined syntactically
 	 * {@link Predicate#getSyntacticallyFreeIdentifiers()}.
 	 * 
 	 * @param predicateString
 	 *            a predicate string.
-	 * @return the set of free identifiers appeared in a predicate string.
+	 * @return the set of free identifiers appearing in a predicate string.
 	 */
 	public static List<String> getPredicateFreeIdentifiers(String predicateString) {
 		Predicate parsePredicate = Lib.parsePredicate(predicateString);
@@ -564,12 +563,12 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for converting an array of free identifiers to a set of
-	 * string.
+	 * Utility method to convert an array of free identifiers to a set of
+	 * strings.
 	 * 
 	 * @param freeIdents
 	 *            an array of free identifiers.
-	 * @return a set of string corresponding to the input array.
+	 * @return a set of strings corresponding to the input array.
 	 */
 	private static List<String> toStringList(FreeIdentifier[] freeIdents) {
 		List<String> result = new ArrayList<String>();
@@ -583,12 +582,12 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting free identifiers of an action. The order of
+	 * Utility method to get free identifiers of an action. The order of
 	 * the free identifiers is determined syntactically.
 	 * 
 	 * @param act
 	 *            an action.
-	 * @return the set of free identifiers appeared in an action.
+	 * @return the set of free identifiers appearing in an action.
 	 * @throws RodinDBException
 	 *             if some error occurred when getting the assignment string of
 	 *             the input action {@link IAction#getAssignmentString()}.
@@ -599,13 +598,13 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting free identifiers an assignment. The order of
+	 * Utility method to get free identifiers of an assignment. The order of
 	 * the free identifiers is determined syntactically
 	 * {@link Assignment#getSyntacticallyFreeIdentifiers()}.
 	 * 
-	 * @param assignmentString
-	 *            an assignment string.
-	 * @return the set of free identifiers appeared in an assignment string.
+	 * @param assignment
+	 *            an assignment.
+	 * @return the set of free identifiers appearing in an assignment string.
 	 */
 	public static List<String> getAssignmentFreeIdentifiers(
 			String assignmentString) {
@@ -614,9 +613,9 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting the set of seen carrier sets and constants of
+	 * Utility method to get the set of seen carrier sets and constants of
 	 * a machine. This is the set of carrier sets and constants from all the
-	 * seen contexts in the order of the SEEN clauses.
+	 * seen contexts in the order of the SEES clauses.
 	 * 
 	 * @param mch
 	 *            a machine.
@@ -649,10 +648,10 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting the set of carrier sets and constants of a
+	 * Utility method to get the set of carrier sets and constants of a
 	 * context (include ones from the abstract contexts). This is done by first
-	 * flatten the context and get the carrier sets and constants. The carrier
-	 * sets are returned before the constants.
+	 * flattening the context and getting the carrier sets and constants. 
+	 * The carrier sets are returned before the constants.
 	 * 
 	 * @param ctx
 	 *            a context.
@@ -690,9 +689,9 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for flatten a context. This is done by merging the context
-	 * with the content (carrier sets, constants and axioms) of flatten abstract
-	 * contexts.
+	 * Utility method to flatten a context. This is done by merging the context
+	 * with the content (carrier sets, constants and axioms) of flattened 
+	 * abstract contexts.
 	 * 
 	 * @param ctx
 	 *            a context.
@@ -727,14 +726,14 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for merging two contexts by copying the content of the
+	 * Utility method to merge two contexts by copying the content of the
 	 * source context into the destination context. The contents of the source
 	 * context is copied to the beginning of the destination context.
 	 * 
 	 * @param dest
-	 *            destination context
+	 *            destination context.
 	 * @param src
-	 *            source context
+	 *            source context.
 	 * @return the merged context.
 	 * @throws RodinDBException
 	 *             if some errors occurred when
@@ -815,7 +814,7 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting the set of free identifiers of an invariant.
+	 * Utility method to get the set of free identifiers of an invariant.
 	 * The order of the free identifiers is determined syntactically.
 	 * 
 	 * @param inv
@@ -834,8 +833,8 @@ public class EventBUtils {
 
 
 	/**
-	 * Utility method for converting an array of free identifiers to a comma
-	 * separated values string.
+	 * Utility method to convert an array of free identifiers to comma
+	 * separated values.
 	 * 
 	 * @param srcStr
 	 *            a source string of the free identifiers.
@@ -845,10 +844,10 @@ public class EventBUtils {
 	 */
 	public static String identsToCSVString(String srcStr,
 			FreeIdentifier[] idents) {
-		String result = "";
+		String result = ""; //$NON-NLS-1$
 		for (int i = 0; i < idents.length; i++) {
 			if (i != 0)
-				result += ", ";
+				result += ", "; //$NON-NLS-1$
 			SourceLocation srcLoc = idents[i].getSourceLocation();
 			result += srcStr.substring(srcLoc.getStart(), srcLoc.getEnd() + 1);
 		}
@@ -856,8 +855,8 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for converting an array of free identifiers to a comma
-	 * separated (primed-)values string.
+	 * Utility method to convert an array of free identifiers to a comma
+	 * separated primed values.
 	 * 
 	 * @param srcStr
 	 *            a source string of the free identifiers.
@@ -867,27 +866,28 @@ public class EventBUtils {
 	 */
 	public static String identsToPrimedCSVString(String srcStr,
 			FreeIdentifier[] idents) {
-		String result = "";
+		String result = ""; //$NON-NLS-1$
 		for (int i = 0; i < idents.length; i++) {
 			if (i != 0)
-				result += ", ";
+				result += ", "; //$NON-NLS-1$
 			SourceLocation srcLoc = idents[i].getSourceLocation();
 			result += srcStr.substring(srcLoc.getStart(), srcLoc.getEnd() + 1)
-					+ "'";
+					+ "'"; //$NON-NLS-1$
 		}
 		return result;
 	}
 
 	/**
-	 * Utility method for getting the INITIALISATION of a machine.
+	 * Utility method to get the initialization event of a machine.
 	 * 
 	 * @param mch
 	 *            a machine
-	 * @return the INITIALISATION of the input machine or <code>null</code> if
-	 *         there is no INITIALISATION.
+	 * @return the initialization event for the input machine if any, or
+	 *         <code>null</code>.
 	 * @throws RodinDBException
 	 *             if some errors occurred when getting the event with label
-	 *             {@link IEvent#INITIALISATION} ({@link #getEventWithLabel(IMachineRoot, String)}).
+	 *             {@link IEvent#INITIALISATION} (
+	 *             {@link #getEventWithLabel(IMachineRoot, String)}).
 	 */
 	public static IEvent getInitialisation(IMachineRoot mch)
 			throws RodinDBException {
@@ -895,7 +895,7 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Utility method for getting the event of a machine with a given label.
+	 * Utility method to get the event of a machine with a given label.
 	 * 
 	 * @param mch
 	 *            a machine
@@ -920,11 +920,11 @@ public class EventBUtils {
 	}
 
 	/**
-	 * Getting the predicate string corresponding to a variable identifier given
-	 * an input machine. This is done by checking the static checked version of
-	 * the machine. Return <code>null</code> the source machine or the static
-	 * checked version of it do not exists, or there is no static checked
-	 * variable is the input identifier.
+	 * Gets the predicate string corresponding to a variable identifier given
+	 * an input machine. This is done using the statically checked version of
+	 * the machine. Returns <code>null</code> if and only if the source 
+	 * machine or its statically checked version do not exists, or if there is 
+	 * no statically checked variable with the specified identifier.
 	 * 
 	 * @param src
 	 *            a source machine.
@@ -954,11 +954,47 @@ public class EventBUtils {
 		for (ISCVariable varSC : varSCs) {
 			if (varSC.getIdentifierString().equals(var)) {
 				Type type = varSC.getType(FormulaFactory.getDefault());
-				return var + " ∈ "
+				return var + " ∈ " //$NON-NLS-1$
 						+ type.toExpression(FormulaFactory.getDefault());
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Makes a machine consistent and all the contexts in the same project
+	 * as this machine consistent.
+	 * 
+	 * @param machine
+	 *            a machine.
+	 * @param monitor
+	 *            a progress monitor.
+	 */
+	public static void cleanUp(IMachineRoot machine,
+			IProgressMonitor monitor) {
+		// Make the machine consistent.
+		try {
+			IRodinFile rodinFile = machine.getRodinFile();
+			if (rodinFile.hasUnsavedChanges())
+				rodinFile.makeConsistent(monitor);
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+		}
+		
+		// Make all the contexts consistent.
+		IRodinProject prj = machine.getRodinProject();
+		IContextRoot[] ctxs;
+		try {
+			ctxs = prj
+					.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
+			for (IContextRoot ctx : ctxs) {
+				IRodinFile rodinFile = ctx.getRodinFile();
+				if (rodinFile.hasUnsavedChanges())
+					rodinFile.makeConsistent(monitor);
+			}
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

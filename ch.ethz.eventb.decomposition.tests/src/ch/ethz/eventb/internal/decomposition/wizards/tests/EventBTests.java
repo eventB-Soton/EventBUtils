@@ -29,7 +29,7 @@ import org.junit.Before;
 /**
  * @author htson
  *         <p>
- *         Abstract class for testing manipulation of Event-B elements. Some
+ *         Abstract class to test handling of Event-B elements. Some
  *         simple models are created by the setup method {@link #setUp()}.
  *         </p>
  */

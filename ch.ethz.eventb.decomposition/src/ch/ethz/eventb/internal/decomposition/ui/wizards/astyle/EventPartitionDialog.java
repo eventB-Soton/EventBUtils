@@ -8,7 +8,7 @@
  *     ETH Zurich - initial API and implementation
  ****************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards;
+package ch.ethz.eventb.internal.decomposition.ui.wizards.astyle;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,17 +25,20 @@ import org.eclipse.swt.widgets.Text;
 import org.eventb.core.IEvent;
 import org.rodinp.core.RodinDBException;
 
+import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.internal.decomposition.ui.RodinElementSelectionViewer;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
+
 /**
  * @author htson
  *         <p>
- *         A dialog for editing an element distribution.
+ *         The dialog used to partition the events.
  *         </p>
- *         TODO To be implemented {@link #cancelPressed()}.
  */
-public class EditElementDistributionDialog extends Dialog {
+public class EventPartitionDialog extends Dialog {
 
-	// The input element distribution.
-	private IElementDistribution elemDist;
+	// The input sub-model.
+	private ISubModel subModel;
 	
 	// The text widget for the project name.
 	private Text prjText;
@@ -44,33 +47,30 @@ public class EditElementDistributionDialog extends Dialog {
 	private String prjName;
 	
 	// A list of event's labels. 
-	private String [] evts;
+	private String[] events;
 	
-	// A viewer for choosing list of events.
-	private ElementListChooserViewer<IEvent> viewer;
+	// A viewer to choose the list of events.
+	private RodinElementSelectionViewer<IEvent> viewer;
 
 	/**
 	 * Constructor.
 	 * 
 	 * @param parentShell
-	 *            the parent shell for creating the dialog.
-	 * @param elemDist
-	 *            the input element distribution to be edited.
+	 *            the parent shell.
+	 * @param subModel
+	 *            the input sub-model.
 	 */
-	protected EditElementDistributionDialog(Shell parentShell,
-			IElementDistribution elemDist) {
+	protected EventPartitionDialog(Shell parentShell,
+			ISubModel subModel) {
 		super(parentShell);
-		this.elemDist = elemDist;
+		this.subModel = subModel;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets.Composite)
-	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Control control = super.createDialogArea(parent);
 		
-		// Area for choosing project name.
+		// Area to choose the project name.
 		Composite prjNameComp = new Composite((Composite) control, SWT.NONE);
 		prjNameComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		GridLayout layout = new GridLayout();
@@ -78,25 +78,21 @@ public class EditElementDistributionDialog extends Dialog {
 		prjNameComp.setLayout(layout);
 		
 		Label prjLabel = new Label(prjNameComp, SWT.CENTER);
-		prjLabel.setText("Project name");
+		prjLabel.setText(Messages.wizard_project);
 		prjLabel.setLayoutData(new GridData());
 		
 		prjText = new Text(prjNameComp, SWT.BORDER | SWT.SINGLE);
-		prjText.setText(elemDist.getProjectName());
+		prjText.setText(subModel.getProjectName());
 		prjText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
-		// Create the viewer for choosing a list of events.
-		viewer = new ElementListChooserViewer<IEvent>(prjNameComp,
-				IEvent.ELEMENT_TYPE, "Choosing events' distribution");
-		viewer.setInput(elemDist.getMachineRoot());
+		// Create the viewer to choose the list of events.
+		viewer = new RodinElementSelectionViewer<IEvent>(prjNameComp,
+				IEvent.ELEMENT_TYPE, Messages.wizard_events);
+		viewer.setInput(subModel.getMachineRoot());
+		
 		return control;
 	}
-	
-	
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.dialogs.Dialog#okPressed()
-	 */
 	@Override
 	protected void okPressed() {
 		// Set the project name to be returned.
@@ -111,14 +107,15 @@ public class EditElementDistributionDialog extends Dialog {
 				result.add(evt.getLabel());
 			} catch (RodinDBException e) {
 				e.printStackTrace();
+				super.cancelPressed();
 			}
 		}
-		evts = result.toArray(new String[size]);
+		events = result.toArray(new String[size]);
 		super.okPressed();
 	}
 
 	/**
-	 * Return the project name as chosen by the dialog.
+	 * Returns the project name chosen through the dialog.
 	 * 
 	 * @return the chosen project name.
 	 */
@@ -127,12 +124,12 @@ public class EditElementDistributionDialog extends Dialog {
 	}
 
 	/**
-	 * Return the list of event labels as chosen by the dialog.
+	 * Return the list of events chosen through the dialog.
 	 * 
-	 * @return the chosen list of event labels.
+	 * @return the event labels.
 	 */
-	public String [] getEventLabels() {
-		return evts;
+	public String[] getEvents() {
+		return events;
 	}
 
 }

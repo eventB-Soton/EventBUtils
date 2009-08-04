@@ -25,7 +25,8 @@ import org.eventb.core.IConvergenceElement.Convergence;
 import org.junit.Test;
 import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.internal.decomposition.wizards.DecompositionUtils;
+import ch.ethz.eventb.internal.decomposition.astyle.DecompositionUtils;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -33,7 +34,7 @@ import ch.ethz.eventb.internal.decomposition.wizards.DecompositionUtils;
  *         Test class for {@link DecompositionUtils}.
  *         </p>
  */
-public class DecompositionUtilsTests extends AbstractDecompositionTests {
+public class DecompositionTests extends AbstractDecompositionTests {
 
 	/**
 	 * Test method
@@ -49,9 +50,10 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			fail("Create variables 1: There should be no exception");
 			return;
 		}
-		
-		assertVariables("Create variables 1", mch2_1, "z: Private variable",
-				"v: Shared variable, DO NOT REFINE");
+
+		assertVariables("Create variables 1", mch2_1, "z: "
+				+ Messages.decomposition_private_comment, "v: "
+				+ Messages.decomposition_shared_comment);
 
 		try {
 			DecompositionUtils.decomposeVariables(mch3_1, elemDist2,
@@ -61,10 +63,10 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			fail("Create variables 2: There should be no exception");
 			return;
 		}
-		
+
 		assertVariables("Create variables 2", mch3_1, "y: Private variable",
-				"v: Shared variable, DO NOT REFINE",
-				"u: Shared variable, DO NOT REFINE");
+				"v: " + Messages.decomposition_shared_comment, "u: "
+						+ Messages.decomposition_shared_comment);
 
 		try {
 			DecompositionUtils.decomposeVariables(mch4_1, elemDist3,
@@ -74,14 +76,15 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			fail("Create variables 3: There should be no exception");
 			return;
 		}
-		
-		assertVariables("Create variables 3", mch4_1,
-				"v: Shared variable, DO NOT REFINE",
-				"u: Shared variable, DO NOT REFINE", "p: Private variable");
+
+		assertVariables("Create variables 3", mch4_1, "v: "
+				+ Messages.decomposition_shared_comment, "u: "
+				+ Messages.decomposition_shared_comment, "p: "
+				+ Messages.decomposition_private_comment);
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link DecompositionUtils#decomposeVariables(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
 	 * 
 	 * @param message
@@ -169,7 +172,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
 	 * 
 	 * @param message
@@ -202,7 +205,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 
 	/**
 	 * Test method for
-	 * {@link DecompositionUtils#decomposeEvents(IMachineRoot, IElementDistribution, IProgressMonitor)}.
+	 * {@link DecompositionUtils#decomposeEvents(IMachineRoot, ISubModel, IProgressMonitor)}.
 	 */
 	@Test
 	public void testDecomposeEvents() {
@@ -215,7 +218,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			assertEquals("Create events 1: Incorrect number of events", 6,
 					events.length);
 			
-			// Test the initialisation.
+			// Test the initialization.
 			IEvent evt = getEventWithLabel(mch2_1, IEvent.INITIALISATION);
 			assertNotNull("Create events 1: Cannot find event INITIALISATION",
 					evt);

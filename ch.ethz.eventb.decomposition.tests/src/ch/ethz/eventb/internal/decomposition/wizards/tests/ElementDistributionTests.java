@@ -15,33 +15,34 @@ package ch.ethz.eventb.internal.decomposition.wizards.tests;
 import java.util.Set;
 
 import org.junit.Test;
+import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.internal.decomposition.wizards.ElementDistribution;
-import ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution;
+import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.internal.decomposition.astyle.SubModel;
 
 /**
  * @author htson
  *         <p>
- *         Test class for {@link IElementDistribution}.
+ *         Test class for {@link ISubModel}.
  *         </p>
  */
 public class ElementDistributionTests extends AbstractDecompositionTests {
 	
 	/**
-	 * Test method for {@link IElementDistribution#getModelDistribution()}.
+	 * Test method for {@link ISubModel#getModelDecomposition()}.
 	 */
 	@Test
 	public void testGetModelDistribution() {
 		assertEquals("Incorrect model distribution 1", modelDist3, elemDist1
-				.getModelDistribution());
+				.getModelDecomposition());
 		assertEquals("Incorrect model distribution 2", modelDist3, elemDist2
-				.getModelDistribution());
+				.getModelDecomposition());
 		assertEquals("Incorrect model distribution 3", modelDist3, elemDist3
-				.getModelDistribution());
+				.getModelDecomposition());
 	}
 	
 	/**
-	 * Test method for {@link IElementDistribution#getMachineRoot()}.
+	 * Test method for {@link ISubModel#getMachineRoot()}.
 	 */
 	@Test
 	public void testGetMachineRoot() {
@@ -54,26 +55,26 @@ public class ElementDistributionTests extends AbstractDecompositionTests {
 	}
 	
 	/**
-	 * Test method for {@link IElementDistribution#setProjectName(String)} and
-	 * {@link IElementDistribution#getProjectName()}.
+	 * Test method for {@link ISubModel#setProjectName(String)} and
+	 * {@link ISubModel#getProjectName()}.
 	 */
 	@Test
 	public void testSetAndGetProjectName() {
-		IElementDistribution elemDist = new ElementDistribution(modelDist3);
+		ISubModel elemDist = new SubModel(modelDist3);
 		testSetAndGetProjectName(elemDist, "ProjectA");
 		testSetAndGetProjectName(elemDist, "ProjectB");
 		testSetAndGetProjectName(elemDist, "ProjectC");
 	}
 	
 	/**
-	 * Utility method for testing
-	 * {@link IElementDistribution#setProjectName(String)} and
-	 * {@link IElementDistribution#getProjectName()}.
+	 * Utility method to test
+	 * {@link ISubModel#setProjectName(String)} and
+	 * {@link ISubModel#getProjectName()}.
 	 * 
 	 * @param elemDist an element distribution.
 	 * @param prjName the name of the project.
 	 */
-	private void testSetAndGetProjectName(IElementDistribution elemDist,
+	private void testSetAndGetProjectName(ISubModel elemDist,
 			String prjName) {
 		elemDist.setProjectName(prjName);
 		assertEquals("Incorrect project name", prjName, elemDist
@@ -81,12 +82,12 @@ public class ElementDistributionTests extends AbstractDecompositionTests {
 	}
 
 	/**
-	 * Test method for {@link IElementDistribution#setEventLabels(String...)}
-	 * and {@link IElementDistribution#getEventLabels()}.
+	 * Test method for {@link ISubModel#setEvents(String...)}
+	 * and {@link ISubModel#getEvents()}.
 	 */
 	@Test
 	public void testSetAndGetEventLabels() {
-		IElementDistribution elemDist = new ElementDistribution(modelDist3);
+		ISubModel elemDist = new SubModel(modelDist3);
 		
 		testSetAndGetEventLabels(elemDist, "evt1_3_1", "evt1_3_2");
 		testSetAndGetEventLabels(elemDist, "evt1_3_1");
@@ -97,90 +98,89 @@ public class ElementDistributionTests extends AbstractDecompositionTests {
 	}
 
 	/**
-	 * Utility method for testing
-	 * {@link IElementDistribution#setEventLabels(String...)} and
-	 * {@link IElementDistribution#getEventLabels()}.
+	 * Utility method to test
+	 * {@link ISubModel#setEvents(String...)} and
+	 * {@link ISubModel#getEvents()}.
 	 * 
 	 * @param elemDist
 	 *            an element distribution.
 	 * @param evtLabels
 	 *            an array of event labels.
 	 */
-	private void testSetAndGetEventLabels(IElementDistribution elemDist,
+	private void testSetAndGetEventLabels(ISubModel elemDist,
 			String... evtLabels) {
-		elemDist.setEventLabels(evtLabels);
-		String[] actualEvtLabels = elemDist.getEventLabels();
-		assertEquals("Incorrect event labels", evtLabels.toString(),
-				actualEvtLabels.toString());
+		elemDist.setEvents(evtLabels);
+		String[] actualEvtLabels = elemDist.getEvents();
+		assertEquals("Incorrect event labels", evtLabels, actualEvtLabels);
 	}
 
 	/**
-	 * Test method for {@link IElementDistribution#getAccessedVariables()}.
+	 * Test method for {@link ISubModel#getAccessedVariables()}.
 	 */
 	@Test
 	public void testGetAccessedVariables() {
-		IElementDistribution elemDist;
+		ISubModel elemDist;
 
-		elemDist = modelDist1.createElementDistribution();
-		elemDist.setEventLabels("evt1_1_1", "evt1_1_2");
+		elemDist = modelDist1.createSubModel();
+		elemDist.setEvents("evt1_1_1", "evt1_1_2");
 		testGetAccessedVariables("Calculate accessed variables 1", elemDist,
 				"x", "y");
 
-		elemDist = modelDist1.createElementDistribution();
-		elemDist.setEventLabels("evt1_1_3");
+		elemDist = modelDist1.createSubModel();
+		elemDist.setEvents("evt1_1_3");
 		testGetAccessedVariables("Calculate accessed variables 2", elemDist,
 				"x", "y");
 
-		elemDist = modelDist2.createElementDistribution();
-		elemDist.setEventLabels("evt1_2_1", "evt1_2_3");
+		elemDist = modelDist2.createSubModel();
+		elemDist.setEvents("evt1_2_1", "evt1_2_3");
 		testGetAccessedVariables("Calculate accessed variables 3", elemDist,
 				"x", "y", "v");
 
-		elemDist = modelDist2.createElementDistribution();
-		elemDist.setEventLabels("evt1_2_2", "evt1_2_4");
+		elemDist = modelDist2.createSubModel();
+		elemDist.setEvents("evt1_2_2", "evt1_2_4");
 		testGetAccessedVariables("Calculate accessed variables 4", elemDist,
 				"x", "y", "u", "v");
 
-		elemDist = modelDist3.createElementDistribution();
-		elemDist.setEventLabels("evt1_3_1", "evt1_3_5");
+		elemDist = modelDist3.createSubModel();
+		elemDist.setEvents("evt1_3_1", "evt1_3_5");
 		testGetAccessedVariables("Calculate accessed variables 5", elemDist,
 				"z", "v");
 
-		elemDist = modelDist3.createElementDistribution();
-		elemDist.setEventLabels("evt1_3_2", "evt1_3_3");
+		elemDist = modelDist3.createSubModel();
+		elemDist.setEvents("evt1_3_2", "evt1_3_3");
 		testGetAccessedVariables("Calculate accessed variables 6", elemDist,
 				"u", "v", "y");
 
-		elemDist = modelDist3.createElementDistribution();
-		elemDist.setEventLabels("evt1_3_1");
+		elemDist = modelDist3.createSubModel();
+		elemDist.setEvents("evt1_3_1");
 		testGetAccessedVariables("Calculate accessed variables 7", elemDist,
 				"z", "v");
 
-		elemDist = modelDist3.createElementDistribution();
-		elemDist.setEventLabels("evt1_3_2");
+		elemDist = modelDist3.createSubModel();
+		elemDist.setEvents("evt1_3_2");
 		testGetAccessedVariables("Calculate accessed variables 8", elemDist,
 				"v", "y", "u");
 
-		elemDist = modelDist3.createElementDistribution();
-		elemDist.setEventLabels("evt1_3_3");
+		elemDist = modelDist3.createSubModel();
+		elemDist.setEvents("evt1_3_3");
 		testGetAccessedVariables("Calculate accessed variables 9", elemDist,
 				"v", "y");
 
-		elemDist = modelDist3.createElementDistribution();
-		elemDist.setEventLabels("evt1_3_4");
+		elemDist = modelDist3.createSubModel();
+		elemDist.setEvents("evt1_3_4");
 		testGetAccessedVariables("Calculate accessed variables 10", elemDist,
 				"u", "v", "p");
 
-		elemDist = modelDist3.createElementDistribution();
-		elemDist.setEventLabels("evt1_3_5");
+		elemDist = modelDist3.createSubModel();
+		elemDist.setEvents("evt1_3_5");
 		testGetAccessedVariables("Calculate accessed variables 11", elemDist,
 				"z");
 
 	}
 
 	/**
-	 * Utility method for testing
-	 * {@link IElementDistribution#getAccessedVariables()}.
+	 * Utility method to test
+	 * {@link ISubModel#getAccessedVariables()}.
 	 * 
 	 * @param message
 	 *            a message.
@@ -190,8 +190,15 @@ public class ElementDistributionTests extends AbstractDecompositionTests {
 	 *            expected set of accessed variables (in {@link String}).
 	 */
 	private void testGetAccessedVariables(String message,
-			IElementDistribution elemDist, String ... expected) {
-		Set<String> vars = elemDist.getAccessedVariables();
+			ISubModel elemDist, String ... expected) {
+		Set<String> vars;
+		try {
+			vars = elemDist.getAccessedVariables();
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+			fail("Get accessed variables: There should be no exception");
+			return;
+		}
 		assertEqualsVariables(message, expected, vars);
 	}
 

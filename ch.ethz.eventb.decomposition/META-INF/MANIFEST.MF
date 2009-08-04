@@ -7,7 +7,15 @@ Bundle-Activator: ch.ethz.eventb.decomposition.DecompositionPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui;visibility:=reexport,
  org.eclipse.core.runtime;visibility:=reexport,
- org.eventb.core;bundle-version="1.0.0";visibility:=reexport
+ org.eventb.core;bundle-version="1.0.0";visibility:=reexport,
+ org.eventb.ui;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
-Export-Package: ch.ethz.eventb.internal.decomposition.wizards;x-friends:="ch.ethz.eventb.decomposition.tests"
+Bundle-Localization: plugin
+Export-Package: ch.ethz.eventb.decomposition,
+ ch.ethz.eventb.internal.decomposition,
+ ch.ethz.eventb.internal.decomposition.astyle;x-friends:="ch.ethz.eventb.decomposition.tests",
+ ch.ethz.eventb.internal.decomposition.ui.actions;x-friends:="ch.ethz.eventb.decomposition.tests",
+ ch.ethz.eventb.internal.decomposition.ui.wizards;x-friends:="ch.ethz.eventb.decomposition.tests",
+ ch.ethz.eventb.internal.decomposition.ui.wizards.astyle;x-friends:="ch.ethz.eventb.decomposition.tests",
+ ch.ethz.eventb.internal.decomposition.utils;x-friends:="ch.ethz.eventb.decomposition.tests"

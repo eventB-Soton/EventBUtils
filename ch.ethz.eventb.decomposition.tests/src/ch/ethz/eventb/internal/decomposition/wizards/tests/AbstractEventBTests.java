@@ -117,7 +117,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for create an Event-B project with given name.
+	 * Utility method to create an Event-B project with given name.
 	 * 
 	 * @param name
 	 *            name of the project
@@ -139,7 +139,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating a context with the given bare name. The
+	 * Utility method to create a context with the given bare name. The
 	 * context is created as a child of the input Event-B project.
 	 * 
 	 * @param project
@@ -160,7 +160,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating an extends clause within the input context
+	 * Utility method to create an EXTENDS clause within the input context
 	 * for an abstract context.
 	 * 
 	 * @param ctx
@@ -181,7 +181,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating a carrier set within the input context with
+	 * Utility method to create a carrier set within the input context with
 	 * the given identifier string.
 	 * 
 	 * @param ctx
@@ -201,7 +201,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating a constant within the input context with the
+	 * Utility method to create a constant within the input context with the
 	 * given identifier string.
 	 * 
 	 * @param ctx
@@ -221,7 +221,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating an axiom within the input context with the
+	 * Utility method to create an axiom within the input context with the
 	 * given label and predicate string.
 	 * 
 	 * @param ctx
@@ -248,7 +248,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating a machine with the given bare name. The
+	 * Utility method to create a machine with the given bare name. The
 	 * machine is created as a child of the input Event-B project.
 	 * 
 	 * @param bareName
@@ -267,7 +267,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for create a refines machine clause within the input
+	 * Utility method to create a REFINES machine clause within the input
 	 * machine for the abstract machine.
 	 * 
 	 * @param mch
@@ -289,7 +289,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating a sees clause within the input machine for
+	 * Utility method to create a SEES clause within the input machine for
 	 * the input context.
 	 * 
 	 * @param mch
@@ -309,7 +309,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating a variable within the input machine with the
+	 * Utility method to create a variable within the input machine with the
 	 * given identifier string.
 	 * 
 	 * @param mch
@@ -329,7 +329,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating an invariant within the input machine with a
+	 * Utility method to create an invariant within the input machine with a
 	 * given label and predicate string.
 	 * 
 	 * @param mch
@@ -353,7 +353,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating an event within the input machine with the
+	 * Utility method to create an event within the input machine with the
 	 * given label. By default, the extended attribute of the event is set to
 	 * <code>false</code>. and the convergence status is set to
 	 * <code>ordinary</code>
@@ -397,7 +397,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating a parameter within the input event with the
+	 * Utility method to create a parameter within the input event with the
 	 * given identifier string.
 	 * 
 	 * @param evt
@@ -417,7 +417,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating a guard within the input event with the given
+	 * Utility method to create a guard within the input event with the given
 	 * label and predicate string.
 	 * 
 	 * @param evt
@@ -440,7 +440,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating a witness within the input event with the
+	 * Utility method to create a witness within the input event with the
 	 * given label and predicate string.
 	 * 
 	 * @param evt
@@ -463,7 +463,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for creating an action within the input event with the
+	 * Utility method to create an action within the input event with the
 	 * given label and assignment string.
 	 * 
 	 * @param evt
@@ -486,7 +486,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for testing event signature (e.g. label, extended and
+	 * Utility method to test event signature (e.g. label, extended and
 	 * convergence attributes and abstract events).
 	 * 
 	 * @param message
@@ -536,7 +536,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for testing event parameters.
+	 * Utility method to test event parameters.
 	 * 
 	 * @param message
 	 *            a message.
@@ -563,7 +563,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for testing event guards.
+	 * Utility method to test event guards.
 	 * 
 	 * @param message
 	 *            a message.
@@ -590,7 +590,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for testing a guard.
+	 * Utility method to test a guard.
 	 * 
 	 * @param message
 	 *            a message.
@@ -609,7 +609,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for testing event witnesses.
+	 * Utility method to test event witnesses.
 	 * 
 	 * @param message
 	 *            a message.
@@ -647,7 +647,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for testing event actions.
+	 * Utility method to test event actions.
 	 * 
 	 * @param message
 	 *            a message.
@@ -674,7 +674,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for testing an action.
+	 * Utility method to test an action.
 	 * 
 	 * @param message
 	 *            a message
@@ -695,7 +695,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method for getting the event of a machine with a given label.
+	 * Utility method to get the event of a machine with a given label.
 	 * 
 	 * @param mch
 	 *            a machine

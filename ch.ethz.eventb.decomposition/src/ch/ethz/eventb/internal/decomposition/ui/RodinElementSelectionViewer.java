@@ -10,10 +10,11 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards;
+package ch.ethz.eventb.internal.decomposition.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ISelection;
@@ -34,6 +35,8 @@ import org.rodinp.core.IElementType;
 import org.rodinp.core.IParent;
 import org.rodinp.core.IRodinElement;
 
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
+
 /**
  * @author htson
  *         <p>
@@ -42,10 +45,9 @@ import org.rodinp.core.IRodinElement;
  *         {@link #setInput(IParent)}.
  *         </p>
  * @param <T>
- *            a type which extends {@link IRodinElement}. TODO Implement update
- *            buttons status.
+ *            a type which extends {@link IRodinElement}.
  */
-public class ElementListChooserViewer<T extends IRodinElement> {
+public class RodinElementSelectionViewer<T extends IRodinElement> {
 
 	// A list viewer for available elements.
 	private ListViewer availableViewer;
@@ -54,49 +56,49 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 	private ListViewer selectedViewer;
 	
 	// The list of selected elements.
-	private List<T> selectedElement;
+	List<T> selectedElement;
 	
 	// The element type of the chosen elements.
 	private IElementType<T> type;
 	
-	// The title of the dialog.
+	// The title.
 	private String title;
 
-	// "Add" button.
+	// The "Add" button.
 	private Button add;
 	
-	// "Remove" button.
+	// The "Remove" button.
 	private Button remove;
 	
 	/**
 	 * Constructor.
 	 * 
 	 * @param parent
-	 *            the composite parent to create the viewer.
+	 *            the parent composite.
 	 * @param type
-	 *            the element type of the chosen elements.
+	 *            the type of the chosen elements.
 	 * @param title
-	 *            the title of the dialog.
+	 *            the title of the chooser.
 	 */
-	public ElementListChooserViewer(Composite parent, IElementType<T> type,
+	public RodinElementSelectionViewer(Composite parent, IElementType<T> type,
 			String title) {
 		this.type = type;
 		selectedElement = new ArrayList<T>();
 		this.title = title;
 		
 		// Create the main control of the dialog.
-		createControl(parent);
+		createViewer(parent);
 	}
 
 	/**
-	 * Create the control of the dialog.
+	 * Creates the viewer.
 	 * 
 	 * @param comp
-	 *            the composite to create the control.
+	 *            the parent composite.
 	 */
-	private void createControl(Composite comp) {
+	private void createViewer(Composite comp) {
 		
-		// Create the Group parent.
+		// Create the parent.
 		Group parent = new Group(comp, SWT.DEFAULT);
 		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		layoutData.horizontalSpan = 3;
@@ -138,15 +140,15 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 	}
 
 	/**
-	 * Utility method for creating the labels on top of the two lists.
+	 * Utility method to create the labels on top of the two lists.
 	 * 
 	 * @param parent
-	 *            the composite parent for creating the labels.
+	 *            the parent composite.
 	 */
 	private void createLabels(Composite parent) {
 		Label availableLabel = new Label(parent, SWT.LEFT);
 	    availableLabel
-				.setText("Available");
+				.setText(Messages.label_available);
 	    GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 	    availableLabel.setLayoutData(gd);
 	
@@ -157,36 +159,35 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 	    
 	    Label selectedLabel = new Label(parent, SWT.LEFT);
 	    selectedLabel
-				.setText("Selected");
+				.setText(Messages.label_selected);
 	    gd = new GridData(GridData.FILL_HORIZONTAL);
 	    selectedLabel.setLayoutData(gd);	
 	}
 
 	/**
-	 * Returns this field editor's list control.
+	 * Creates the list viewer.
 	 * 
 	 * @param parent
 	 *            the parent control
-	 * @return the list control
+	 * @return the list viewer
 	 */
-    public ListViewer createListViewer(Composite parent) {
+    private ListViewer createListViewer(Composite parent) {
 		ListViewer viewer = new ListViewer(parent, SWT.BORDER | SWT.MULTI
 				| SWT.V_SCROLL | SWT.H_SCROLL);
 		viewer.getControl().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		viewer.setLabelProvider(new RodinElementLabelProvider());
 		viewer
-				.setContentProvider(new RodinElementTableContentProvider<T>(
+				.setContentProvider(new RodinElementContentProvider<T>(
 						type));
 		return viewer;
 	}
     
-    
 	/**
-	 * Create the set of buttons.
+	 * Creates the set of buttons.
 	 * 
 	 * @param parent
-	 *            the parent composite for creating the buttons.
+	 *            the parent composite used to create the buttons.
 	 */
 	private void createButtons(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
@@ -196,7 +197,7 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 		
 		// Add button.
 		add = new Button(container, SWT.PUSH);
-		add.setText("Add >> ");
+		add.setText(">>");
 		add.addSelectionListener(new SelectionListener() {
 
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -208,10 +209,11 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 			}
 			
 		});
-		add.setLayoutData(new GridData());
+		add.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
+		// Remove button.
 		remove = new Button(container, SWT.PUSH);
-		remove.setText("<< Remove");
+		remove.setText("<<");
 		remove.addSelectionListener(new SelectionListener() {
 
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -223,11 +225,11 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 			}
 			
 		});
-		remove.setLayoutData(new GridData());
+		remove.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 	}
 
 	/**
-	 * Utility method for adding selected elements.
+	 * Utility method to add selected elements.
 	 */
 	protected void addElement() {
 		selectedElement.addAll(selectionToList(availableViewer.getSelection()));
@@ -235,7 +237,7 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 	}
 
 	/**
-	 * Utility method for removing selected elements.
+	 * Utility method to remove selected elements.
 	 */
 	protected void removeElements() {
 		selectedElement
@@ -244,7 +246,7 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 	}
 
 	/**
-	 * Utility method for refreshing the two viewers.
+	 * Utility method to refresh the two viewers.
 	 */
 	private void refresh() {
 		availableViewer.refresh();
@@ -252,23 +254,23 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 	}
 
 	/**
+	 * Utility method to return the current selection as a list.
+	 * 
 	 * @param selection
-	 * @return
+	 *            the current selection.
+	 * @return the elements in this selection as a list.
 	 */
 	@SuppressWarnings("unchecked")
 	private Collection<T> selectionToList(ISelection selection) {
-		assert selection instanceof IStructuredSelection;
-		IStructuredSelection ssel = (IStructuredSelection) selection;
-		Collection<T> result = new ArrayList<T>();
-		Object[] array = ssel.toArray();
-		for (Object obj : array) {
-			result.add((T) obj);
+		if (selection instanceof IStructuredSelection) {
+			IStructuredSelection ssel = (IStructuredSelection) selection;
+			return new ArrayList<T>(ssel.toList());
 		}
-		return result;
+		return Collections.emptyList();
 	}
 
 	/**
-	 * Method for setting the input element of the viewer.
+	 * Sets the input element of the viewer.
 	 * 
 	 * @param input
 	 *            a parent input element.
@@ -280,7 +282,7 @@ public class ElementListChooserViewer<T extends IRodinElement> {
 	}
 
 	/**
-	 * Return the collection of selected elements.
+	 * Returns the collection of selected elements.
 	 * 
 	 * @return the selected elements.
 	 */

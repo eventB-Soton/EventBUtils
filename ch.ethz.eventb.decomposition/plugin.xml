@@ -5,12 +5,45 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             category="org.eventb.ui.wizards"
-            class="ch.ethz.eventb.internal.decomposition.wizards.DecompositionWizard"
+            class="ch.ethz.eventb.internal.decomposition.ui.wizards.DecompositionWizard"
             finalPerspective="org.eventb.ui.perspective.eventb"
             icon="icons/sample.gif"
             id="ch.ethz.eventb.decomposition.wizard"
             name="%wizardName">
       </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="org.eventb.ui.MachineFile"
+            objectClass="org.eventb.core.IMachineRoot">
+         <action
+               class="ch.ethz.eventb.internal.decomposition.ui.actions.Decompose"
+               enablesFor="1"
+               icon="icons/sample.gif"
+               id="org.eventb.ui.decompose"
+               label="%popupMenu.decompose.label"
+               menubarPath="modelling"
+               style="push"
+               tooltip="%popupMenu.decompose.tooltip">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.viewActions">
+      <viewContribution
+            id="fr.systerel.explorer.navigator.viewActions.toolbar"
+            targetID="fr.systerel.explorer.navigator.view">
+         <action
+               class="ch.ethz.eventb.internal.decomposition.ui.actions.Decompose"
+               icon="icons/sample.gif"
+               id="fr.systerel.explorer.navigator.actions.decompose"
+               label="%viewActions.decompose.label"
+               style="push"
+               toolbarPath="new"
+               tooltip="%viewActions.decompose.tooltip">
+         </action>
+      </viewContribution>
    </extension>
 
 </plugin>

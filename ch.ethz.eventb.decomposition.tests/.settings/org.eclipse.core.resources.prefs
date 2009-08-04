@@ -1,6 +1,6 @@
-#Fri Jul 10 15:16:08 CEST 2009
+#Fri Jul 24 17:20:53 CEST 2009
 eclipse.preferences.version=1
 encoding//src/ch/ethz/eventb/internal/decomposition/wizards/tests/AbstractEventBTests.java=UTF-8
-encoding//src/ch/ethz/eventb/internal/decomposition/wizards/tests/DecompositionUtilsTests.java=UTF-8
+encoding//src/ch/ethz/eventb/internal/decomposition/wizards/tests/DecompositionTests.java=UTF-8
 encoding//src/ch/ethz/eventb/internal/decomposition/wizards/tests/EventBTests.java=UTF-8
 encoding//src/ch/ethz/eventb/internal/decomposition/wizards/tests/EventBUtilsTests.java=UTF-8

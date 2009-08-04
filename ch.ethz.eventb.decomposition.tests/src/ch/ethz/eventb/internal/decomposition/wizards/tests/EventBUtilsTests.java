@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.internal.decomposition.wizards.EventBUtils;
+import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
 
 /**
  * @author htson
@@ -153,9 +153,9 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link EventBUtils#copySeesClauses(IMachineRoot, IMachineRoot, org.eclipse.core.runtime.IProgressMonitor)}
-	 * by copying the sees clauses from a source machine to a destination
+	 * by copying the SEES clauses from a source machine to a destination
 	 * machine.
 	 * 
 	 * @param src
@@ -191,7 +191,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Test method for {@link EventBUtils#getDisplayText(IRodinElement)}.
+	 * Test method for {@link EventBUtils#getDisplayedText(IRodinElement)}.
 	 */
 	@Test
 	public void testGetDisplayText() {
@@ -298,8 +298,8 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
-	 * {@link EventBUtils#getDisplayText(IRodinElement)}.
+	 * Utility method to test
+	 * {@link EventBUtils#getDisplayedText(IRodinElement)}.
 	 * 
 	 * @param message
 	 *            a message.
@@ -310,7 +310,7 @@ public class EventBUtilsTests extends EventBTests {
 	 */
 	private void testGetDisplayText(String message, IRodinElement elem,
 			String expected) {
-		String actual = EventBUtils.getDisplayText(elem);
+		String actual = EventBUtils.getDisplayedText(elem);
 		assertEquals(message + ": Incorrect display text", expected, actual);
 		return;
 	}
@@ -346,7 +346,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing {@link EventBUtils#getFreeIdentifiers(IEvent)}.
+	 * Utility method to test {@link EventBUtils#getFreeIdentifiers(IEvent)}.
 	 * 
 	 * @param message
 	 *            a message.
@@ -368,7 +368,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for comparing two list of free identifiers.
+	 * Utility method to compare two lists of free identifiers.
 	 * 
 	 * @param message
 	 *            a message.
@@ -562,7 +562,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing {@link EventBUtils#getFreeIdentifiers(IGuard)}
+	 * Utility method to test {@link EventBUtils#getFreeIdentifiers(IGuard)}
 	 * .
 	 * 
 	 * @param message
@@ -598,7 +598,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link EventBUtils#getPredicateFreeIdentifiers(String)}.
 	 * 
 	 * @param message
@@ -661,7 +661,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link EventBUtils#getFreeIdentifiers(IAction)}.
 	 * 
 	 * @param message
@@ -699,7 +699,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link EventBUtils#getAssignmentFreeIdentifiers(String)}.
 	 * 
 	 * @param message
@@ -734,7 +734,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link EventBUtils#getSeenCarrierSetsAndConstants(IMachineRoot)}.
 	 * 
 	 * @param message
@@ -775,7 +775,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link EventBUtils#getCarrierSetsAndConstants(IContextRoot)}.
 	 * 
 	 * @param message
@@ -846,7 +846,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing context signature: bare name, abstract context
+	 * Utility method to test context signature: bare name, abstract context
 	 * names.
 	 * 
 	 * @param message
@@ -884,7 +884,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing context carrier sets.
+	 * Utility method to test context carrier sets.
 	 * 
 	 * @param message
 	 *            a message.
@@ -920,7 +920,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing context constants.
+	 * Utility method to test context constants.
 	 * 
 	 * @param message
 	 *            a message.
@@ -956,7 +956,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing context axioms.
+	 * Utility method to test context axioms.
 	 * 
 	 * @param message
 	 *            a message.
@@ -1023,7 +1023,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link EventBUtils#getFreeIdentifiers(IInvariant)}.
 	 * 
 	 * @param message
@@ -1075,7 +1075,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link EventBUtils#identsToCSVString(String, FreeIdentifier[])}.
 	 * 
 	 * @param message
@@ -1124,7 +1124,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method for testing
+	 * Utility method to test
 	 * {@link EventBUtils#identsToPrimedCSVString(String, FreeIdentifier[])}.
 	 * 
 	 * @param message
