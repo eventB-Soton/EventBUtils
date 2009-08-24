@@ -10,7 +10,7 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests;
+package ch.ethz.eventb.internal.decomposition.wizards.tests.astyle;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -43,7 +43,7 @@ public class DecompositionTests extends AbstractDecompositionTests {
 	@Test
 	public void testCreateVariables() {
 		try {
-			DecompositionUtils.decomposeVariables(mch2_1, elemDist1,
+			DecompositionUtils.decomposeVariables(mch2_1, subModel1,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -56,7 +56,7 @@ public class DecompositionTests extends AbstractDecompositionTests {
 				+ Messages.decomposition_shared_comment);
 
 		try {
-			DecompositionUtils.decomposeVariables(mch3_1, elemDist2,
+			DecompositionUtils.decomposeVariables(mch3_1, subModel2,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -69,7 +69,7 @@ public class DecompositionTests extends AbstractDecompositionTests {
 						+ Messages.decomposition_shared_comment);
 
 		try {
-			DecompositionUtils.decomposeVariables(mch4_1, elemDist3,
+			DecompositionUtils.decomposeVariables(mch4_1, subModel3,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -128,7 +128,7 @@ public class DecompositionTests extends AbstractDecompositionTests {
 	@Test
 	public void testCreateInvariants() {
 		try {
-			DecompositionUtils.decomposeInvariants(mch2_1, elemDist1,
+			DecompositionUtils.decomposeInvariants(mch2_1, subModel1,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -141,7 +141,7 @@ public class DecompositionTests extends AbstractDecompositionTests {
 				"mch1_2_thm1_2_3: v ≥ 0: true");
 
 		try {
-			DecompositionUtils.decomposeInvariants(mch3_1, elemDist2,
+			DecompositionUtils.decomposeInvariants(mch3_1, subModel2,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -156,7 +156,7 @@ public class DecompositionTests extends AbstractDecompositionTests {
 				"mch1_2_inv1_2_2: v ∈ ℕ: false", "mch1_2_thm1_2_3: v ≥ 0: true");
 
 		try {
-			DecompositionUtils.decomposeInvariants(mch4_1, elemDist3,
+			DecompositionUtils.decomposeInvariants(mch4_1, subModel3,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -210,7 +210,7 @@ public class DecompositionTests extends AbstractDecompositionTests {
 	@Test
 	public void testDecomposeEvents() {
 		try {
-			DecompositionUtils.decomposeEvents(mch2_1, elemDist1,
+			DecompositionUtils.decomposeEvents(mch2_1, subModel1,
 					new NullProgressMonitor());
 			
 			// Test number of events.

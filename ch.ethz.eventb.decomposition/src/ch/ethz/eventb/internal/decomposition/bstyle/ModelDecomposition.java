@@ -10,7 +10,7 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.astyle;
+package ch.ethz.eventb.internal.decomposition.bstyle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eventb.core.IMachineRoot;
@@ -24,7 +24,7 @@ import ch.ethz.eventb.internal.decomposition.ISubModel;
 /**
  * @author htson
  *         <p>
- *         An implementation of {@link IModelDecomposition} for A-style
+ *         An implementation of {@link IModelDecomposition} for B-style
  *         decomposition.
  *         </p>
  */
@@ -44,10 +44,12 @@ public class ModelDecomposition extends
 	}
 
 	public String getStyle() {
-		return IModelDecomposition.A_STYLE;
+		return IModelDecomposition.B_STYLE;
 	}
 
+	/**
+	 * @TODO To be implemented.
+	 */
 	public void perform(IProgressMonitor monitor) throws RodinDBException {
-		DecompositionUtils.decompose(this, monitor);
 	}
 }

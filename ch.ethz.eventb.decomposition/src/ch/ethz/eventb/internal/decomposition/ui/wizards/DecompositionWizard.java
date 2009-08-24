@@ -24,10 +24,11 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
+import org.eventb.core.IEvent;
 import org.eventb.core.IMachineRoot;
+import org.eventb.core.IVariable;
 
 import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.ui.wizards.astyle.EventPartitionWizardPage;
 import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
@@ -69,11 +70,16 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 				final IModelDecomposition modelDecomp = initialPage
 						.getModelDecomposition();
 				if (modelDecomp.getStyle().equals(IModelDecomposition.A_STYLE)) {
-					decompPage = new EventPartitionWizardPage(modelDecomp,
-							selection);
-					addPage(decompPage);
+					decompPage = new ElementPartitionWizardPage<IEvent>(
+							modelDecomp, selection, IEvent.ELEMENT_TYPE);
+				} else if (modelDecomp.getStyle().equals(
+						IModelDecomposition.B_STYLE)) {
+					decompPage = new ElementPartitionWizardPage<IVariable>(
+							modelDecomp, selection, IVariable.ELEMENT_TYPE);
+				} else {
+					return null;
 				}
-				// TODO Return the page for the B-Style decomposition
+				addPage(decompPage);
 			}
 			return decompPage;
 		}

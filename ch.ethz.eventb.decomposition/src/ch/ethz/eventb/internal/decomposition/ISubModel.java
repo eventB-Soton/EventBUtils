@@ -12,13 +12,10 @@
 
 package ch.ethz.eventb.internal.decomposition;
 
-import java.util.Set;
-
 import org.eventb.core.IMachineRoot;
-import org.rodinp.core.RodinDBException;
+import org.rodinp.core.IRodinElement;
 
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
-
 
 /**
  * @author htson
@@ -61,29 +58,19 @@ public interface ISubModel {
 	 * @return the project name.
 	 */
 	public String getProjectName();
-	
-	/**
-	 * Sets the set of events contained in this sub-model.
-	 * 
-	 * @param events
-	 *            the labels of the contained events.
-	 */
-	public void setEvents(String... events);
 
 	/**
-	 * Returns the set of events contained in this sub-model.
+	 * Sets the elements chosen by the end-user for this sub-model.
 	 * 
-	 * @return the labels of the contained events.
+	 * @param elements
+	 *            the chosen elements.
 	 */
-	public String[] getEvents();
+	public void setElements(IRodinElement... elements);
 
 	/**
-	 * Returns the set of variables accessed by this sub-model.
+	 * Returns the elements chosen by the end-user for this sub-model.
 	 * 
-	 * @return the labels of the accessed variables.
-	 * @throw RodinDBException if a problem occurs when accessing the Rodin
-	 *        database.
+	 * @return the chosen elements.
 	 */
-	public Set<String> getAccessedVariables() throws RodinDBException;
-
+	public IRodinElement[] getElements();
 }

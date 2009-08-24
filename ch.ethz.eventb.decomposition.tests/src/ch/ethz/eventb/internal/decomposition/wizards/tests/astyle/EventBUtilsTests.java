@@ -10,7 +10,7 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests;
+package ch.ethz.eventb.internal.decomposition.wizards.tests.astyle;
 
 import java.util.List;
 
@@ -35,7 +35,10 @@ import org.eventb.core.ast.FreeIdentifier;
 import org.eventb.core.ast.Predicate;
 import org.eventb.core.seqprover.eventbExtensions.Lib;
 import org.junit.Test;
+import org.rodinp.core.IRodinDB;
 import org.rodinp.core.IRodinElement;
+import org.rodinp.core.IRodinProject;
+import org.rodinp.core.RodinCore;
 import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
@@ -56,7 +59,7 @@ public class EventBUtilsTests extends EventBTests {
 	public void testCreateProject() {
 		IEventBProject project;
 
-		// Test create project failed.
+		// Test create project when the project already exists.
 		try {
 			project = EventBUtils
 					.createProject("P1", new NullProgressMonitor());
@@ -65,8 +68,13 @@ public class EventBUtilsTests extends EventBTests {
 			fail("There should be no exception throws");
 			return;
 		}
-		assertNull("There should be already a project with the name P1",
+		assertNotNull("Creating of the project named P1 should be succesful",
 				project);
+		assertTrue("The project must exist", project.getRodinProject().exists());
+		final IRodinDB rodinDB = RodinCore.getRodinDB();
+		final IRodinProject rodinProject = rodinDB.getRodinProject("P1");
+		assertEquals("Project should be named P1", project.getRodinProject(),
+				rodinProject);
 
 		// Test create project successfully.
 		try {
@@ -382,7 +390,7 @@ public class EventBUtilsTests extends EventBTests {
 		assertEquals(message
 				+ ": Incorrect number of expected free identfiers ",
 				expected.length, actual.size());
-		for (int i =  0; i < expected.length; i++) {
+		for (int i = 0; i < expected.length; i++) {
 			assertEquals(message, expected[i], actual.get(i));
 		}
 	}
@@ -562,8 +570,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method to test {@link EventBUtils#getFreeIdentifiers(IGuard)}
-	 * .
+	 * Utility method to test {@link EventBUtils#getFreeIdentifiers(IGuard)} .
 	 * 
 	 * @param message
 	 *            a message.
@@ -661,8 +668,7 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method to test
-	 * {@link EventBUtils#getFreeIdentifiers(IAction)}.
+	 * Utility method to test {@link EventBUtils#getFreeIdentifiers(IAction)}.
 	 * 
 	 * @param message
 	 *            a message.
@@ -1023,8 +1029,8 @@ public class EventBUtilsTests extends EventBTests {
 	}
 
 	/**
-	 * Utility method to test
-	 * {@link EventBUtils#getFreeIdentifiers(IInvariant)}.
+	 * Utility method to test {@link EventBUtils#getFreeIdentifiers(IInvariant)}
+	 * .
 	 * 
 	 * @param message
 	 *            a message.
@@ -1171,7 +1177,7 @@ public class EventBUtilsTests extends EventBTests {
 					.getEventWithLabel(mch1_2, "evt3_1_1"));
 			assertNull("Get event with incorrect label 3", EventBUtils
 					.getEventWithLabel(mch1_3, "evt1_1_1"));
-			
+
 			assertEquals("Get event with correct label 1", evt1_1_1,
 					EventBUtils.getEventWithLabel(mch1_1, "evt1_1_1"));
 			assertEquals("Get event with correct label 2", evt1_1_2,

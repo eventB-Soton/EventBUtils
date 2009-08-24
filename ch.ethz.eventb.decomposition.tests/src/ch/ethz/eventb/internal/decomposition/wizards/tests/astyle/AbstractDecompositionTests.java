@@ -10,7 +10,7 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests;
+package ch.ethz.eventb.internal.decomposition.wizards.tests.astyle;
 
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -32,21 +32,21 @@ import ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition;
 public abstract class AbstractDecompositionTests extends EventBTests {
 
 	// Some model distributions.
-	protected IModelDecomposition modelDist1;
+	protected IModelDecomposition modelDecomp1;
 
-	protected IModelDecomposition modelDist2;
+	protected IModelDecomposition modelDecomp2;
 	
-	protected IModelDecomposition modelDist3;
+	protected IModelDecomposition modelDecomp3;
 
 	// Some element distributions.
-	protected ISubModel elemDist1;
+	protected ISubModel subModel1;
 	
-	protected ISubModel elemDist2;
+	protected ISubModel subModel2;
 	
-	protected ISubModel elemDist3;
+	protected ISubModel subModel3;
 	
 	/* (non-Javadoc)
-	 * @see ch.ethz.eventb.internal.decomposition.wizards.tests.EventBTests#setUp()
+	 * @see ch.ethz.eventb.internal.decomposition.wizards.tests.astyle.EventBTests#setUp()
 	 */
 	@Before
 	@Override
@@ -54,19 +54,19 @@ public abstract class AbstractDecompositionTests extends EventBTests {
 		super.setUp();
 		
 		// Create the model distributions.
-		modelDist1 = new ModelDecomposition(mch1_1);
-		modelDist2 = new ModelDecomposition(mch1_2);
-		modelDist3 = new ModelDecomposition(mch1_3);
+		modelDecomp1 = new ModelDecomposition(mch1_1);
+		modelDecomp2 = new ModelDecomposition(mch1_2);
+		modelDecomp3 = new ModelDecomposition(mch1_3);
 		
 		// Create the element distributions.
-		elemDist1 = modelDist3.createSubModel();
-		elemDist1.setEvents("evt1_3_1", "evt1_3_5");
+		subModel1 = modelDecomp3.addSubModel();
+		subModel1.setElements(evt1_3_1, evt1_3_5);
 		
-		elemDist2 = modelDist3.createSubModel();
-		elemDist2.setEvents("evt1_3_2", "evt1_3_3");
+		subModel2 = modelDecomp3.addSubModel();
+		subModel2.setElements(evt1_3_2, evt1_3_3);
 
-		elemDist3 = modelDist3.createSubModel();
-		elemDist3.setEvents("evt1_3_4");
+		subModel3 = modelDecomp3.addSubModel();
+		subModel3.setElements(evt1_3_4);
 		
 		// ensure autobuilding is turned on
 		IWorkspaceDescription wsDescription = workspace.getDescription();

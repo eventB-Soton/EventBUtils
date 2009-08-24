@@ -10,7 +10,7 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests;
+package ch.ethz.eventb.internal.decomposition.wizards.tests.astyle;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.IAction;

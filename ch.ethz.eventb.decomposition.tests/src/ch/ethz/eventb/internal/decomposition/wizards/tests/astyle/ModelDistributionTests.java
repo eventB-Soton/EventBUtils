@@ -10,7 +10,7 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests;
+package ch.ethz.eventb.internal.decomposition.wizards.tests.astyle;
 
 import java.util.Set;
 
@@ -19,6 +19,7 @@ import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.internal.decomposition.astyle.DecompositionUtils;
 
 /**
  * @author htson
@@ -33,9 +34,9 @@ public class ModelDistributionTests extends AbstractDecompositionTests {
 	 */
 	@Test
 	public void testGetMachineRoot() {
-		assertEquals("Get machine root 1", mch1_1, modelDist1.getMachineRoot());
-		assertEquals("Get machine root 2", mch1_2, modelDist2.getMachineRoot());
-		assertEquals("Get machine root 3", mch1_3, modelDist3.getMachineRoot());
+		assertEquals("Get machine root 1", mch1_1, modelDecomp1.getMachineRoot());
+		assertEquals("Get machine root 2", mch1_2, modelDecomp2.getMachineRoot());
+		assertEquals("Get machine root 3", mch1_3, modelDecomp3.getMachineRoot());
 	}
 	
 	/**
@@ -44,11 +45,11 @@ public class ModelDistributionTests extends AbstractDecompositionTests {
 	@Test
 	public void testCreateElementDistribution() {
 		testCreateElementDistribution("Create element distribution 1",
-				modelDist1);
+				modelDecomp1);
 		testCreateElementDistribution("Create element distribution 2",
-				modelDist2);
+				modelDecomp2);
 		testCreateElementDistribution("Create element distribution 3",
-				modelDist3);
+				modelDecomp3);
 	}
 
 	/**
@@ -61,14 +62,14 @@ public class ModelDistributionTests extends AbstractDecompositionTests {
 	 *            a model distribution.
 	 */
 	private void testCreateElementDistribution(String message,
-			IModelDecomposition modelDist) {
-		ISubModel elemDist = modelDist.createSubModel();
+			IModelDecomposition modelDecomp) {
+		ISubModel elemDist = modelDecomp.addSubModel();
 		assertEquals(message + ": Incorrect project name",
 				ISubModel.DEFAULT_PROJECT_NAME, elemDist
 						.getProjectName());
-		assertEquals(message + ": Incorrect model distribution", modelDist,
+		assertEquals(message + ": Incorrect model distribution", modelDecomp,
 				elemDist.getModelDecomposition());
-		ISubModel[] elemDists = modelDist.getSubModels();
+		ISubModel[] elemDists = modelDecomp.getSubModels();
 		boolean found = false;
 		for (ISubModel dist : elemDists) {
 			if (elemDist.equals(dist)) {
@@ -86,14 +87,14 @@ public class ModelDistributionTests extends AbstractDecompositionTests {
 	 */
 	@Test
 	public void testGetElementDistributions() {
-		ISubModel[] elemDists = modelDist1.getSubModels();
+		ISubModel[] subModels = modelDecomp1.getSubModels();
 		assertEquals("There should be no element distributions", 0,
-				elemDists.length);
+				subModels.length);
 		
-		elemDists = modelDist3.getSubModels();
-		assertContains("Contain element distribution 1", elemDists, elemDist1);
-		assertContains("Contain element distribution 2", elemDists, elemDist2);
-		assertContains("Contain element distribution 3", elemDists, elemDist3);
+		subModels = modelDecomp3.getSubModels();
+		assertContains("Contain element distribution 1", subModels, subModel1);
+		assertContains("Contain element distribution 2", subModels, subModel2);
+		assertContains("Contain element distribution 3", subModels, subModel3);
 	}
 
 	/**
@@ -103,23 +104,23 @@ public class ModelDistributionTests extends AbstractDecompositionTests {
 	 * 
 	 * @param message
 	 *            a message.
-	 * @param elemDists
+	 * @param subModels
 	 *            an array of element distribution.
-	 * @param elemDist
+	 * @param subModel
 	 *            an element distribution.
 	 */
 	private void assertContains(String message,
-			ISubModel[] elemDists, ISubModel elemDist) {
+			ISubModel[] subModels, ISubModel subModel) {
 		boolean found = false;
-		for (ISubModel dist : elemDists) {
-			if (dist.equals(elemDist)) {
+		for (ISubModel dist : subModels) {
+			if (dist.equals(subModel)) {
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
 			fail(message + ": Cannot find element distribution "
-					+ elemDist.getProjectName());
+					+ subModel.getProjectName());
 		}
 	}
 	
@@ -129,19 +130,19 @@ public class ModelDistributionTests extends AbstractDecompositionTests {
 	 */
 	@Test
 	public void testRemoveElementDistribution() {
-		ISubModel elemDist = modelDist3.createSubModel();
-		modelDist3.removeSubModel(elemDist);
-		ISubModel[] elemDists = modelDist3.getSubModels();
-		assertEquals("Incorrect number of distributions", 3, elemDists.length);
-		assertContains("Remove element distribution 1", elemDists, elemDist1);
-		assertContains("Remove element distribution 2", elemDists, elemDist2);
-		assertContains("Remove element distribution 3", elemDists, elemDist3);
+		ISubModel subModel = modelDecomp3.addSubModel();
+		modelDecomp3.removeSubModel(subModel);
+		ISubModel[] subModels = modelDecomp3.getSubModels();
+		assertEquals("Incorrect number of distributions", 3, subModels.length);
+		assertContains("Remove element distribution 1", subModels, subModel1);
+		assertContains("Remove element distribution 2", subModels, subModel2);
+		assertContains("Remove element distribution 3", subModels, subModel3);
 		
-		modelDist3.removeSubModel(elemDist2);
-		elemDists = modelDist3.getSubModels();
-		assertEquals("Incorrect number of distributions", 2, elemDists.length);
-		assertContains("Remove element distribution 4", elemDists, elemDist1);
-		assertContains("Remove element distribution 5", elemDists, elemDist3);
+		modelDecomp3.removeSubModel(subModel2);
+		subModels = modelDecomp3.getSubModels();
+		assertEquals("Incorrect number of distributions", 2, subModels.length);
+		assertContains("Remove element distribution 4", subModels, subModel1);
+		assertContains("Remove element distribution 5", subModels, subModel3);
 	}
 
 	/**
@@ -151,9 +152,9 @@ public class ModelDistributionTests extends AbstractDecompositionTests {
 	public void testGetSharedVariables() {
 		Set<String> vars;
 		try {
-			vars = modelDist3.getSharedVariables();
+			vars = DecompositionUtils.getSharedVariables(modelDecomp3);
 			assertEqualsVariables("", vars, "u", "v");
-			vars = modelDist1.getSharedVariables();
+			vars = DecompositionUtils.getSharedVariables(modelDecomp1);
 			assertEqualsVariables("", vars);
 		} catch (RodinDBException e) {
 			e.printStackTrace();

@@ -12,8 +12,6 @@
 
 package ch.ethz.eventb.internal.decomposition;
 
-import java.util.Set;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.RodinDBException;
@@ -39,7 +37,7 @@ public interface IModelDecomposition {
 	 * The B-style decomposition.
 	 */
 	public final static String B_STYLE = Messages.decomposition_bstyle;
-	
+
 	/**
 	 * Sets the machine root for this decomposition.
 	 * 
@@ -56,11 +54,11 @@ public interface IModelDecomposition {
 	public IMachineRoot getMachineRoot();
 
 	/**
-	 * Creates a new sub-model.
+	 * Creates a sub-model.
 	 * 
-	 * @return the newly created sub-model.
+	 * @return the newly created model.
 	 */
-	public ISubModel createSubModel();
+	public ISubModel addSubModel();
 
 	/**
 	 * Returns the set of sub-models.
@@ -78,22 +76,12 @@ public interface IModelDecomposition {
 	public void removeSubModel(ISubModel model);
 
 	/**
-	 * Gets the set of variables shared between the sub-models of the
-	 * decomposition (in {@link String}).
-	 * 
-	 * @return the labels of the shared variables.
-	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
-	 */
-	public Set<String> getSharedVariables() throws RodinDBException;
-
-	/**
 	 * Gets the decomposition style.
 	 * 
 	 * @return the decomposition style.
 	 */
 	public String getStyle();
-	
+
 	/**
 	 * Performs the decomposition.
 	 * 

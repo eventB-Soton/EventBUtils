@@ -27,7 +27,7 @@ public class DecompositionContentProvider implements ITreeContentProvider {
 		}
 
 		if (parentElement instanceof ISubModel) {
-			return ((ISubModel) parentElement).getEvents();
+			return ((ISubModel) parentElement).getElements();
 		}
 
 		return new Object[0];

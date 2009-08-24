@@ -8,7 +8,7 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
-package ch.ethz.eventb.internal.decomposition.ui.wizards.astyle;
+package ch.ethz.eventb.internal.decomposition.ui.wizards;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -29,8 +29,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eventb.core.IContextRoot;
 import org.eventb.core.IMachineRoot;
+import org.rodinp.core.IElementType;
 import org.rodinp.core.IInternalElement;
 import org.rodinp.core.IRodinDB;
+import org.rodinp.core.IRodinElement;
 import org.rodinp.core.IRodinFile;
 import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinCore;
@@ -46,10 +48,10 @@ import ch.ethz.eventb.internal.decomposition.utils.Messages;
 /**
  * @author htson
  *         <p>
- *         The wizard page used to partition the events.
+ *         The wizard page used to partition the Rodin elements.
  *         </p>
  */
-public class EventPartitionWizardPage extends WizardPage {
+public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardPage {
 
 	// The current selection.
 	private ISelection selection;
@@ -57,6 +59,9 @@ public class EventPartitionWizardPage extends WizardPage {
 	// The model decomposition.
 	IModelDecomposition modelDecomp;
 
+	// The type of the elements to be partitioned.
+	private IElementType<T> type;
+	
 	// The tree viewer to display the sub-models.
 	TreeViewer viewer;
 
@@ -77,16 +82,20 @@ public class EventPartitionWizardPage extends WizardPage {
 	 * initialization.
 	 * 
 	 * @param decomp
-	 * the model decomposition.
+	 *            the model decomposition.
 	 * @param selection
 	 *            the current selection.
+	 * @param type
+	 *            the type of the elements to be partitioned.
 	 */
-	public EventPartitionWizardPage(IModelDecomposition modelDecomp, ISelection selection) {
+	public ElementPartitionWizardPage(IModelDecomposition modelDecomp,
+			ISelection selection, IElementType<T> type) {
 		super(Messages.wizard_name);
 		setTitle(Messages.wizard_title);
 		setDescription(Messages.wizard_description);
 		this.modelDecomp = modelDecomp;
 		this.selection = selection;
+		this.type = type;
 	}
 
 	public void createControl(Composite parent) {
@@ -171,13 +180,13 @@ public class EventPartitionWizardPage extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				ISubModel subModel = getSelectedSubModel();
 				if (subModel != null) {
-					EventPartitionDialog dialog = new EventPartitionDialog(
-							viewer.getControl().getShell(), subModel);
-
+					ElementPartitionDialog<T> dialog = new ElementPartitionDialog<T>(
+							viewer.getControl().getShell(), subModel,
+							type);
 					dialog.open();
 					if (dialog.getReturnCode() == Dialog.OK) {
 						subModel.setProjectName(dialog.getProjectName());
-						subModel.setEvents(dialog.getEvents());
+						subModel.setElements(dialog.getElements());
 						viewer.refresh();
 						updateButtons();
 					}
@@ -197,7 +206,7 @@ public class EventPartitionWizardPage extends WizardPage {
 			}
 
 			public void widgetSelected(SelectionEvent e) {
-				modelDecomp.createSubModel();
+				modelDecomp.addSubModel();
 				viewer.refresh();
 				updateButtons();
 			}

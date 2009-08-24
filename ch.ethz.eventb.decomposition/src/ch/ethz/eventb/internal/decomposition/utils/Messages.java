@@ -19,7 +19,7 @@ public class Messages extends NLS {
 	public static String wizard_description;
 	public static String wizard_title;
 	public static String wizard_machine;
-	public static String wizard_events;
+	public static String wizard_elements;
 	public static String wizard_project;
 	public static String wizard_error;
 	public static String wizard_style;

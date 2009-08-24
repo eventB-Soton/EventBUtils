@@ -8,7 +8,7 @@
  *     ETH Zurich - initial API and implementation
  ****************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.ui.wizards.astyle;
+package ch.ethz.eventb.internal.decomposition.ui.wizards;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,8 +22,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eventb.core.IEvent;
-import org.rodinp.core.RodinDBException;
+import org.rodinp.core.IElementType;
+import org.rodinp.core.IInternalElement;
+import org.rodinp.core.IRodinElement;
 
 import ch.ethz.eventb.internal.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.ui.RodinElementSelectionViewer;
@@ -35,22 +36,25 @@ import ch.ethz.eventb.internal.decomposition.utils.Messages;
  *         The dialog used to partition the events.
  *         </p>
  */
-public class EventPartitionDialog extends Dialog {
+public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 
 	// The input sub-model.
 	private ISubModel subModel;
-	
+
 	// The text widget for the project name.
 	private Text prjText;
-	
+
 	// The name of the project.
 	private String prjName;
-	
-	// A list of event's labels. 
-	private String[] events;
-	
+
+	// A list of Rodin elements.
+	private IRodinElement[] elements;
+
+	// The type of the Rodin elements.
+	private IElementType<T> type;
+
 	// A viewer to choose the list of events.
-	private RodinElementSelectionViewer<IEvent> viewer;
+	private RodinElementSelectionViewer<T> viewer;
 
 	/**
 	 * Constructor.
@@ -59,37 +63,41 @@ public class EventPartitionDialog extends Dialog {
 	 *            the parent shell.
 	 * @param subModel
 	 *            the input sub-model.
+	 * @param type
+	 *            the type of the input elements.
+	 * 
 	 */
-	protected EventPartitionDialog(Shell parentShell,
-			ISubModel subModel) {
+	protected ElementPartitionDialog(Shell parentShell, ISubModel subModel,
+			IElementType<T> type) {
 		super(parentShell);
 		this.subModel = subModel;
+		this.type = type;
 	}
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Control control = super.createDialogArea(parent);
-		
+
 		// Area to choose the project name.
 		Composite prjNameComp = new Composite((Composite) control, SWT.NONE);
 		prjNameComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		prjNameComp.setLayout(layout);
-		
+
 		Label prjLabel = new Label(prjNameComp, SWT.CENTER);
 		prjLabel.setText(Messages.wizard_project);
 		prjLabel.setLayoutData(new GridData());
-		
+
 		prjText = new Text(prjNameComp, SWT.BORDER | SWT.SINGLE);
 		prjText.setText(subModel.getProjectName());
 		prjText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		// Create the viewer to choose the list of events.
-		viewer = new RodinElementSelectionViewer<IEvent>(prjNameComp,
-				IEvent.ELEMENT_TYPE, Messages.wizard_events);
+		viewer = new RodinElementSelectionViewer<T>(prjNameComp,
+				type, Messages.wizard_elements);
 		viewer.setInput(subModel.getMachineRoot());
-		
+
 		return control;
 	}
 
@@ -97,20 +105,16 @@ public class EventPartitionDialog extends Dialog {
 	protected void okPressed() {
 		// Set the project name to be returned.
 		prjName = prjText.getText();
-		
+
 		// Set the list of event to be returned.
-		Collection<IEvent> selected = viewer.getSelected();
+		Collection<T> selected = viewer.getSelected();
 		int size = selected.size();
-		Collection<String> result = new ArrayList<String>(size);
-		for (IEvent evt : selected) {
-			try {
-				result.add(evt.getLabel());
-			} catch (RodinDBException e) {
-				e.printStackTrace();
-				super.cancelPressed();
-			}
+		Collection<IInternalElement> result = new ArrayList<IInternalElement>(
+				size);
+		for (IRodinElement element : selected) {
+			result.add((IInternalElement) element);
 		}
-		events = result.toArray(new String[size]);
+		elements = result.toArray(new IInternalElement[size]);
 		super.okPressed();
 	}
 
@@ -124,12 +128,12 @@ public class EventPartitionDialog extends Dialog {
 	}
 
 	/**
-	 * Return the list of events chosen through the dialog.
+	 * Return the list of Rodin elements chosen through the dialog.
 	 * 
-	 * @return the event labels.
+	 * @return the elements.
 	 */
-	public String[] getEvents() {
-		return events;
+	public IRodinElement[] getElements() {
+		return elements;
 	}
 
 }
