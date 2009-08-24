@@ -17,5 +17,4 @@ Export-Package: ch.ethz.eventb.decomposition,
  ch.ethz.eventb.internal.decomposition.astyle;x-friends:="ch.ethz.eventb.decomposition.tests",
  ch.ethz.eventb.internal.decomposition.ui.actions;x-friends:="ch.ethz.eventb.decomposition.tests",
  ch.ethz.eventb.internal.decomposition.ui.wizards;x-friends:="ch.ethz.eventb.decomposition.tests",
- ch.ethz.eventb.internal.decomposition.ui.wizards.astyle;x-friends:="ch.ethz.eventb.decomposition.tests",
  ch.ethz.eventb.internal.decomposition.utils;x-friends:="ch.ethz.eventb.decomposition.tests"
