@@ -39,10 +39,13 @@ import org.eventb.core.seqprover.eventbExtensions.Lib;
 import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 
+import ch.ethz.eventb.decomposition.astyle.IExternalElement;
+import ch.ethz.eventb.decomposition.astyle.INatureElement;
+import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
+import ch.ethz.eventb.decomposition.utils.EventBUtils;
+import ch.ethz.eventb.decomposition.utils.Messages;
 import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.ISubModel;
-import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -90,6 +93,8 @@ public class DecompositionUtils {
 		}
 	}
 
+	private final static IProgressMonitor monitor = new NullProgressMonitor();
+
 	/**
 	 * Utility method to decompose a model.
 	 * 
@@ -134,24 +139,23 @@ public class DecompositionUtils {
 		// 1: Create project
 		monitor.subTask(Messages.decomposition_project);
 		IEventBProject prj = EventBUtils.createProject(subModel
-				.getProjectName(), new NullProgressMonitor());
+				.getProjectName(), monitor);
 		monitor.worked(1);
 
 		// 2: Copy contexts from the original project
 		monitor.subTask(Messages.decomposition_contexts);
-		EventBUtils.copyContexts(src.getEventBProject(), prj,
-				new NullProgressMonitor());
+		EventBUtils.copyContexts(src.getEventBProject(), prj, monitor);
 		monitor.worked(1);
 
 		// 3: Create machine.
 		monitor.subTask(Messages.decomposition_machine);
 		IMachineRoot dest = EventBUtils.createMachine(prj,
-				src.getElementName(), new NullProgressMonitor());
+				src.getElementName(), monitor);
 		monitor.worked(1);
 
 		// 4: Copy SEES clauses.
 		monitor.subTask(Messages.decomposition_seesclauses);
-		EventBUtils.copySeesClauses(src, dest, new NullProgressMonitor());
+		EventBUtils.copySeesClauses(src, dest, monitor);
 		monitor.worked(1);
 
 		// 5: Create variables.
@@ -173,7 +177,7 @@ public class DecompositionUtils {
 		dest.getRodinFile().save(new SubProgressMonitor(monitor, 1), false);
 		monitor.done();
 	}
-	
+
 	/**
 	 * Returns the set of variables accessed by a sub-model.
 	 * 
@@ -188,7 +192,7 @@ public class DecompositionUtils {
 		// Adds the free identifiers from the events.
 		for (IRodinElement element : subModel.getElements()) {
 			for (IEvent event : mch.getEvents()) {
-				if (event.getLabel().equals(((IEvent)element).getLabel())) {
+				if (event.getLabel().equals(((IEvent) element).getLabel())) {
 					vars.addAll(EventBUtils.getFreeIdentifiers(event));
 				}
 			}
@@ -233,7 +237,7 @@ public class DecompositionUtils {
 		}
 		monitor.done();
 	}
-	
+
 	/**
 	 * Gets the set of variables shared between the sub-models of the
 	 * decomposition (in {@link String}).
@@ -274,17 +278,15 @@ public class DecompositionUtils {
 	 * @return the newly created shared variable.
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
-	 * 
-	 *             TODO: To be changed when the shared/private attribute is
-	 *             defined.
 	 */
 	private static IVariable createSharedVariable(IMachineRoot mch, String ident)
 			throws RodinDBException {
-		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		var.setIdentifierString(ident, new NullProgressMonitor());
-		var.setComment(Messages.decomposition_shared_comment,
-				new NullProgressMonitor());
+		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null, monitor);
+		var.setIdentifierString(ident, monitor);
+		var.setComment(Messages.decomposition_shared_comment, monitor);
+		INatureElement elt = (INatureElement) var
+				.getAdapter(INatureElement.class);
+		elt.setNature(Nature.SHARED, monitor);
 		return var;
 	}
 
@@ -299,17 +301,15 @@ public class DecompositionUtils {
 	 * @return the newly created private variable.
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
-	 * 
-	 *             TODO: To be changed when the shared/private attribute is
-	 *             defined.
 	 */
 	private static IVariable createPrivateVariable(IMachineRoot mch,
 			String ident) throws RodinDBException {
-		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		var.setIdentifierString(ident, new NullProgressMonitor());
-		var.setComment(Messages.decomposition_private_comment,
-				new NullProgressMonitor());
+		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null, monitor);
+		var.setIdentifierString(ident, monitor);
+		var.setComment(Messages.decomposition_private_comment, monitor);
+		INatureElement elt = (INatureElement) var
+				.getAdapter(INatureElement.class);
+		elt.setNature(Nature.PRIVATE, monitor);
 		return var;
 	}
 
@@ -364,12 +364,11 @@ public class DecompositionUtils {
 		monitor.beginTask(Messages.decomposition_typingtheorems, vars.size());
 		for (String var : vars) {
 			IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE, null,
-					new NullProgressMonitor());
-			newInv.setLabel(Messages.decomposition_typing + "_" + var,
-					new NullProgressMonitor());
-			newInv.setTheorem(true, new NullProgressMonitor());
+					monitor);
+			newInv.setLabel(Messages.decomposition_typing + "_" + var, monitor);
+			newInv.setTheorem(true, monitor);
 			newInv.setPredicateString(EventBUtils.getTypingTheorem(src, var),
-					new NullProgressMonitor());
+					monitor);
 			monitor.worked(1);
 		}
 		monitor.done();
@@ -464,15 +463,18 @@ public class DecompositionUtils {
 		evt = EventBUtils.flatten(evt);
 
 		// Create the new event.
-		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
+		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null, monitor);
+		
+		// Set the external attribute.
+		IExternalElement elt = (IExternalElement) newEvt
+				.getAdapter(IExternalElement.class);
+		elt.setExternal(true, monitor);
 
 		// Set event signature.
-		newEvt.setLabel(evt.getLabel(), new NullProgressMonitor());
-		newEvt.setConvergence(Convergence.ORDINARY, new NullProgressMonitor());
-		newEvt.setExtended(false, new NullProgressMonitor());
-		newEvt.setComment(Messages.decomposition_external_comment,
-				new NullProgressMonitor());
+		newEvt.setLabel(evt.getLabel(), monitor);
+		newEvt.setConvergence(Convergence.ORDINARY, monitor);
+		newEvt.setExtended(false, monitor);
+		newEvt.setComment(Messages.decomposition_external_comment, monitor);
 
 		// Copying the parameters from the source event.
 		EventBUtils.copyParameters(newEvt, evt);
@@ -510,10 +512,9 @@ public class DecompositionUtils {
 			if (newAssignmentStr == null)
 				continue;
 			IAction newAct = dest.createChild(IAction.ELEMENT_TYPE, null,
-					new NullProgressMonitor());
-			newAct.setLabel(act.getLabel(), new NullProgressMonitor());
-			newAct.setAssignmentString(newAssignmentStr,
-					new NullProgressMonitor());
+					monitor);
+			newAct.setLabel(act.getLabel(), monitor);
+			newAct.setAssignmentString(newAssignmentStr, monitor);
 		}
 	}
 
@@ -632,42 +633,43 @@ public class DecompositionUtils {
 		evt = EventBUtils.flatten(evt);
 
 		// Create the new event.
-		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
+		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null, monitor);
+
+		// Set the internal attribute.
+		IExternalElement elt = (IExternalElement) newEvt
+				.getAdapter(IExternalElement.class);
+		elt.setExternal(false, monitor);
 
 		// Set event signature.
-		newEvt.setLabel(evt.getLabel(), new NullProgressMonitor());
-		newEvt.setConvergence(Convergence.ORDINARY, new NullProgressMonitor());
-		newEvt.setExtended(false, new NullProgressMonitor());
+		newEvt.setLabel(evt.getLabel(), monitor);
+		newEvt.setConvergence(Convergence.ORDINARY, monitor);
+		newEvt.setExtended(false, monitor);
 
 		// Copy the parameters.
 		IParameter[] params = evt.getParameters();
 		for (IParameter param : params) {
 			IParameter newParam = newEvt.createChild(IParameter.ELEMENT_TYPE,
-					null, new NullProgressMonitor());
-			newParam.setIdentifierString(param.getIdentifierString(),
-					new NullProgressMonitor());
+					null, monitor);
+			newParam.setIdentifierString(param.getIdentifierString(), monitor);
 		}
 
 		// Copy the guards.
 		IGuard[] grds = evt.getGuards();
 		for (IGuard grd : grds) {
 			IGuard newGrd = newEvt.createChild(IGuard.ELEMENT_TYPE, null,
-					new NullProgressMonitor());
-			newGrd.setLabel(grd.getLabel(), new NullProgressMonitor());
-			newGrd.setPredicateString(grd.getPredicateString(),
-					new NullProgressMonitor());
-			newGrd.setTheorem(grd.isTheorem(), new NullProgressMonitor());
+					monitor);
+			newGrd.setLabel(grd.getLabel(), monitor);
+			newGrd.setPredicateString(grd.getPredicateString(), monitor);
+			newGrd.setTheorem(grd.isTheorem(), monitor);
 		}
 
 		// Copy the actions.
 		IAction[] acts = evt.getActions();
 		for (IAction act : acts) {
 			IAction newAct = newEvt.createChild(IAction.ELEMENT_TYPE, null,
-					new NullProgressMonitor());
-			newAct.setLabel(act.getLabel(), new NullProgressMonitor());
-			newAct.setAssignmentString(act.getAssignmentString(),
-					new NullProgressMonitor());
+					monitor);
+			newAct.setLabel(act.getLabel(), monitor);
+			newAct.setAssignmentString(act.getAssignmentString(), monitor);
 		}
 	}
 

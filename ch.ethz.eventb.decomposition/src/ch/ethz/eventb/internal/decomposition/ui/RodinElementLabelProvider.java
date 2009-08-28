@@ -13,7 +13,7 @@ package ch.ethz.eventb.internal.decomposition.ui;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.rodinp.core.IRodinElement;
 
-import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
+import ch.ethz.eventb.decomposition.utils.EventBUtils;
 
 /**
  * @author htson

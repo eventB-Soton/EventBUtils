@@ -13,8 +13,9 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Export-Package: ch.ethz.eventb.decomposition,
+ ch.ethz.eventb.decomposition.astyle,
+ ch.ethz.eventb.decomposition.utils;x-friends:="ch.ethz.eventb.decomposition.tests",
  ch.ethz.eventb.internal.decomposition,
  ch.ethz.eventb.internal.decomposition.astyle;x-friends:="ch.ethz.eventb.decomposition.tests",
  ch.ethz.eventb.internal.decomposition.ui.actions;x-friends:="ch.ethz.eventb.decomposition.tests",
- ch.ethz.eventb.internal.decomposition.ui.wizards;x-friends:="ch.ethz.eventb.decomposition.tests",
- ch.ethz.eventb.internal.decomposition.utils;x-friends:="ch.ethz.eventb.decomposition.tests"
+ ch.ethz.eventb.internal.decomposition.ui.wizards;x-friends:="ch.ethz.eventb.decomposition.tests"

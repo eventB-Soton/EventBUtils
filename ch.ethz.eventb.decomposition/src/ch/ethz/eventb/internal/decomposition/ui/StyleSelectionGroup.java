@@ -19,8 +19,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
+import ch.ethz.eventb.decomposition.utils.Messages;
 import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  *  This class provides a chooser for the decomposition style.

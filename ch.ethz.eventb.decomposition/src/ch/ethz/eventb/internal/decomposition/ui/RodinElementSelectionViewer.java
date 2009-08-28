@@ -35,7 +35,7 @@ import org.rodinp.core.IElementType;
 import org.rodinp.core.IParent;
 import org.rodinp.core.IRodinElement;
 
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
+import ch.ethz.eventb.decomposition.utils.Messages;
 
 /**
  * @author htson

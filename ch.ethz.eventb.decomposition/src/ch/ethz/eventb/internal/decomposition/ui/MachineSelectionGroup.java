@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.IRodinProject;
 
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
+import ch.ethz.eventb.decomposition.utils.Messages;
 
 /**
  * @author htson

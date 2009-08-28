@@ -19,10 +19,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
+import ch.ethz.eventb.decomposition.utils.Messages;
 import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.ui.DecompositionComboViewer;
 import ch.ethz.eventb.internal.decomposition.ui.StyleSelectionGroup;
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * The initial wizard page. It allows in particular to specify the decomposition
@@ -68,11 +68,11 @@ public class InitialWizardPage extends WizardPage {
 				});
 
 		// Set the selection.
-		modelDecomp = new ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition();
-		styleChooser.setInput(modelDecomp);
-		styleChooser.setSelection(new StructuredSelection(modelDecomp), true);
-		modelDecomp = new ch.ethz.eventb.internal.decomposition.bstyle.ModelDecomposition();
-		styleChooser.add(modelDecomp);
+		IModelDecomposition aDecomp = new ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition();
+		styleChooser.setInput(aDecomp);
+		styleChooser.setSelection(new StructuredSelection(aDecomp), true);
+		IModelDecomposition bDecomp = new ch.ethz.eventb.internal.decomposition.bstyle.ModelDecomposition();
+		styleChooser.add(bDecomp);
 
 		// Update the status.
 		updateStatus(null);

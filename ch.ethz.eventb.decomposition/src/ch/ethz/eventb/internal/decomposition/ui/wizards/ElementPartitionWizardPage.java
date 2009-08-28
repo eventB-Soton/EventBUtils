@@ -37,13 +37,13 @@ import org.rodinp.core.IRodinFile;
 import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinCore;
 
+import ch.ethz.eventb.decomposition.utils.Messages;
 import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.ui.DecompositionContentProvider;
 import ch.ethz.eventb.internal.decomposition.ui.DecompositionLabelProvider;
 import ch.ethz.eventb.internal.decomposition.ui.MachineSelectionGroup;
 import ch.ethz.eventb.internal.decomposition.ui.RodinElementComboViewer;
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson

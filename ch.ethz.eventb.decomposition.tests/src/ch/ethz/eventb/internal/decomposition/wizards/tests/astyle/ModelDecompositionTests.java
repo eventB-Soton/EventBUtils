@@ -27,7 +27,7 @@ import ch.ethz.eventb.internal.decomposition.astyle.DecompositionUtils;
  *         Test class for {@link IModelDecomposition}.
  *         </p>
  */
-public class ModelDistributionTests extends AbstractDecompositionTests {
+public class ModelDecompositionTests extends AbstractDecompositionTests {
 
 	/**
 	 * Test method for {@link IModelDecomposition#getMachineRoot()}.

@@ -1,4 +1,4 @@
-package ch.ethz.eventb.internal.decomposition.utils;
+package ch.ethz.eventb.decomposition.utils;
 
 import static org.eventb.core.IConfigurationElement.DEFAULT_CONFIGURATION;
 
@@ -13,7 +13,9 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eventb.core.IAction;
 import org.eventb.core.IAxiom;
 import org.eventb.core.ICarrierSet;
@@ -48,6 +50,8 @@ import org.rodinp.core.IRodinFile;
 import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinCore;
 import org.rodinp.core.RodinDBException;
+
+import ch.ethz.eventb.decomposition.DecompositionPlugin;
 
 /**
  * @author htson
@@ -1177,5 +1181,29 @@ public class EventBUtils {
 					+ "'"; //$NON-NLS-1$
 		}
 		return result;
+	}
+
+	/**
+	 * Creates a new Rodin database exception with the given message and message
+	 * arguments.
+	 * <p>
+	 * The created database exception just wraps up a core exception created
+	 * with {@link #newCoreException(String)}.
+	 * </p>
+	 * 
+	 * @param message
+	 *            a human-readable message, localized to the current locale.
+	 *            Should be one of the messages defined in the {@link Messages}
+	 *            class
+	 * 
+	 * @param args
+	 *            parameters to bind with the message
+	 */
+	public static RodinDBException newRodinDBException(String message,
+			Object... args) {
+
+		return new RodinDBException(new CoreException(new Status(IStatus.ERROR,
+				DecompositionPlugin.PLUGIN_ID, IStatus.OK, Messages.bind(
+						message, args), null)));
 	}
 }

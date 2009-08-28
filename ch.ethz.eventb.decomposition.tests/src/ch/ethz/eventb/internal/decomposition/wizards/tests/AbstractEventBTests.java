@@ -10,7 +10,7 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests.astyle;
+package ch.ethz.eventb.internal.decomposition.wizards.tests;
 
 import static org.eventb.core.IConfigurationElement.DEFAULT_CONFIGURATION;
 import junit.framework.TestCase;

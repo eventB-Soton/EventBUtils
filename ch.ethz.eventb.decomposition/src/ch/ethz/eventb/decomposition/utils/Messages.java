@@ -1,10 +1,12 @@
-package ch.ethz.eventb.internal.decomposition.utils;
+package ch.ethz.eventb.decomposition.utils;
 
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "ch.ethz.eventb.internal.decomposition.utils.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "ch.ethz.eventb.decomposition.utils.messages"; //$NON-NLS-1$
 
+	public static String database_VariableInvalidNatureFailure;
+	
 	public static String button_add;
 	public static String button_remove;
 	public static String button_edit;
@@ -31,6 +33,7 @@ public class Messages extends NLS {
 	public static String decomposition_seesclauses;
 	public static String decomposition_external;
 	public static String decomposition_external_comment;
+	public static String decomposition_internal_comment;
 	public static String decomposition_invariants;
 	public static String decomposition_machine;
 	public static String decomposition_project;
@@ -45,6 +48,11 @@ public class Messages extends NLS {
 	public static String decomposition_error_existingproject;
 	public static String decomposition_astyle;
 	public static String decomposition_bstyle;
+	
+	public static String attributeManipulation_external_true;
+	public static String attributeManipulation_external_false;
+	public static String attributeManipulation_nature_private;
+	public static String attributeManipulation_nature_shared;
 
 	static {
 		// initialize resource bundle

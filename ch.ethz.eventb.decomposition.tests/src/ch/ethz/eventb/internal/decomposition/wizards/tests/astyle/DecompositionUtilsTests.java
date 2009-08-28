@@ -25,8 +25,11 @@ import org.eventb.core.IConvergenceElement.Convergence;
 import org.junit.Test;
 import org.rodinp.core.RodinDBException;
 
+import ch.ethz.eventb.decomposition.utils.Messages;
 import ch.ethz.eventb.internal.decomposition.astyle.DecompositionUtils;
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
+import ch.ethz.eventb.decomposition.astyle.IExternalElement;
+import ch.ethz.eventb.decomposition.astyle.INatureElement;
+import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
 
 /**
  * @author htson
@@ -34,14 +37,16 @@ import ch.ethz.eventb.internal.decomposition.utils.Messages;
  *         Test class for {@link DecompositionUtils}.
  *         </p>
  */
-public class DecompositionTests extends AbstractDecompositionTests {
+public class DecompositionUtilsTests extends AbstractDecompositionTests {
 
 	/**
 	 * Test method
-	 * {@link DecompositionUtils#decomposeVariables(org.eventb.core.IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
+	 * {@link DecompositionUtils#decomposeVariables(org.eventb.core.IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
+	 * .
 	 */
 	@Test
 	public void testCreateVariables() {
+
 		try {
 			DecompositionUtils.decomposeVariables(mch2_1, subModel1,
 					new NullProgressMonitor());
@@ -64,9 +69,10 @@ public class DecompositionTests extends AbstractDecompositionTests {
 			return;
 		}
 
-		assertVariables("Create variables 2", mch3_1, "y: Private variable",
-				"v: " + Messages.decomposition_shared_comment, "u: "
-						+ Messages.decomposition_shared_comment);
+		assertVariables("Create variables 2", mch3_1, "y: "
+				+ Messages.decomposition_private_comment, "v: "
+				+ Messages.decomposition_shared_comment, "u: "
+				+ Messages.decomposition_shared_comment);
 
 		try {
 			DecompositionUtils.decomposeVariables(mch4_1, subModel3,
@@ -85,7 +91,8 @@ public class DecompositionTests extends AbstractDecompositionTests {
 
 	/**
 	 * Utility method to test
-	 * {@link DecompositionUtils#decomposeVariables(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
+	 * {@link DecompositionUtils#decomposeVariables(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
+	 * .
 	 * 
 	 * @param message
 	 *            a message.
@@ -103,10 +110,24 @@ public class DecompositionTests extends AbstractDecompositionTests {
 
 			for (IVariable var : vars) {
 				boolean found = false;
+				INatureElement elt = (INatureElement) var
+						.getAdapter(INatureElement.class);
 				for (String exp : expected) {
 					if (exp.equals(var.getIdentifierString() + ": "
 							+ var.getComment())) {
 						found = true;
+						if ((var.getComment()
+								.equals(Messages.decomposition_shared_comment))
+								&& (elt.getNature() != Nature.SHARED))
+							fail(message
+									+ ": The shared nature should be set for variable "
+									+ var.getIdentifierString());
+						else if ((var.getComment()
+								.equals(Messages.decomposition_private_comment))
+								&& (elt.getNature() != Nature.PRIVATE))
+							fail(message
+									+ ": The private nature should be set for variable "
+									+ var.getIdentifierString());
 						break;
 					}
 				}
@@ -123,7 +144,9 @@ public class DecompositionTests extends AbstractDecompositionTests {
 	}
 
 	/**
-	 * Test method for {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
+	 * Test method for
+	 * {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
+	 * .
 	 */
 	@Test
 	public void testCreateInvariants() {
@@ -135,7 +158,7 @@ public class DecompositionTests extends AbstractDecompositionTests {
 			fail("Create invariants 1: There should be no exception");
 			return;
 		}
-		
+
 		testInvariants("Create invariants 1", mch2_1, "typing_z: z ∈ ℤ: true",
 				"typing_v: v ∈ ℤ: true", "mch1_2_inv1_2_2: v ∈ ℕ: false",
 				"mch1_2_thm1_2_3: v ≥ 0: true");
@@ -148,11 +171,12 @@ public class DecompositionTests extends AbstractDecompositionTests {
 			fail("Create invariants 2: There should be no exception");
 			return;
 		}
-		
-		testInvariants("Create invariants 2", mch3_1,
-				"typing_u: u ∈ U: true", "typing_y: y ∈ ℤ: true",
-				"typing_v: v ∈ ℤ: true", "mch1_1_inv1_1_2: y ∈ ℕ: false",
-				"mch1_1_thm1_1_3: y ≥ 0: true", "mch1_2_inv1_2_1: u ∈ U: false",
+
+		testInvariants("Create invariants 2", mch3_1, "typing_u: u ∈ U: true",
+				"typing_y: y ∈ ℤ: true", "typing_v: v ∈ ℤ: true",
+				"mch1_1_inv1_1_2: y ∈ ℕ: false",
+				"mch1_1_thm1_1_3: y ≥ 0: true",
+				"mch1_2_inv1_2_1: u ∈ U: false",
 				"mch1_2_inv1_2_2: v ∈ ℕ: false", "mch1_2_thm1_2_3: v ≥ 0: true");
 
 		try {
@@ -163,17 +187,19 @@ public class DecompositionTests extends AbstractDecompositionTests {
 			fail("Create invariants 3: There should be no exception");
 			return;
 		}
-		
+
 		testInvariants("Create invariants 3", mch4_1, "typing_u: u ∈ U: true",
-				"typing_p: p ∈ ℙ(ℤ × V): true",
-				"typing_v: v ∈ ℤ: true", 
-				"mch1_2_inv1_2_1: u ∈ U: false", "mch1_2_inv1_2_2: v ∈ ℕ: false",
-				"mch1_2_thm1_2_3: v ≥ 0: true", "mch1_3_inv1_3_5: p ∈ ℕ → V: false");
+				"typing_p: p ∈ ℙ(ℤ × V): true", "typing_v: v ∈ ℤ: true",
+				"mch1_2_inv1_2_1: u ∈ U: false",
+				"mch1_2_inv1_2_2: v ∈ ℕ: false",
+				"mch1_2_thm1_2_3: v ≥ 0: true",
+				"mch1_3_inv1_3_5: p ∈ ℕ → V: false");
 	}
 
 	/**
 	 * Utility method to test
-	 * {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}.
+	 * {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
+	 * .
 	 * 
 	 * @param message
 	 *            a message.
@@ -184,7 +210,7 @@ public class DecompositionTests extends AbstractDecompositionTests {
 	 *            "label: predicate: isTheorem").
 	 */
 	private void testInvariants(String message, IMachineRoot mch,
-			String ... expected) {
+			String... expected) {
 		try {
 			IInvariant[] invs = mch.getInvariants();
 			assertEquals(message + ": Incorrect number of invariants",
@@ -205,35 +231,39 @@ public class DecompositionTests extends AbstractDecompositionTests {
 
 	/**
 	 * Test method for
-	 * {@link DecompositionUtils#decomposeEvents(IMachineRoot, ISubModel, IProgressMonitor)}.
+	 * {@link DecompositionUtils#decomposeEvents(IMachineRoot, ISubModel, IProgressMonitor)}
+	 * .
 	 */
 	@Test
 	public void testDecomposeEvents() {
 		try {
 			DecompositionUtils.decomposeEvents(mch2_1, subModel1,
 					new NullProgressMonitor());
-			
+
 			// Test number of events.
 			IEvent[] events = mch2_1.getEvents();
 			assertEquals("Create events 1: Incorrect number of events", 6,
 					events.length);
-			
+
 			// Test the initialization.
 			IEvent evt = getEventWithLabel(mch2_1, IEvent.INITIALISATION);
 			assertNotNull("Create events 1: Cannot find event INITIALISATION",
 					evt);
+			assertEvent("Create events 1", evt,
+					Messages.decomposition_external_comment);
 			testEventSignature("Create events 1", evt, "INITIALISATION", false,
 					Convergence.ORDINARY);
 			testEventParameters("Create events 1", evt);
 			testEventGuards("Create events 1", evt);
 			testEventWitnesses("Create events 1", evt);
-			testEventActions("Create events 1", evt,
-					"act_init1_3_2: v ≔ 0",
+			testEventActions("Create events 1", evt, "act_init1_3_2: v ≔ 0",
 					"act_init1_3_3: z ≔ 0");
-			
+
 			// Test evt1_3_1 (internal).
 			evt = getEventWithLabel(mch2_1, "evt1_3_1");
 			assertNotNull("Create events 2: Cannot find event evt1_3_1", evt);
+			assertEvent("Create events 1", evt,
+					Messages.decomposition_internal_comment);
 			testEventSignature("Create events 2", evt, "evt1_3_1", false,
 					Convergence.ORDINARY);
 			testEventParameters("Create events 2", evt);
@@ -244,6 +274,8 @@ public class DecompositionTests extends AbstractDecompositionTests {
 			// Test evt1_3_5 (internal).
 			evt = getEventWithLabel(mch2_1, "evt1_3_5");
 			assertNotNull("Create events 3: Cannot find event evt1_3_5", evt);
+			assertEvent("Create events 1", evt,
+					Messages.decomposition_internal_comment);
 			testEventSignature("Create events 3", evt, "evt1_3_5", false,
 					Convergence.ORDINARY);
 			testEventParameters("Create events 3", evt);
@@ -254,6 +286,8 @@ public class DecompositionTests extends AbstractDecompositionTests {
 			// Test evt1_3_2 (external).
 			evt = getEventWithLabel(mch2_1, "evt1_3_2");
 			assertNotNull("Create events 4: Cannot find event evt1_3_2", evt);
+			assertEvent("Create events 1", evt,
+					Messages.decomposition_external_comment);
 			testEventSignature("Create events 4", evt, "evt1_3_2", false,
 					Convergence.ORDINARY);
 			testEventParameters("Create events 4", evt, "y", "u");
@@ -261,12 +295,13 @@ public class DecompositionTests extends AbstractDecompositionTests {
 					"typing_u: u ∈ U: true", "grd1_3_2_1: y ≠ 0: false",
 					"grd1_3_2_2: u = f: false");
 			testEventWitnesses("Create events 2", evt);
-			testEventActions("Create events 2", evt,
-					"act1_3_2_3: v ≔ v + 1");
-			
+			testEventActions("Create events 2", evt, "act1_3_2_3: v ≔ v + 1");
+
 			// Test evt1_3_3 (external).
 			evt = getEventWithLabel(mch2_1, "evt1_3_3");
 			assertNotNull("Create events 5: Cannot find event evt1_3_3", evt);
+			assertEvent("Create events 1", evt,
+					Messages.decomposition_external_comment);
 			testEventSignature("Create events 5", evt, "evt1_3_3", false,
 					Convergence.ORDINARY);
 			testEventParameters("Create events 5", evt, "t", "y");
@@ -274,30 +309,58 @@ public class DecompositionTests extends AbstractDecompositionTests {
 					"grd1_3_3_1: t ≠ a: false", "grd1_3_3_2: y ≥ 5: false",
 					"grd1_3_3_3: y > v: false");
 			testEventWitnesses("Create events 2", evt);
-			testEventActions("Create events 5", evt,
-					"act1_3_3_2: v ≔ v + 1");
+			testEventActions("Create events 5", evt, "act1_3_3_2: v ≔ v + 1");
 
 			// Test evt1_3_4 (external).
 			evt = getEventWithLabel(mch2_1, "evt1_3_4");
 			assertNotNull("Create events 6: Cannot find event evt1_3_4", evt);
+			assertEvent("Create events 1", evt,
+					Messages.decomposition_external_comment);
 			testEventSignature("Create events 6", evt, "evt1_3_4", false,
 					Convergence.ORDINARY);
 			testEventParameters("Create events 6", evt, "r", "p");
 			testEventGuards("Create events 6", evt,
-					"typing_p: p ∈ ℙ(ℤ × V): true",
-					"grd1_2_4_1: v ≥ 3: false", "grd1_3_4_1: r ∈ ℕ: false",
-					"grd1_3_4_2: p(r) = g: false");
+					"typing_p: p ∈ ℙ(ℤ × V): true", "grd1_2_4_1: v ≥ 3: false",
+					"grd1_3_4_1: r ∈ ℕ: false", "grd1_3_4_2: p(r) = g: false");
 			testEventWitnesses("Create events 2", evt);
-			testEventActions("Create events 6", evt,
-					"act1_2_4_1: v ≔ v − 1");
+			testEventActions("Create events 6", evt, "act1_2_4_1: v ≔ v − 1");
 
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create events: There should be no exception");
 			return;
 		}
-	
 
+	}
+
+	/**
+	 * Utility method to test
+	 * {@link DecompositionUtils#decomposeEvents(IMachineRoot, ISubModel, IProgressMonitor)}
+	 * .
+	 * 
+	 * @param message
+	 *            a message.
+	 * @param mch
+	 *            a machine
+	 * @param expected
+	 *            expected attribute (in {@link String}).
+	 */
+	private void assertEvent(String message, IEvent evt, String expected) {
+		IExternalElement elt = (IExternalElement) evt
+				.getAdapter(IExternalElement.class);
+		try {
+			if (((expected.equals(Messages.decomposition_external_comment)) && !elt
+					.isExternal())
+					|| (expected
+							.equals(Messages.decomposition_internal_comment) && elt
+							.isExternal()))
+				fail(message + ": Incorrect attribute for event "
+						+ evt.getLabel());
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+			fail("There should be no exception");
+			return;
+		}
 	}
 
 	/**
@@ -311,43 +374,54 @@ public class DecompositionTests extends AbstractDecompositionTests {
 			vars = new HashSet<String>();
 			vars.add("z");
 			vars.add("v");
-			
-			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_1, vars);
+
+			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_1,
+					vars);
 			assertNull("Incorrect decomposed action 1", assignmentStr);
-			
-			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_2, vars);
+
+			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_2,
+					vars);
 			assertEquals("Incorrect decomposed action 2", assignmentStr,
 					"v ≔ 0");
-			
-			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_3, vars);
+
+			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_3,
+					vars);
 			assertEquals("Incorrect decomposed action 3", assignmentStr,
 					"z ≔ 0");
 
-			assignmentStr = DecompositionUtils.decomposeAction(act1_3_1_1, vars);
+			assignmentStr = DecompositionUtils
+					.decomposeAction(act1_3_1_1, vars);
 			assertEquals("Incorrect decomposed action 4", assignmentStr,
 					"v ≔ 2");
 
-			assignmentStr = DecompositionUtils.decomposeAction(act1_3_2_1, vars);
+			assignmentStr = DecompositionUtils
+					.decomposeAction(act1_3_2_1, vars);
 			assertNull("Incorrect decomposed action 5", assignmentStr);
 
-			assignmentStr = DecompositionUtils.decomposeAction(act1_3_2_2, vars);
+			assignmentStr = DecompositionUtils
+					.decomposeAction(act1_3_2_2, vars);
 			assertNull("Incorrect decomposed action 6", assignmentStr);
-			
-			assignmentStr = DecompositionUtils.decomposeAction(act1_3_2_3, vars);
+
+			assignmentStr = DecompositionUtils
+					.decomposeAction(act1_3_2_3, vars);
 			assertEquals("Incorrect decomposed action 7", assignmentStr,
 					"v ≔ v + 1");
 
-			assignmentStr = DecompositionUtils.decomposeAction(act1_3_3_1, vars);
+			assignmentStr = DecompositionUtils
+					.decomposeAction(act1_3_3_1, vars);
 			assertNull("Incorrect decomposed action 8", assignmentStr);
 
-			assignmentStr = DecompositionUtils.decomposeAction(act1_3_3_2, vars);
+			assignmentStr = DecompositionUtils
+					.decomposeAction(act1_3_3_2, vars);
 			assertEquals("Incorrect decomposed action 9", assignmentStr,
 					"v ≔ v + 1");
 
-			assignmentStr = DecompositionUtils.decomposeAction(act1_3_4_1, vars);
+			assignmentStr = DecompositionUtils
+					.decomposeAction(act1_3_4_1, vars);
 			assertNull("Incorrect decomposed action 10", assignmentStr);
 
-			assignmentStr = DecompositionUtils.decomposeAction(act1_3_5_1, vars);
+			assignmentStr = DecompositionUtils
+					.decomposeAction(act1_3_5_1, vars);
 			assertEquals("Incorrect decomposed action 11", assignmentStr,
 					"z ≔ z − 1");
 		} catch (RodinDBException e) {

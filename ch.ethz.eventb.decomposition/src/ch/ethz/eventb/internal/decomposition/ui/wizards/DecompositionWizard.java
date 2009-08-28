@@ -28,9 +28,9 @@ import org.eventb.core.IEvent;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IVariable;
 
+import ch.ethz.eventb.decomposition.utils.EventBUtils;
+import ch.ethz.eventb.decomposition.utils.Messages;
 import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * This wizard decomposes an Event-B model in several sub-models.
@@ -66,21 +66,19 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 
 	public IWizardPage getNextPage(IWizardPage page) {
 		if (page == initialPage) {
-			if (decompPage == null) {
-				final IModelDecomposition modelDecomp = initialPage
-						.getModelDecomposition();
-				if (modelDecomp.getStyle().equals(IModelDecomposition.A_STYLE)) {
-					decompPage = new ElementPartitionWizardPage<IEvent>(
-							modelDecomp, selection, IEvent.ELEMENT_TYPE);
-				} else if (modelDecomp.getStyle().equals(
-						IModelDecomposition.B_STYLE)) {
-					decompPage = new ElementPartitionWizardPage<IVariable>(
-							modelDecomp, selection, IVariable.ELEMENT_TYPE);
-				} else {
-					return null;
-				}
-				addPage(decompPage);
+			final IModelDecomposition modelDecomp = initialPage
+					.getModelDecomposition();
+			if (modelDecomp.getStyle().equals(IModelDecomposition.A_STYLE)) {
+				decompPage = new ElementPartitionWizardPage<IEvent>(
+						modelDecomp, selection, IEvent.ELEMENT_TYPE);
+			} else if (modelDecomp.getStyle().equals(
+					IModelDecomposition.B_STYLE)) {
+				decompPage = new ElementPartitionWizardPage<IVariable>(
+						modelDecomp, selection, IVariable.ELEMENT_TYPE);
+			} else {
+				return null;
 			}
+			addPage(decompPage);
 			return decompPage;
 		}
 		return null;

@@ -45,5 +45,66 @@
          </action>
       </viewContribution>
    </extension>
+   <extension
+         point="org.rodinp.core.attributeTypes">
+      <attributeType
+            id="nature"
+            kind="integer"
+            name="%eventBNatureAttribute">
+      </attributeType>
+      <attributeType
+            id="external"
+            kind="boolean"
+            name="%eventBExternalEventAttribute">
+      </attributeType>
+   </extension>
+  <extension point="org.eventb.ui.editorItems"> 
+      
+      <choiceAttribute
+            class="ch.ethz.eventb.internal.decomposition.astyle.NatureAttributeManipulation"
+            expandsHorizontally="false"
+            id="org.eventb.ui.nature"
+            required="true"
+            typeId="ch.ethz.eventb.decomposition.nature">
+      </choiceAttribute>
+      <choiceAttribute
+            class="ch.ethz.eventb.internal.decomposition.astyle.ExternalAttributeManipulation"
+            expandsHorizontally="false"
+            id="org.eventb.ui.external"
+            required="true"
+            typeId="ch.ethz.eventb.decomposition.external">
+      </choiceAttribute>
+      <attributeRelation
+            elementTypeId="org.eventb.core.event">
+         <attributeReference
+               descriptionId="org.eventb.ui.external">
+         </attributeReference>
+      </attributeRelation>
+      <attributeRelation
+            elementTypeId="org.eventb.core.variable">
+         <attributeReference
+               descriptionId="org.eventb.ui.nature">
+         </attributeReference>
+      </attributeRelation>
+      
+      
+   </extension>
+  <extension
+        point="org.eclipse.core.runtime.adapters">
+     <factory
+           adaptableType="org.eventb.core.IEvent"
+           class="ch.ethz.eventb.internal.decomposition.astyle.EventAdapterFactory">
+        <adapter
+              type="ch.ethz.eventb.decomposition.astyle.IExternalElement">
+        </adapter>
+     </factory>
+     <factory
+           adaptableType="org.eventb.core.IVariable"
+           class="ch.ethz.eventb.internal.decomposition.astyle.VariableAdapterFactory">
+        <adapter
+              type="ch.ethz.eventb.decomposition.astyle.INatureElement">
+        </adapter>
+     </factory>
+  </extension>
 
 </plugin>

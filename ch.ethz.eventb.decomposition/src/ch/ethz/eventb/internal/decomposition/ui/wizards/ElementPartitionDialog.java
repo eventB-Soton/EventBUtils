@@ -26,9 +26,9 @@ import org.rodinp.core.IElementType;
 import org.rodinp.core.IInternalElement;
 import org.rodinp.core.IRodinElement;
 
+import ch.ethz.eventb.decomposition.utils.Messages;
 import ch.ethz.eventb.internal.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.ui.RodinElementSelectionViewer;
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson

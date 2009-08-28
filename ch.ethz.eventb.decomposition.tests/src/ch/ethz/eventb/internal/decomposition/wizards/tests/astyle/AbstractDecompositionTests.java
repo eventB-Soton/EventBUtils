@@ -20,6 +20,7 @@ import org.junit.Before;
 import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition;
+import ch.ethz.eventb.internal.decomposition.wizards.tests.EventBTests;
 
 /**
  * @author htson

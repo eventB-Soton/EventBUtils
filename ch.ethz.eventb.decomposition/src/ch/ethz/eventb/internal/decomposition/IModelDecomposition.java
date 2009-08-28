@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
+import ch.ethz.eventb.decomposition.utils.Messages;
 
 /**
  * @author htson

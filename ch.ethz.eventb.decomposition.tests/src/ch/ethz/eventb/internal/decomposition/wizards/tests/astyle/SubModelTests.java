@@ -29,7 +29,7 @@ import ch.ethz.eventb.internal.decomposition.DefaultSubModel;
  *         Test class for {@link ISubModel}.
  *         </p>
  */
-public class ElementDistributionTests extends AbstractDecompositionTests {
+public class SubModelTests extends AbstractDecompositionTests {
 	
 	/**
 	 * Test method for {@link ISubModel#getModelDecomposition()}.
