@@ -10,7 +10,7 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests;
+package ch.ethz.eventb.internal.decomposition.tests;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinCore;
 import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.decomposition.utils.EventBUtils;
+import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
 
 /**
  * @author htson
@@ -122,6 +122,14 @@ public class EventBUtilsTests extends EventBTests {
 			IContextRoot testContext = P2.getContextRoot(context
 					.getElementName());
 			assertTrue("The context should exist", testContext.exists());
+			try {
+				assertTrue("The context should be tagged as generated",
+						testContext.isGenerated());
+			} catch (RodinDBException e) {
+				e.printStackTrace();
+				fail("There should be no exception");
+				return;
+			}
 		}
 	}
 
@@ -133,15 +141,18 @@ public class EventBUtilsTests extends EventBTests {
 	public void testCreateMachine() {
 		IMachineRoot machine;
 		String bareName = "test0001";
+		boolean generated = false;
 		try {
 			machine = EventBUtils.createMachine(P1, EventBPlugin
 					.getMachineFileName(bareName), new NullProgressMonitor());
+			generated = machine.isGenerated();
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
 			return;
 		}
 		assertTrue("The machine should exist", machine.exists());
+		assertTrue("The machine should be tagged as generated", generated);
 		assertEquals("The machine should belong to project P1", machine
 				.getEventBProject(), P1);
 		assertEquals("The name of the file must be consistent", EventBPlugin

@@ -37,13 +37,13 @@ import org.rodinp.core.IRodinFile;
 import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinCore;
 
-import ch.ethz.eventb.decomposition.utils.Messages;
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.ui.DecompositionContentProvider;
 import ch.ethz.eventb.internal.decomposition.ui.DecompositionLabelProvider;
 import ch.ethz.eventb.internal.decomposition.ui.MachineSelectionGroup;
 import ch.ethz.eventb.internal.decomposition.ui.RodinElementComboViewer;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -51,45 +51,46 @@ import ch.ethz.eventb.internal.decomposition.ui.RodinElementComboViewer;
  *         The wizard page used to partition the Rodin elements.
  *         </p>
  */
-public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardPage {
+public class ElementPartitionWizardPage<T extends IRodinElement> extends
+		WizardPage {
 
-	// The current selection.
+	/** The current selection. */
 	private ISelection selection;
 
-	// The model decomposition.
+	/** The model decomposition. */
 	IModelDecomposition modelDecomp;
 
-	// The type of the elements to be partitioned.
+	/** The type of the elements to be partitioned. */
 	private IElementType<T> type;
-	
-	// The tree viewer to display the sub-models.
+
+	/** The tree viewer to display the sub-models. */
 	TreeViewer viewer;
 
-	// A machine chooser group to identify the machine to be decomposed.
+	/** A machine chooser group to identify the machine to be decomposed. */
 	private MachineSelectionGroup machineGroup;
 
-	// The "Add" button.
+	/** The "Add" button. */
 	private Button addButton;
 
-	// The "Edit" button.
+	/** The "Edit" button. */
 	private Button editButton;
 
-	// The "Remove" button.
+	/** The "Remove" button. */
 	private Button removeButton;
 
 	/**
 	 * The constructor. Stores the current selection, to later perform the
 	 * initialization.
 	 * 
-	 * @param decomp
+	 * @param modelDecomp
 	 *            the model decomposition.
 	 * @param selection
 	 *            the current selection.
 	 * @param type
 	 *            the type of the elements to be partitioned.
 	 */
-	public ElementPartitionWizardPage(IModelDecomposition modelDecomp,
-			ISelection selection, IElementType<T> type) {
+	public ElementPartitionWizardPage(final IModelDecomposition modelDecomp,
+			final ISelection selection, final IElementType<T> type) {
 		super(Messages.wizard_name);
 		setTitle(Messages.wizard_title);
 		setDescription(Messages.wizard_description);
@@ -98,7 +99,7 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 		this.type = type;
 	}
 
-	public void createControl(Composite parent) {
+	public final void createControl(final Composite parent) {
 		// Create the main composite.
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
@@ -125,7 +126,8 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 		machineChooser
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 
-					public void selectionChanged(SelectionChangedEvent event) {
+					public void selectionChanged(
+							final SelectionChangedEvent event) {
 						IMachineRoot mch = machineChooser.getElement();
 						modelDecomp.setMachineRoot(mch);
 						viewer.setInput(modelDecomp);
@@ -145,17 +147,17 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 
 	}
 
-	private void createRemoveButton(Composite composite) {
+	private void createRemoveButton(final Composite composite) {
 		removeButton = new Button(composite, SWT.PUSH);
 		removeButton.setText(Messages.button_remove);
 		removeButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		removeButton.addSelectionListener(new SelectionListener() {
 
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void widgetDefaultSelected(final SelectionEvent e) {
 				widgetSelected(e);
 			}
 
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				ISubModel subModel = getSelectedSubModel();
 				if (subModel != null) {
 					modelDecomp.removeSubModel(subModel);
@@ -167,22 +169,21 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 		});
 	}
 
-	private void createEditButton(Composite composite) {
+	private void createEditButton(final Composite composite) {
 		editButton = new Button(composite, SWT.PUSH);
 		editButton.setText(Messages.button_edit);
 		editButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		editButton.addSelectionListener(new SelectionListener() {
 
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void widgetDefaultSelected(final SelectionEvent e) {
 				widgetSelected(e);
 			}
 
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				ISubModel subModel = getSelectedSubModel();
 				if (subModel != null) {
 					ElementPartitionDialog<T> dialog = new ElementPartitionDialog<T>(
-							viewer.getControl().getShell(), subModel,
-							type);
+							viewer.getControl().getShell(), subModel, type);
 					dialog.open();
 					if (dialog.getReturnCode() == Dialog.OK) {
 						subModel.setProjectName(dialog.getProjectName());
@@ -195,17 +196,17 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 		});
 	}
 
-	private void createAddButton(Composite composite) {
+	private void createAddButton(final Composite composite) {
 		addButton = new Button(composite, SWT.PUSH);
 		addButton.setText(Messages.button_add);
 		addButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		addButton.addSelectionListener(new SelectionListener() {
 
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void widgetDefaultSelected(final SelectionEvent e) {
 				widgetSelected(e);
 			}
 
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				modelDecomp.addSubModel();
 				viewer.refresh();
 				updateButtons();
@@ -213,7 +214,7 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 		});
 	}
 
-	private void createMachineGroup(Composite container) {
+	private void createMachineGroup(final Composite container) {
 		machineGroup = new MachineSelectionGroup(container, SWT.DEFAULT);
 		machineGroup.getGroup().setText(Messages.wizard_machine);
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
@@ -221,7 +222,7 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 		machineGroup.getGroup().setLayoutData(gridData);
 	}
 
-	private void createViewer(Composite container) {
+	private void createViewer(final Composite container) {
 		viewer = new TreeViewer(container, SWT.SINGLE | SWT.BORDER);
 		viewer.setContentProvider(new DecompositionContentProvider());
 		viewer.setLabelProvider(new DecompositionLabelProvider());
@@ -229,7 +230,7 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 		viewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
-			public void selectionChanged(SelectionChangedEvent event) {
+			public void selectionChanged(final SelectionChangedEvent event) {
 				updateButtons();
 			}
 
@@ -241,7 +242,7 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 	 * 
 	 * @return the current selected element distribution.
 	 */
-	protected ISubModel getSelectedSubModel() {
+	protected final ISubModel getSelectedSubModel() {
 		IStructuredSelection ssel = (IStructuredSelection) viewer
 				.getSelection();
 
@@ -256,7 +257,7 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 	/**
 	 * Updates the status of the buttons.
 	 */
-	protected void updateButtons() {
+	protected final void updateButtons() {
 		if (modelDecomp.getMachineRoot() == null) {
 			addButton.setEnabled(false);
 			editButton.setEnabled(false);
@@ -325,9 +326,10 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 							.getName());
 					if (file != null) {
 						IInternalElement root = file.getRoot();
-						if (root instanceof IMachineRoot)
+						if (root instanceof IMachineRoot) {
 							machineGroup.getMachineChooser().setSelection(
 									new StructuredSelection(root), true);
+						}
 					}
 				}
 				return;
@@ -342,7 +344,7 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 	 * @param message
 	 *            the error message or <code>null</code>.
 	 */
-	private void updateStatus(String message) {
+	private void updateStatus(final String message) {
 		setErrorMessage(message);
 		setPageComplete(message == null);
 	}
@@ -352,7 +354,7 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends WizardP
 	 * 
 	 * @return the model distribution.
 	 */
-	public IModelDecomposition getModelDecomposition() {
+	public final IModelDecomposition getModelDecomposition() {
 		return modelDecomp;
 	}
 

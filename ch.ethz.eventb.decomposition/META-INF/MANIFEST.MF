@@ -14,8 +14,9 @@ Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Export-Package: ch.ethz.eventb.decomposition,
  ch.ethz.eventb.decomposition.astyle,
- ch.ethz.eventb.decomposition.utils;x-friends:="ch.ethz.eventb.decomposition.tests",
- ch.ethz.eventb.internal.decomposition,
+ ch.ethz.eventb.internal.decomposition;x-friends:="ch.ethz.eventb.decomposition.tests",
  ch.ethz.eventb.internal.decomposition.astyle;x-friends:="ch.ethz.eventb.decomposition.tests",
- ch.ethz.eventb.internal.decomposition.ui.actions;x-friends:="ch.ethz.eventb.decomposition.tests",
- ch.ethz.eventb.internal.decomposition.ui.wizards;x-friends:="ch.ethz.eventb.decomposition.tests"
+ ch.ethz.eventb.internal.decomposition.astyle.sc;x-friends:="ch.ethz.eventb.decomposition.tests",
+ ch.ethz.eventb.internal.decomposition.bstyle;x-friends:="ch.ethz.eventb.decomposition.tests",
+ ch.ethz.eventb.internal.decomposition.ui;x-friends:="ch.ethz.eventb.decomposition.tests",
+ ch.ethz.eventb.internal.decomposition.utils;x-friends:="ch.ethz.eventb.decomposition.tests"

@@ -17,8 +17,8 @@ import java.util.List;
 
 import org.eventb.core.IMachineRoot;
 
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 
 /**
  * @author htson
@@ -29,10 +29,10 @@ import ch.ethz.eventb.internal.decomposition.ISubModel;
  */
 public abstract class DefaultModelDecomposition implements IModelDecomposition {
 
-	// The machine to be decomposed.
+	/** The machine to be decomposed. */
 	private IMachineRoot mch;
 
-	// A list of sub-models.
+	/** A list of sub-models. */
 	private List<ISubModel> subModels;
 
 	/**
@@ -45,20 +45,20 @@ public abstract class DefaultModelDecomposition implements IModelDecomposition {
 	/**
 	 * Constructor. Creates a model decomposition.
 	 */
-	public DefaultModelDecomposition(IMachineRoot mch) {
+	public DefaultModelDecomposition(final IMachineRoot mch) {
 		this();
 		setMachineRoot(mch);
 	}
 
-	public void setMachineRoot(IMachineRoot mch) {
+	public final void setMachineRoot(final IMachineRoot mch) {
 		this.mch = mch;
 	}
 
-	public IMachineRoot getMachineRoot() {
+	public final IMachineRoot getMachineRoot() {
 		return mch;
 	}
 
-	public ISubModel addSubModel() {
+	public final ISubModel addSubModel() {
 		ISubModel model = createSubModel();
 		subModels.add(model);
 		return model;
@@ -71,11 +71,11 @@ public abstract class DefaultModelDecomposition implements IModelDecomposition {
 	 */
 	public abstract ISubModel createSubModel();
 
-	public ISubModel[] getSubModels() {
+	public final ISubModel[] getSubModels() {
 		return subModels.toArray(new ISubModel[subModels.size()]);
 	}
 
-	public void removeSubModel(ISubModel model) {
+	public final void removeSubModel(final ISubModel model) {
 		subModels.remove(model);
 		return;
 	}

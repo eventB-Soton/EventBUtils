@@ -13,26 +13,25 @@
 package ch.ethz.eventb.internal.decomposition.astyle;
 
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.eventb.core.IEvent;
+import org.rodinp.core.IInternalElement;
 
-import ch.ethz.eventb.decomposition.astyle.Event;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
+
 
 @SuppressWarnings("unchecked")
 public class EventAdapterFactory implements IAdapterFactory {
-	
-	private static final Class[] ADAPTERS = new Class[] {
-		IExternalElement.class,
-	};
-	
-	public IExternalElement getAdapter(Object adaptableObject, Class adapterType) {
+
+	private static final Class[] ADAPTERS = new Class[] { IExternalElement.class, };
+
+	public final IExternalElement getAdapter(final Object adaptableObject,
+			final Class adapterType) {
 		if (IExternalElement.class.equals(adapterType)) {
-			return new Event((IEvent) adaptableObject);
+			return new Event((IInternalElement) adaptableObject);
 		}
 		return null;
 	}
-
-	public Class[] getAdapterList() {
+	
+	public final Class[] getAdapterList() {
 		return ADAPTERS;
 	}
 

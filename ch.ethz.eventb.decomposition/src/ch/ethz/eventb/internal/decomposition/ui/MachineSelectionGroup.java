@@ -21,36 +21,37 @@ import org.eclipse.swt.widgets.Label;
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.IRodinProject;
 
-import ch.ethz.eventb.decomposition.utils.Messages;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
  *         <p>
- *         This class provides a machine chooser containing an element
- *         chooser {@link RodinElementComboViewer} for a Rodin project and an
- *         element chooser for a machine root within the selected project.
+ *         This class provides a machine chooser containing an element chooser
+ *         {@link RodinElementComboViewer} for a Rodin project and an element
+ *         chooser for a machine root within the selected project.
  *         </p>
  *         <p>
  *         When a new project is selected, the machine element chooser is reset,
  *         <i>i.e.</i> there is no selected machine root.
  *         </p>
  *         <p>
- *         The selected project is always the input of the machine element chooser.
+ *         The selected project is always the input of the machine element
+ *         chooser.
  *         </p>
  */
 public class MachineSelectionGroup {
 
-	// The project element chooser.
+	/** The project element chooser. */
 	RodinElementComboViewer<IRodinProject> projectChooser;
-	
-	// The machine element chooser.
+
+	/** The machine element chooser. */
 	RodinElementComboViewer<IMachineRoot> machineChooser;
-	
-	// The main group.
+
+	/** The main group. */
 	private Group group;
-		
+
 	/**
-	 * The constructor. Creates the main group widget, and then creates the two 
+	 * The constructor. Creates the main group widget, and then creates the two
 	 * element choosers.
 	 * 
 	 * @param parent
@@ -58,13 +59,14 @@ public class MachineSelectionGroup {
 	 * @param style
 	 *            the style to create the group widget.
 	 */
-	public MachineSelectionGroup(Composite parent, int style) {
+	public MachineSelectionGroup(final Composite parent, final int style) {
 		group = new Group(parent, style);
 		createContents();
 	}
 
 	/**
-	 * Utility method to create the content of the group with two element choosers.
+	 * Utility method to create the content of the group with two element
+	 * choosers.
 	 */
 	private void createContents() {
 		GridLayout gl = new GridLayout();
@@ -74,10 +76,10 @@ public class MachineSelectionGroup {
 		// Project label
 		Label label = new Label(group, SWT.NONE);
 		label.setText(Messages.label_project); //$NON-NLS-1$
-		
+
 		// Project chooser
 		createProjectChooser();
-		
+
 		// Machine label
 		label = new Label(group, SWT.NONE);
 		label.setText(Messages.label_machine); //$NON-NLS-1$
@@ -87,29 +89,31 @@ public class MachineSelectionGroup {
 	}
 
 	private void createMachineChooser() {
-		machineChooser = new RodinElementComboViewer<IMachineRoot>(
-			group, IMachineRoot.ELEMENT_TYPE);
+		machineChooser = new RodinElementComboViewer<IMachineRoot>(group,
+				IMachineRoot.ELEMENT_TYPE);
 		machineChooser.getControl().setLayoutData(
 				new GridData(GridData.FILL_HORIZONTAL));
-		machineChooser.addSelectionChangedListener(new ISelectionChangedListener() {
-			
-			public void selectionChanged(SelectionChangedEvent event) {
-					// Extra actions here
-			}
-		});
+		machineChooser
+				.addSelectionChangedListener(new ISelectionChangedListener() {
+
+					public void selectionChanged(
+							final SelectionChangedEvent event) {
+						// Extra actions here
+					}
+				});
 	}
 
 	private void createProjectChooser() {
-		projectChooser = new RodinElementComboViewer<IRodinProject>(
-				group, IRodinProject.ELEMENT_TYPE);
+		projectChooser = new RodinElementComboViewer<IRodinProject>(group,
+				IRodinProject.ELEMENT_TYPE);
 		projectChooser.getControl().setLayoutData(
 				new GridData(GridData.FILL_HORIZONTAL));
 		projectChooser
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 
-					public void selectionChanged(SelectionChangedEvent event) {
-						machineChooser.setInput(projectChooser
-								.getElement());
+					public void selectionChanged(
+							final SelectionChangedEvent event) {
+						machineChooser.setInput(projectChooser.getElement());
 						// Extra actions here
 					}
 				});
@@ -120,17 +124,16 @@ public class MachineSelectionGroup {
 	 * 
 	 * @return the project chooser viewer.
 	 */
-	public RodinElementComboViewer<IRodinProject> getProjectChooser() {
+	public final RodinElementComboViewer<IRodinProject> getProjectChooser() {
 		return projectChooser;
 	}
-
 
 	/**
 	 * Returns the machine chooser viewer.
 	 * 
 	 * @return the machine chooser viewer.
 	 */
-	public RodinElementComboViewer<IMachineRoot> getMachineChooser() {
+	public final RodinElementComboViewer<IMachineRoot> getMachineChooser() {
 		return machineChooser;
 	}
 
@@ -139,8 +142,8 @@ public class MachineSelectionGroup {
 	 * 
 	 * @return the main group.
 	 */
-	public Group getGroup() {
+	public final Group getGroup() {
 		return group;
 	}
-	
+
 }

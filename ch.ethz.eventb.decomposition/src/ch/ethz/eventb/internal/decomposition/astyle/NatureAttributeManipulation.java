@@ -18,7 +18,7 @@ import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
-import ch.ethz.eventb.decomposition.utils.Messages;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 public class NatureAttributeManipulation implements IAttributeManipulation {
 
@@ -28,12 +28,12 @@ public class NatureAttributeManipulation implements IAttributeManipulation {
 	/** The shared attribute. */
 	public final static String SHARED = Messages.attributeManipulation_nature_shared;
 
-	private INatureElement asNature(IRodinElement element) {
+	private INatureElement asNature(final IRodinElement element) {
 		return (INatureElement) element.getAdapter(INatureElement.class);
 	}
 
-	public String getValue(IRodinElement element, IProgressMonitor monitor)
-			throws RodinDBException {
+	public final String getValue(final IRodinElement element,
+			final IProgressMonitor monitor) throws RodinDBException {
 		final Nature nature = asNature(element).getNature();
 		if (nature == Nature.PRIVATE)
 			return PRIVATE;
@@ -42,28 +42,37 @@ public class NatureAttributeManipulation implements IAttributeManipulation {
 		return PRIVATE;
 	}
 
-	public void setValue(IRodinElement element, String newValue,
-			IProgressMonitor monitor) throws RodinDBException {
+	public final void setValue(final IRodinElement element,
+			final String newValue, final IProgressMonitor monitor)
+			throws RodinDBException {
+		final Nature nature ;
+		if (newValue.equals(PRIVATE)) {
+			nature = Nature.PRIVATE;
+		} else if (newValue.equals(SHARED)) {
+			nature = Nature.SHARED;
+		} else {
+			nature = null;
+		}
+		asNature(element).setNature(nature, monitor);
+	}
+
+	public final String[] getPossibleValues(final IRodinElement element,
+			final IProgressMonitor monitor) {
+		return new String[] { PRIVATE, SHARED };
+	}
+
+	public final void removeAttribute(final IRodinElement element,
+			final IProgressMonitor monitor) throws RodinDBException {
 		// Do nothing.
 	}
 
-	public String[] getPossibleValues(IRodinElement element,
-			IProgressMonitor monitor) {
-		return new String[0];
-	}
-
-	public void removeAttribute(IRodinElement element, IProgressMonitor monitor)
-			throws RodinDBException {
-		// Do nothing.
-	}
-
-	public void setDefaultValue(IRodinElement element, IProgressMonitor monitor)
-			throws RodinDBException {
+	public final void setDefaultValue(final IRodinElement element,
+			final IProgressMonitor monitor) throws RodinDBException {
 		asNature(element).setNature(Nature.PRIVATE, monitor);
 	}
 
-	public boolean hasValue(IRodinElement element, IProgressMonitor monitor)
-			throws RodinDBException {
+	public final boolean hasValue(final IRodinElement element,
+			final IProgressMonitor monitor) throws RodinDBException {
 		return asNature(element).hasNature();
 	}
 

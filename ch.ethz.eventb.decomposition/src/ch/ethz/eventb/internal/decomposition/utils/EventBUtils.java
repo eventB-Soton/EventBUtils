@@ -1,6 +1,4 @@
-package ch.ethz.eventb.decomposition.utils;
-
-import static org.eventb.core.IConfigurationElement.DEFAULT_CONFIGURATION;
+package ch.ethz.eventb.internal.decomposition.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,7 +58,17 @@ import ch.ethz.eventb.decomposition.DecompositionPlugin;
  *         elements (<i>e.g.</i> Event-B projects, machines, contexts).
  *         </p>
  */
-public class EventBUtils {
+public final class EventBUtils {
+
+	/**
+	 * Configuration of the static checker.
+	 */
+	public static final String DECOMPOSITION_CONFIGURATION = DecompositionPlugin.PLUGIN_ID
+			+ ".mchBase";
+
+	private EventBUtils() {
+		// Utility classes shall not have a public or default constructor.
+	}
 
 	// =========================================================================
 	// Projects
@@ -80,14 +88,15 @@ public class EventBUtils {
 	 *             the project
 	 *             {@link RodinCore#run(IWorkspaceRunnable, IProgressMonitor)}.
 	 */
-	public static IEventBProject createProject(String projectName,
-			IProgressMonitor monitor) throws RodinDBException {
+	public static IEventBProject createProject(final String projectName,
+			final IProgressMonitor monitor) throws RodinDBException {
 		final IRodinDB rodinDB = RodinCore.getRodinDB();
 		final IRodinProject rodinProject = rodinDB.getRodinProject(projectName);
 		if (!rodinProject.exists()) {
 			RodinCore.run(new IWorkspaceRunnable() {
 
-				public void run(IProgressMonitor pMonitor) throws CoreException {
+				public void run(final IProgressMonitor pMonitor)
+						throws CoreException {
 					IProject project = rodinProject.getProject();
 					Assert.isTrue(!project.exists(),
 							Messages.decomposition_error_existingproject);
@@ -109,9 +118,9 @@ public class EventBUtils {
 	// Machines / Contexts
 	// =========================================================================
 	/**
-	 * Utility method to create a new machine (*.bum) with the given name within
-	 * an existing project. There must be no existing construct with the same
-	 * bare-name.
+	 * Utility method to create a new sub-machine (*.bum) with the given name
+	 * within an existing project. There must be no existing construct with the
+	 * same bare-name. The machine is tagged as generated.
 	 * 
 	 * @param project
 	 *            The Event-B project.
@@ -130,16 +139,23 @@ public class EventBUtils {
 	 *             .</li>
 	 *             </ul>
 	 */
-	public static IMachineRoot createMachine(IEventBProject project,
-			String fileName, IProgressMonitor monitor) throws RodinDBException {
+	public static IMachineRoot createMachine(final IEventBProject project,
+			final String fileName, final IProgressMonitor monitor)
+			throws RodinDBException {
 		monitor.beginTask(Messages.decomposition_machine, 1);
 		IRodinFile machine = project.getMachineFile(fileName);
 		Assert.isTrue(!machine.exists(),
 				Messages.decomposition_error_existingmachine);
 		machine.create(false, new NullProgressMonitor());
-		IInternalElement root = machine.getRoot();
-		((IConfigurationElement) root).setConfiguration(DEFAULT_CONFIGURATION,
-				monitor);
+		IMachineRoot root = (IMachineRoot) machine.getRoot();
+
+		// Tag the machine as generated
+		root.setGenerated(true, monitor);
+
+		// Set the configuration
+		((IConfigurationElement) root).setConfiguration(
+				DECOMPOSITION_CONFIGURATION, monitor);
+
 		monitor.worked(1);
 		monitor.done();
 		return (IMachineRoot) root;
@@ -167,8 +183,9 @@ public class EventBUtils {
 	 *             .</li>
 	 *             </ul>
 	 */
-	public static void copyContexts(IEventBProject from, IEventBProject to,
-			IProgressMonitor monitor) throws RodinDBException {
+	public static void copyContexts(final IEventBProject from,
+			final IEventBProject to, final IProgressMonitor monitor)
+			throws RodinDBException {
 		IRodinProject fromPrj = from.getRodinProject();
 		IContextRoot[] contexts = fromPrj
 				.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
@@ -176,7 +193,16 @@ public class EventBUtils {
 			IRodinFile ctxFile = context.getRodinFile();
 			ctxFile.copy(to.getRodinProject(), null, null, true, monitor);
 		}
-		return;
+
+		// Tag the contexts as generated and set the configuration
+		for (IContextRoot context : contexts) {
+			IContextRoot copiedContext = to.getContextRoot(context
+					.getElementName());
+			copiedContext.setGenerated(true, monitor);
+			((IConfigurationElement) copiedContext).setConfiguration(
+					DECOMPOSITION_CONFIGURATION, monitor);
+
+		}
 	}
 
 	/**
@@ -202,8 +228,9 @@ public class EventBUtils {
 	 *             .</li>
 	 *             </ul>
 	 */
-	public static void copySeesClauses(IMachineRoot src, IMachineRoot dest,
-			IProgressMonitor monitor) throws RodinDBException {
+	public static void copySeesClauses(final IMachineRoot src,
+			final IMachineRoot dest, final IProgressMonitor monitor)
+			throws RodinDBException {
 		ISeesContext[] seesClauses = src.getSeesClauses();
 		monitor.beginTask(Messages.decomposition_seesclauses,
 				seesClauses.length);
@@ -291,13 +318,14 @@ public class EventBUtils {
 	 *             {@link IAxiom#setTheorem(boolean, IProgressMonitor)}.</li>
 	 *             </ul>
 	 */
-	public static IContextRoot merge(IContextRoot dest, IContextRoot src)
-			throws RodinDBException {
+	public static IContextRoot merge(final IContextRoot dest,
+			final IContextRoot src) throws RodinDBException {
 		// Get the first current carrier set.
 		ICarrierSet fstSet = null;
 		ICarrierSet[] currSets = dest.getCarrierSets();
-		if (currSets.length != 0)
+		if (currSets.length != 0) {
 			fstSet = currSets[0];
+		}
 
 		// Copy carrier sets from the source context.
 		ICarrierSet[] sets = src.getCarrierSets();
@@ -311,8 +339,9 @@ public class EventBUtils {
 		// Get the first current constant.
 		IConstant fstCst = null;
 		IConstant[] currCsts = dest.getConstants();
-		if (currCsts.length != 0)
+		if (currCsts.length != 0) {
 			fstCst = currCsts[0];
+		}
 
 		// Copy constants from the source context.
 		IConstant[] csts = src.getConstants();
@@ -326,8 +355,9 @@ public class EventBUtils {
 		// Get the first current axiom.
 		IAxiom fstAxm = null;
 		IAxiom[] currAxms = dest.getAxioms();
-		if (currAxms.length != 0)
+		if (currAxms.length != 0) {
 			fstAxm = currAxms[0];
+		}
 
 		// Copy axioms from the abstract context.
 		IAxiom[] axms = src.getAxioms();
@@ -361,8 +391,8 @@ public class EventBUtils {
 	 *             contexts {@link #getCarrierSetsAndConstants(IContextRoot)}.</li>
 	 *             </ul>
 	 */
-	public static List<String> getSeenCarrierSetsAndConstants(IMachineRoot mch)
-			throws RodinDBException {
+	public static List<String> getSeenCarrierSetsAndConstants(
+			final IMachineRoot mch) throws RodinDBException {
 		List<String> result = new ArrayList<String>();
 
 		ISeesContext[] seesClauses = mch.getSeesClauses();
@@ -427,12 +457,14 @@ public class EventBUtils {
 	 * @param monitor
 	 *            a progress monitor.
 	 */
-	public static void cleanUp(IMachineRoot machine, IProgressMonitor monitor) {
+	public static void cleanUp(final IMachineRoot machine,
+			final IProgressMonitor monitor) {
 		// Make the machine consistent.
 		try {
 			IRodinFile rodinFile = machine.getRodinFile();
-			if (rodinFile.hasUnsavedChanges())
+			if (rodinFile.hasUnsavedChanges()) {
 				rodinFile.makeConsistent(monitor);
+			}
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 		}
@@ -444,8 +476,9 @@ public class EventBUtils {
 			ctxs = prj.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
 			for (IContextRoot ctx : ctxs) {
 				IRodinFile rodinFile = ctx.getRodinFile();
-				if (rodinFile.hasUnsavedChanges())
+				if (rodinFile.hasUnsavedChanges()) {
 					rodinFile.makeConsistent(monitor);
+				}
 			}
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -479,13 +512,15 @@ public class EventBUtils {
 	 *             {@link ISCVariable#getType(FormulaFactory)}.</li>
 	 *             </ul>
 	 */
-	public static String getTypingTheorem(IMachineRoot src, String var)
-			throws RodinDBException {
-		if (!src.exists())
+	public static String getTypingTheorem(final IMachineRoot src,
+			final String var) throws RodinDBException {
+		if (!src.exists()) {
 			return null;
+		}
 		ISCMachineRoot mchSC = src.getSCMachineRoot();
-		if (!mchSC.exists())
+		if (!mchSC.exists()) {
 			return null;
+		}
 		ISCVariable[] varSCs = mchSC.getSCVariables();
 		for (ISCVariable varSC : varSCs) {
 			if (varSC.getIdentifierString().equals(var)) {
@@ -509,10 +544,9 @@ public class EventBUtils {
 	 * @return set of free identifiers of the input invariant.
 	 * @throws RodinDBException
 	 *             if some errors occurred when getting the predicate string of
-	 *             the input invariant {@link IInvariant#getPredicateString()}
-	 *             .</li>
+	 *             the input invariant {@link IInvariant#getPredicateString()}.
 	 */
-	public static List<String> getFreeIdentifiers(IInvariant inv)
+	public static List<String> getFreeIdentifiers(final IInvariant inv)
 			throws RodinDBException {
 		return getPredicateFreeIdentifiers(inv.getPredicateString());
 	}
@@ -527,11 +561,14 @@ public class EventBUtils {
 	 *            the source machine.
 	 * @param vars
 	 *            the set of variables (in {@link String}).
+	 * @param monitor
+	 *            the progress monitor.
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void copyInvariants(IMachineRoot mch, IMachineRoot src,
-			Set<String> vars, IProgressMonitor monitor) throws RodinDBException {
+	public static void copyInvariants(final IMachineRoot mch,
+			final IMachineRoot src, final Set<String> vars,
+			final IProgressMonitor monitor) throws RodinDBException {
 		// Recursively copy from the abstract machine.
 		IRefinesMachine[] refinesClauses = src.getRefinesClauses();
 		if (refinesClauses.length != 0) {
@@ -569,8 +606,8 @@ public class EventBUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static boolean isRelevant(IInvariant inv, Set<String> vars)
-			throws RodinDBException {
+	public static boolean isRelevant(final IInvariant inv,
+			final Set<String> vars) throws RodinDBException {
 		Collection<String> idents = getFreeIdentifiers(inv);
 
 		// Remove the seen carrier sets and constants.
@@ -620,8 +657,9 @@ public class EventBUtils {
 		for (IGuard grd : grds) {
 			List<String> grdIdents = getFreeIdentifiers(grd);
 			for (String grdIdent : grdIdents) {
-				if (!idents.contains(grdIdent))
+				if (!idents.contains(grdIdent)) {
 					idents.add(grdIdent);
+				}
 			}
 		}
 
@@ -630,8 +668,9 @@ public class EventBUtils {
 		for (IAction act : acts) {
 			List<String> actIdents = getFreeIdentifiers(act);
 			for (String actIdent : actIdents) {
-				if (!idents.contains(actIdent))
+				if (!idents.contains(actIdent)) {
 					idents.add(actIdent);
+				}
 			}
 		}
 
@@ -667,7 +706,7 @@ public class EventBUtils {
 	 *             abstract event {@link #merge(IEvent, IEvent)}.</li>
 	 *             </ul>
 	 */
-	public static IEvent flatten(IEvent evt) throws RodinDBException {
+	public static IEvent flatten(final IEvent evt) throws RodinDBException {
 		if (evt.isExtended()) {
 			IEvent absEvt = getAbstract(evt);
 			return merge(evt, flatten(absEvt));
@@ -702,31 +741,36 @@ public class EventBUtils {
 	 *             {@link IEvent#getLabel()}.</li>
 	 *             </ul>
 	 */
-	public static IEvent getAbstract(IEvent event) throws RodinDBException {
+	public static IEvent getAbstract(final IEvent event)
+			throws RodinDBException {
 		String absEvtLabel;
-		if (event.isInitialisation())
+		if (event.isInitialisation()) {
 			absEvtLabel = IEvent.INITIALISATION;
-		else {
+		} else {
 			IRefinesEvent[] evtRefinesClauses = event.getRefinesClauses();
-			if (evtRefinesClauses.length != 1)
+			if (evtRefinesClauses.length != 1) {
 				return null;
+			}
 			absEvtLabel = evtRefinesClauses[0].getAbstractEventLabel();
 		}
 
 		IMachineRoot mch = (IMachineRoot) event.getRoot();
 
 		IRefinesMachine[] refinesClauses = mch.getRefinesClauses();
-		if (refinesClauses.length != 1)
+		if (refinesClauses.length != 1) {
 			return null;
+		}
 
 		IRodinFile abstractMachine = refinesClauses[0].getAbstractMachine();
-		if (!abstractMachine.exists())
+		if (!abstractMachine.exists()) {
 			return null;
+		}
 		IMachineRoot absMch = (IMachineRoot) abstractMachine.getRoot();
 		IEvent[] absEvts = absMch.getEvents();
 		for (IEvent absEvt : absEvts) {
-			if (absEvt.getLabel().equals(absEvtLabel))
+			if (absEvt.getLabel().equals(absEvtLabel)) {
 				return absEvt;
+			}
 		}
 		return null;
 	}
@@ -777,13 +821,15 @@ public class EventBUtils {
 	 *             {@link IEvent#setExtended(boolean, IProgressMonitor)}.</li>
 	 *             </ul>
 	 */
-	public static IEvent merge(IEvent dest, IEvent src) throws RodinDBException {
+	public static IEvent merge(final IEvent dest, final IEvent src)
+			throws RodinDBException {
 
 		// Get the current first parameter.
 		IParameter[] currParams = dest.getParameters();
 		IParameter fstParam = null;
-		if (currParams.length != 0)
+		if (currParams.length != 0) {
 			fstParam = currParams[0];
+		}
 
 		// Copy the parameters from abstract event to the beginning of the list.
 		IParameter[] params = src.getParameters();
@@ -797,8 +843,9 @@ public class EventBUtils {
 		// Get the current first guard.
 		IGuard[] currGuards = dest.getGuards();
 		IGuard fstGrd = null;
-		if (currGuards.length != 0)
+		if (currGuards.length != 0) {
 			fstGrd = currGuards[0];
+		}
 
 		// Copy the guards from the abstract event to the beginning of the list.
 		IGuard[] grds = src.getGuards();
@@ -813,8 +860,9 @@ public class EventBUtils {
 		// Get the current first action.
 		IAction[] currActs = dest.getActions();
 		IAction fstAct = null;
-		if (currActs.length != 0)
+		if (currActs.length != 0) {
 			fstAct = currActs[0];
+		}
 
 		// Copy the actions from the abstract event to the beginning of the
 		// list.
@@ -844,7 +892,7 @@ public class EventBUtils {
 	 *             {@link IEvent#INITIALISATION} (
 	 *             {@link #getEventWithLabel(IMachineRoot, String)}).
 	 */
-	public static IEvent getInitialisation(IMachineRoot mch)
+	public static IEvent getInitialisation(final IMachineRoot mch)
 			throws RodinDBException {
 		return getEventWithLabel(mch, IEvent.INITIALISATION);
 	}
@@ -854,6 +902,8 @@ public class EventBUtils {
 	 * 
 	 * @param mch
 	 *            a machine
+	 * @param label
+	 *            an event label
 	 * @return the event with the given label of the input machine or
 	 *         <code>null</code> if there is no event with the given label.
 	 * @throws RodinDBException
@@ -865,12 +915,14 @@ public class EventBUtils {
 	 *             {@link IEvent#getLabel()}.</li>
 	 *             </ul>
 	 */
-	public static IEvent getEventWithLabel(IMachineRoot mch, String label)
-			throws RodinDBException {
+	public static IEvent getEventWithLabel(final IMachineRoot mch,
+			final String label) throws RodinDBException {
 		IEvent[] evts = mch.getEvents();
-		for (IEvent evt : evts)
-			if (evt.getLabel().equals(label))
+		for (IEvent evt : evts) {
+			if (evt.getLabel().equals(label)) {
 				return evt;
+			}
+		}
 		return null;
 	}
 
@@ -887,7 +939,7 @@ public class EventBUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void copyParameters(IEvent dest, IEvent src)
+	public static void copyParameters(final IEvent dest, final IEvent src)
 			throws RodinDBException {
 		for (IParameter param : src.getParameters()) {
 			IParameter newParam = dest.createChild(IParameter.ELEMENT_TYPE,
@@ -911,7 +963,7 @@ public class EventBUtils {
 	 *             if some errors occurred when getting the predicate string of
 	 *             the input guard {@link IGuard#getPredicateString()}.
 	 */
-	public static List<String> getFreeIdentifiers(IGuard grd)
+	public static List<String> getFreeIdentifiers(final IGuard grd)
 			throws RodinDBException {
 		return getPredicateFreeIdentifiers(grd.getPredicateString());
 	}
@@ -926,7 +978,7 @@ public class EventBUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void copyGuards(IEvent dest, IEvent src)
+	public static void copyGuards(final IEvent dest, final IEvent src)
 			throws RodinDBException {
 		// Copy guards from the source event.
 		for (IGuard grd : src.getGuards()) {
@@ -954,8 +1006,8 @@ public class EventBUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void createExtraParametersAndGuards(IMachineRoot src,
-			IEvent evt, Set<String> vars) throws RodinDBException {
+	public static void createExtraParametersAndGuards(final IMachineRoot src,
+			final IEvent evt, final Set<String> vars) throws RodinDBException {
 		List<String> idents = getFreeIdentifiers(evt);
 		idents.removeAll(getSeenCarrierSetsAndConstants(src));
 		idents.removeAll(vars);
@@ -971,8 +1023,9 @@ public class EventBUtils {
 
 		IGuard fstGrd = null;
 		IGuard[] grds = evt.getGuards();
-		if (grds.length != 0)
+		if (grds.length != 0) {
 			fstGrd = grds[0];
+		}
 
 		for (String ident : idents) {
 			String typThm = getTypingTheorem(src, ident);
@@ -999,7 +1052,7 @@ public class EventBUtils {
 	 *             if some error occurred when getting the assignment string of
 	 *             the input action {@link IAction#getAssignmentString()}.
 	 */
-	public static List<String> getFreeIdentifiers(IAction act)
+	public static List<String> getFreeIdentifiers(final IAction act)
 			throws RodinDBException {
 		return getAssignmentFreeIdentifiers(act.getAssignmentString());
 	}
@@ -1035,7 +1088,7 @@ public class EventBUtils {
 	 *            an Event-B element.
 	 * @return the displayed text corresponding to the input element.
 	 */
-	public static String getDisplayedText(IRodinElement element) {
+	public static String getDisplayedText(final IRodinElement element) {
 
 		// If the element is a guard element then return the predicate of the
 		// element.
@@ -1099,7 +1152,7 @@ public class EventBUtils {
 	 * @return the set of free identifiers appearing in a predicate string.
 	 */
 	public static List<String> getPredicateFreeIdentifiers(
-			String predicateString) {
+			final String predicateString) {
 		Predicate parsePredicate = Lib.parsePredicate(predicateString);
 		return toStringList(parsePredicate.getSyntacticallyFreeIdentifiers());
 	}
@@ -1109,12 +1162,12 @@ public class EventBUtils {
 	 * free identifiers is determined syntactically
 	 * {@link Assignment#getSyntacticallyFreeIdentifiers()}.
 	 * 
-	 * @param assignment
+	 * @param assignmentString
 	 *            an assignment.
 	 * @return the set of free identifiers appearing in an assignment string.
 	 */
 	public static List<String> getAssignmentFreeIdentifiers(
-			String assignmentString) {
+			final String assignmentString) {
 		Assignment parseAssignment = Lib.parseAssignment(assignmentString);
 		return toStringList(parseAssignment.getSyntacticallyFreeIdentifiers());
 	}
@@ -1127,13 +1180,14 @@ public class EventBUtils {
 	 *            an array of free identifiers.
 	 * @return a set of strings corresponding to the input array.
 	 */
-	public static List<String> toStringList(FreeIdentifier[] freeIdents) {
+	public static List<String> toStringList(final FreeIdentifier[] freeIdents) {
 		List<String> result = new ArrayList<String>();
 
 		for (FreeIdentifier freeIdentifier : freeIdents) {
 			String name = freeIdentifier.getName();
-			if (!result.contains(name))
+			if (!result.contains(name)) {
 				result.add(name);
+			}
 		}
 		return result;
 	}
@@ -1148,12 +1202,13 @@ public class EventBUtils {
 	 *            an array of free identifiers.
 	 * @return a CSV string corresponding the input free identifiers.
 	 */
-	public static String identsToCSVString(String srcStr,
-			FreeIdentifier[] idents) {
+	public static String identsToCSVString(final String srcStr,
+			final FreeIdentifier[] idents) {
 		String result = ""; //$NON-NLS-1$
 		for (int i = 0; i < idents.length; i++) {
-			if (i != 0)
+			if (i != 0) {
 				result += ", "; //$NON-NLS-1$
+			}
 			SourceLocation srcLoc = idents[i].getSourceLocation();
 			result += srcStr.substring(srcLoc.getStart(), srcLoc.getEnd() + 1);
 		}
@@ -1170,12 +1225,13 @@ public class EventBUtils {
 	 *            an array of free identifiers.
 	 * @return a CSV string corresponding the input free identifiers.
 	 */
-	public static String identsToPrimedCSVString(String srcStr,
-			FreeIdentifier[] idents) {
+	public static String identsToPrimedCSVString(final String srcStr,
+			final FreeIdentifier[] idents) {
 		String result = ""; //$NON-NLS-1$
 		for (int i = 0; i < idents.length; i++) {
-			if (i != 0)
+			if (i != 0) {
 				result += ", "; //$NON-NLS-1$
+			}
 			SourceLocation srcLoc = idents[i].getSourceLocation();
 			result += srcStr.substring(srcLoc.getStart(), srcLoc.getEnd() + 1)
 					+ "'"; //$NON-NLS-1$
@@ -1198,9 +1254,10 @@ public class EventBUtils {
 	 * 
 	 * @param args
 	 *            parameters to bind with the message
+	 * @return a Rodin database exception
 	 */
-	public static RodinDBException newRodinDBException(String message,
-			Object... args) {
+	public static RodinDBException newRodinDBException(final String message,
+			final Object... args) {
 
 		return new RodinDBException(new CoreException(new Status(IStatus.ERROR,
 				DecompositionPlugin.PLUGIN_ID, IStatus.OK, Messages.bind(

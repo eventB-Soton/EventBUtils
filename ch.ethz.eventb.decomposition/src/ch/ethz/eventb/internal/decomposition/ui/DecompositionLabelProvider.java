@@ -10,8 +10,8 @@
 
 package ch.ethz.eventb.internal.decomposition.ui;
 
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 
 /**
  * A label provider for the elements used in the decomposition.
@@ -19,7 +19,7 @@ import ch.ethz.eventb.internal.decomposition.ISubModel;
 public class DecompositionLabelProvider extends RodinElementLabelProvider {
 
 	@Override
-	public String getText(Object element) {
+	public final String getText(final Object element) {
 		if (element instanceof IModelDecomposition) {
 			return ((IModelDecomposition) element).getStyle();
 		}

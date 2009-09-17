@@ -10,15 +10,15 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests.astyle;
+package ch.ethz.eventb.internal.decomposition.tests.astyle;
 
 import java.util.Set;
 
 import org.junit.Test;
 import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.astyle.DecompositionUtils;
 
 /**

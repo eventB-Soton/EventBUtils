@@ -16,10 +16,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.RodinDBException;
 
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.DefaultModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.DefaultSubModel;
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.ISubModel;
 
 /**
  * @author htson
@@ -28,28 +28,38 @@ import ch.ethz.eventb.internal.decomposition.ISubModel;
  *         decomposition.
  *         </p>
  */
-public class ModelDecomposition extends
-		DefaultModelDecomposition {
+public class ModelDecomposition extends DefaultModelDecomposition {
 
+	/**
+	 * Builds a new instance of model decomposition.
+	 */
 	public ModelDecomposition() {
 		super();
 	}
 
+	/**
+	 * Builds a new instance of model decomposition to decompose the specified
+	 * machine.
+	 * 
+	 * @param mch
+	 *            the machine to be decomposed.
+	 */
 	public ModelDecomposition(IMachineRoot mch) {
 		super(mch);
 	}
 
-	public ISubModel createSubModel() {
+	public final ISubModel createSubModel() {
 		return new DefaultSubModel(this);
 	}
 
-	public String getStyle() {
+	public final String getStyle() {
 		return IModelDecomposition.B_STYLE;
 	}
 
 	/**
 	 * @TODO To be implemented.
 	 */
-	public void perform(IProgressMonitor monitor) throws RodinDBException {
+	public final void perform(final IProgressMonitor monitor)
+			throws RodinDBException {
 	}
 }

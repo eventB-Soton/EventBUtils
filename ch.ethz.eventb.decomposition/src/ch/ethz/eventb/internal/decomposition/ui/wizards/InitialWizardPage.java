@@ -19,10 +19,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import ch.ethz.eventb.decomposition.utils.Messages;
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.ui.DecompositionComboViewer;
 import ch.ethz.eventb.internal.decomposition.ui.StyleSelectionGroup;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * The initial wizard page. It allows in particular to specify the decomposition
@@ -30,10 +30,10 @@ import ch.ethz.eventb.internal.decomposition.ui.StyleSelectionGroup;
  */
 public class InitialWizardPage extends WizardPage {
 
-	// The model decomposition.
+	/** The model decomposition. */
 	private IModelDecomposition modelDecomp;
 
-	// A style chooser group to specify the decomposition style.
+	/** A style chooser group to specify the decomposition style. */
 	private StyleSelectionGroup styleGroup;
 
 	/**
@@ -45,7 +45,7 @@ public class InitialWizardPage extends WizardPage {
 		setDescription(Messages.wizard_description);
 	}
 
-	public void createControl(Composite parent) {
+	public final void createControl(final Composite parent) {
 		// Create the main composite.
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
@@ -61,7 +61,8 @@ public class InitialWizardPage extends WizardPage {
 		styleChooser
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 
-					public void selectionChanged(SelectionChangedEvent event) {
+					public void selectionChanged(
+							final SelectionChangedEvent event) {
 						modelDecomp = styleChooser.getElement();
 					}
 
@@ -82,7 +83,7 @@ public class InitialWizardPage extends WizardPage {
 
 	}
 
-	private void createSelectionGroup(Composite container) {
+	private void createSelectionGroup(final Composite container) {
 		styleGroup = new StyleSelectionGroup(container);
 		styleGroup.getGroup().setText(Messages.wizard_style);
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
@@ -97,7 +98,7 @@ public class InitialWizardPage extends WizardPage {
 	 * @param message
 	 *            the error message or <code>null</code>.
 	 */
-	private void updateStatus(String message) {
+	private void updateStatus(final String message) {
 		setErrorMessage(message);
 		setPageComplete(message == null);
 	}
@@ -107,7 +108,7 @@ public class InitialWizardPage extends WizardPage {
 	 * 
 	 * @return the model distribution.
 	 */
-	public IModelDecomposition getModelDecomposition() {
+	public final IModelDecomposition getModelDecomposition() {
 		return modelDecomp;
 	}
 

@@ -13,7 +13,7 @@ package ch.ethz.eventb.internal.decomposition.ui;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.rodinp.core.IRodinElement;
 
-import ch.ethz.eventb.decomposition.utils.EventBUtils;
+import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
 
 /**
  * @author htson
@@ -24,9 +24,10 @@ import ch.ethz.eventb.decomposition.utils.EventBUtils;
 public class RodinElementLabelProvider extends LabelProvider {
 
 	@Override
-	public String getText(Object element) {
-		if (element instanceof IRodinElement)
+	public String getText(final Object element) {
+		if (element instanceof IRodinElement) {
 			return EventBUtils.getDisplayedText((IRodinElement) element);
+		}
 
 		return super.getText(element);
 	}

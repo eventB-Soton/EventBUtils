@@ -55,7 +55,7 @@
       <attributeType
             id="external"
             kind="boolean"
-            name="%eventBExternalEventAttribute">
+            name="%eventBExternalAttribute">
       </attributeType>
    </extension>
   <extension point="org.eventb.ui.editorItems"> 
@@ -105,6 +105,69 @@
               type="ch.ethz.eventb.decomposition.astyle.INatureElement">
         </adapter>
      </factory>
+     <factory
+           adaptableType="org.eventb.core.ISCVariable"
+           class="ch.ethz.eventb.internal.decomposition.astyle.VariableAdapterFactory">
+        <adapter
+              type="ch.ethz.eventb.decomposition.astyle.INatureElement">
+        </adapter>
+     </factory>
+     <factory
+           adaptableType="org.eventb.core.ISCEvent"
+           class="ch.ethz.eventb.internal.decomposition.astyle.EventAdapterFactory">
+        <adapter
+              type="ch.ethz.eventb.decomposition.astyle.IExternalElement">
+        </adapter>
+     </factory>
+  </extension>
+  <extension
+        point="org.eventb.core.configurations">
+     <configuration
+           id="mchBase"
+           name="%mchBase">
+        <config
+              id="org.eventb.core.fwd">
+        </config>
+        <scModule
+              id="ch.ethz.eventb.decomposition.varModule">
+        </scModule>
+        <scModule
+              id="ch.ethz.eventb.decomposition.evtModule">
+        </scModule>
+        <scModule
+              id="ch.ethz.eventb.decomposition.refinesModule">
+        </scModule>
+     </configuration>
+  </extension>
+  <extension
+        point="org.eventb.core.scModuleTypes">
+     <filterType
+           class="ch.ethz.eventb.internal.decomposition.astyle.sc.MachineVariableModule"
+           id="varModule"
+           name="%varModule"
+           parent="org.eventb.core.machineVariableModule">
+     </filterType>
+     <filterType
+           class="ch.ethz.eventb.internal.decomposition.astyle.sc.MachineEventModule"
+           id="evtModule"
+           name="%evtModule"
+           parent="org.eventb.core.machineEventModule">
+     </filterType>
+     <processorType
+           class="ch.ethz.eventb.internal.decomposition.astyle.sc.MachineRefinesModule"
+           id="refinesModule"
+           name="%refinesModule"
+           parent="org.eventb.core.machineModule">
+        <prereq
+              id="ch.ethz.eventb.decomposition.varModule">
+        </prereq>
+        <prereq
+              id="ch.ethz.eventb.decomposition.evtModule">
+        </prereq>
+        <prereq
+              id="org.eventb.core.machineEventExtendedModule">
+        </prereq>
+     </processorType>
   </extension>
 
 </plugin>

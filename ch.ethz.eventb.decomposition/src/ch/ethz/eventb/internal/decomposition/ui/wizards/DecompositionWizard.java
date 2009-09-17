@@ -28,26 +28,27 @@ import org.eventb.core.IEvent;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IVariable;
 
-import ch.ethz.eventb.decomposition.utils.EventBUtils;
-import ch.ethz.eventb.decomposition.utils.Messages;
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * This wizard decomposes an Event-B model in several sub-models.
  */
 public class DecompositionWizard extends Wizard implements INewWizard {
-	// The first page: decomposition style.
+	/** The first page. */
 	private InitialWizardPage initialPage;
 
-	// The second page
+	/** The next page. */
 	private WizardPage decompPage;
 
-	// The current selection of the workspace used to initialize
-	// the wizard.
+	/**
+	 * The current selection of the workspace used to initialize the wizard.
+	 */
 	private ISelection selection;
 
 	/**
-	 * Constructor for <tt>DecompositionWizard</tt>.
+	 * Builds a new wizard for decomposition.
 	 */
 	public DecompositionWizard() {
 		super();
@@ -58,13 +59,13 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 	/**
 	 * Adds the pages to the wizard.
 	 */
-	public void addPages() {
+	public final void addPages() {
 		super.addPages();
 		initialPage = new InitialWizardPage();
 		addPage(initialPage);
 	}
 
-	public IWizardPage getNextPage(IWizardPage page) {
+	public final IWizardPage getNextPage(final IWizardPage page) {
 		if (page == initialPage) {
 			final IModelDecomposition modelDecomp = initialPage
 					.getModelDecomposition();
@@ -84,16 +85,16 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 		return null;
 	}
 
-	public boolean canFinish() {
+	public final boolean canFinish() {
 		return (decompPage != null && decompPage.isPageComplete());
 	}
 
-	public boolean performFinish() {
+	public final boolean performFinish() {
 		final IModelDecomposition decomp = initialPage.getModelDecomposition();
 
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 
-			public void run(IProgressMonitor monitor)
+			public void run(final IProgressMonitor monitor)
 					throws InvocationTargetException {
 				try {
 					decomp.perform(monitor);
@@ -101,8 +102,9 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 					throw new InvocationTargetException(e);
 				} finally {
 					IMachineRoot mch = decomp.getMachineRoot();
-					if (mch != null)
+					if (mch != null) {
 						EventBUtils.cleanUp(mch, monitor);
+					}
 				}
 			}
 		};
@@ -123,9 +125,14 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 	 * Stores the current selection in the workbench. This selection will be
 	 * used for further initialization.
 	 * 
+	 * @param workbench
+	 *            the workbench
+	 * @param selection
+	 *            the current selection
 	 * @see IWorkbenchWizard#init(IWorkbench, IStructuredSelection)
 	 */
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
+	public final void init(final IWorkbench workbench,
+			final IStructuredSelection selection) {
 		this.selection = selection;
 	}
 

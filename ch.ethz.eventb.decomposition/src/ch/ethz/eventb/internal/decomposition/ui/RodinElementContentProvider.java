@@ -32,51 +32,56 @@ import org.rodinp.core.RodinDBException;
  * @param <T>
  *            the type of the children to be returned.
  */
-public class RodinElementContentProvider<T extends IRodinElement>
-		implements IStructuredContentProvider {
+public class RodinElementContentProvider<T extends IRodinElement> implements
+		IStructuredContentProvider {
 
-	// The element type of the children.
+	/** The element type of the children. */
 	private IElementType<T> type;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param type the element type of the children.
+	 * @param type
+	 *            the element type of the children.
 	 */
-	public RodinElementContentProvider(IElementType<T> type) {
+	public RodinElementContentProvider(final IElementType<T> type) {
 		this.type = type;
 	}
-	
-	public Object[] getElements(Object inputElement) {
-		// If the input element is a Rodin project 
+
+	public final Object[] getElements(final Object inputElement) {
+		// If the input element is a Rodin project
 		if (inputElement instanceof IRodinProject) {
 			IRodinProject project = (IRodinProject) inputElement;
 			// If the type is IMachineRoot then return the list of
 			// IMachineRoot.
 			if (type == IMachineRoot.ELEMENT_TYPE) {
 				try {
-					return project.getRootElementsOfType((IInternalElementType<?>) type);
+					return project
+							.getRootElementsOfType((IInternalElementType<?>) type);
 				} catch (RodinDBException e) {
 					e.printStackTrace();
 					return new Object[0];
 				}
 			}
 		}
-		
+
 		// If the input element is a machine
 		if (inputElement instanceof IMachineRoot && type == IEvent.ELEMENT_TYPE) {
 			try {
 				Collection<IEvent> result = new ArrayList<IEvent>();
-				for (IEvent evt : ((IMachineRoot) inputElement).getEvents())
-					if (!evt.isInitialisation())
+				for (IEvent evt : ((IMachineRoot) inputElement).getEvents()) {
+					if (!evt.isInitialisation()) {
 						result.add(evt);
+					}
+				}
 				return result.toArray(new IEvent[result.size()]);
 			} catch (RodinDBException e) {
 				return new Object[0];
 			}
-		}	
-		
-		// If the input element is a parent, then return the list of children of the given type.
+		}
+
+		// If the input element is a parent, then return the list of children of
+		// the given type.
 		if (inputElement instanceof IParent) {
 			try {
 				return ((IParent) inputElement).getChildrenOfType(type);
@@ -85,15 +90,16 @@ public class RodinElementContentProvider<T extends IRodinElement>
 				return new Object[0];
 			}
 		}
-		
+
 		return new Object[0];
 	}
 
 	public void dispose() {
-		// Do nothing	
+		// Do nothing
 	}
 
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	public final void inputChanged(final Viewer viewer, final Object oldInput,
+			final Object newInput) {
 		// Do nothing
 	}
 

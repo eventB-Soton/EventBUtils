@@ -19,20 +19,20 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
-import ch.ethz.eventb.decomposition.utils.Messages;
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
- *  This class provides a chooser for the decomposition style.
+ * This class provides a chooser for the decomposition style.
  */
 public class StyleSelectionGroup {
 
-	// The decomposition style chooser.
+	/** The decomposition style chooser. */
 	DecompositionComboViewer<IModelDecomposition> styleChooser;
-	
-	// The main group.
+
+	/** The main group. */
 	private Group group;
-		
+
 	/**
 	 * The constructor. Creates the main group widget, and then creates the
 	 * element chooser.
@@ -40,13 +40,14 @@ public class StyleSelectionGroup {
 	 * @param parent
 	 *            the composite parent for the group widget.
 	 */
-	public StyleSelectionGroup(Composite parent) {
+	public StyleSelectionGroup(final Composite parent) {
 		group = new Group(parent, SWT.DEFAULT);
 		createContents();
 	}
 
 	/**
-	 * Utility method to create the content of the group with an element chooser.
+	 * Utility method to create the content of the group with an element
+	 * chooser.
 	 */
 	private void createContents() {
 		GridLayout gl = new GridLayout();
@@ -56,20 +57,20 @@ public class StyleSelectionGroup {
 		// Project label
 		Label label = new Label(group, SWT.NONE);
 		label.setText(Messages.label_style); //$NON-NLS-1$
-		
+
 		// Project chooser
 		createStyleChooser();
 	}
 
 	private void createStyleChooser() {
-		styleChooser = new DecompositionComboViewer<IModelDecomposition>(
-				group);
+		styleChooser = new DecompositionComboViewer<IModelDecomposition>(group);
 		styleChooser.getControl().setLayoutData(
 				new GridData(GridData.FILL_HORIZONTAL));
 		styleChooser
 				.addSelectionChangedListener(new ISelectionChangedListener() {
 
-					public void selectionChanged(SelectionChangedEvent event) {
+					public void selectionChanged(
+							final SelectionChangedEvent event) {
 						// Extra actions here
 					}
 				});
@@ -80,7 +81,7 @@ public class StyleSelectionGroup {
 	 * 
 	 * @return the style chooser viewer.
 	 */
-	public DecompositionComboViewer<IModelDecomposition> getStyleChooser() {
+	public final DecompositionComboViewer<IModelDecomposition> getStyleChooser() {
 		return styleChooser;
 	}
 
@@ -89,8 +90,8 @@ public class StyleSelectionGroup {
 	 * 
 	 * @return the style chooser group.
 	 */
-	public Group getGroup() {
+	public final Group getGroup() {
 		return group;
 	}
-	
+
 }

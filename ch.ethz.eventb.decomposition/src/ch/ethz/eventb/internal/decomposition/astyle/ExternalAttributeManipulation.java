@@ -18,7 +18,7 @@ import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
-import ch.ethz.eventb.decomposition.utils.Messages;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * An implementation of {@link IAttributeManipulation} providing the factory
@@ -36,38 +36,44 @@ public class ExternalAttributeManipulation implements IAttributeManipulation {
 	 */
 	private static final String FALSE = Messages.attributeManipulation_external_false;
 
-	private IExternalElement asEvent(IRodinElement element) {
+	private IExternalElement asEvent(final IRodinElement element) {
 		return (IExternalElement) element.getAdapter(IExternalElement.class);
 	}
 
-	public String getValue(IRodinElement element, IProgressMonitor monitor)
-			throws RodinDBException {
+	public final String getValue(final IRodinElement element,
+			final IProgressMonitor monitor) throws RodinDBException {
 		final IExternalElement event = asEvent(element);
 		return (event.hasExternal() && event.isExternal()) ? TRUE : FALSE;
 	}
 
-	public void setValue(IRodinElement element, String newValue,
-			IProgressMonitor monitor) throws RodinDBException {
+	public final void setValue(final IRodinElement element,
+			final String newValue, final IProgressMonitor monitor)
+			throws RodinDBException {
+		final IExternalElement event = asEvent(element);
+		if (newValue.equals(TRUE)) {
+			event.setExternal(true, monitor);
+		} else if (newValue.equals(FALSE)) {
+			event.setExternal(false, monitor);
+		}
+	}
+
+	public String[] getPossibleValues(final IRodinElement element,
+			final IProgressMonitor monitor) {
+		return new String[] { FALSE, TRUE };
+	}
+
+	public void removeAttribute(final IRodinElement element,
+			final IProgressMonitor monitor) throws RodinDBException {
 		// Do nothing.
 	}
 
-	public String[] getPossibleValues(IRodinElement element,
-			IProgressMonitor monitor) {
-		return new String[0];
-	}
-
-	public void removeAttribute(IRodinElement element, IProgressMonitor monitor)
-			throws RodinDBException {
-		// Do nothing.
-	}
-
-	public void setDefaultValue(IRodinElement element, IProgressMonitor monitor)
-			throws RodinDBException {
+	public void setDefaultValue(final IRodinElement element,
+			final IProgressMonitor monitor) throws RodinDBException {
 		asEvent(element).setExternal(false, monitor);
 	}
 
-	public boolean hasValue(IRodinElement element, IProgressMonitor monitor)
-			throws RodinDBException {
+	public boolean hasValue(final IRodinElement element,
+			final IProgressMonitor monitor) throws RodinDBException {
 		return asEvent(element).hasExternal();
 	}
 

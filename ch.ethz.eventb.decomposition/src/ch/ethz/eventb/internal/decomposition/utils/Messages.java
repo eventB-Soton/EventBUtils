@@ -1,11 +1,9 @@
-package ch.ethz.eventb.decomposition.utils;
+package ch.ethz.eventb.internal.decomposition.utils;
 
 import org.eclipse.osgi.util.NLS;
 
-public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "ch.ethz.eventb.decomposition.utils.messages"; //$NON-NLS-1$
-
-	public static String database_VariableInvalidNatureFailure;
+public final class Messages extends NLS {
+	private static final String BUNDLE_NAME = "ch.ethz.eventb.internal.decomposition.utils.messages"; //$NON-NLS-1$
 	
 	public static String button_add;
 	public static String button_remove;
@@ -26,6 +24,7 @@ public class Messages extends NLS {
 	public static String wizard_error;
 	public static String wizard_style;
 
+	public static String decomposition_forbidden;
 	public static String decomposition_defaultproject;
 	public static String decomposition_description;
 	public static String decomposition_cleanup;
@@ -53,6 +52,17 @@ public class Messages extends NLS {
 	public static String attributeManipulation_external_false;
 	public static String attributeManipulation_nature_private;
 	public static String attributeManipulation_nature_shared;
+	
+	public static String database_VariableInvalidNatureFailure;
+	public static String scuser_VariableInvalidNatureError;
+	public static String scuser_VariableHasDisappearedError;
+	public static String scuser_EventInvalidStatusError;
+	public static String scuser_EventHasDisappearedError;
+	public static String scuser_ParametersInExternalEventError;
+	public static String scuser_GuardsInExternalEventError;
+	public static String scuser_ActionsInExternalEventError;
+	public static String scuser_ActionOnPrivateAndSharedError;
+	public static String scuser_ActionOnSharedError;
 
 	static {
 		// initialize resource bundle

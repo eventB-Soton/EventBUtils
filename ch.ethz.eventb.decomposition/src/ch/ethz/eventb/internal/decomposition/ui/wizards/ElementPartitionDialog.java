@@ -26,9 +26,9 @@ import org.rodinp.core.IElementType;
 import org.rodinp.core.IInternalElement;
 import org.rodinp.core.IRodinElement;
 
-import ch.ethz.eventb.decomposition.utils.Messages;
-import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.ui.RodinElementSelectionViewer;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -38,22 +38,22 @@ import ch.ethz.eventb.internal.decomposition.ui.RodinElementSelectionViewer;
  */
 public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 
-	// The input sub-model.
+	/** The input sub-model. */
 	private ISubModel subModel;
 
-	// The text widget for the project name.
+	/** The text widget for the project name. */
 	private Text prjText;
 
-	// The name of the project.
+	/** The name of the project. */
 	private String prjName;
 
-	// A list of Rodin elements.
+	/** A list of Rodin elements. */
 	private IRodinElement[] elements;
 
-	// The type of the Rodin elements.
+	/** The type of the Rodin elements. */
 	private IElementType<T> type;
 
-	// A viewer to choose the list of events.
+	/** A viewer to choose the list of events. */
 	private RodinElementSelectionViewer<T> viewer;
 
 	/**
@@ -67,15 +67,15 @@ public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 	 *            the type of the input elements.
 	 * 
 	 */
-	protected ElementPartitionDialog(Shell parentShell, ISubModel subModel,
-			IElementType<T> type) {
+	protected ElementPartitionDialog(final Shell parentShell,
+			final ISubModel subModel, final IElementType<T> type) {
 		super(parentShell);
 		this.subModel = subModel;
 		this.type = type;
 	}
 
 	@Override
-	protected Control createDialogArea(Composite parent) {
+	protected final Control createDialogArea(final Composite parent) {
 		Control control = super.createDialogArea(parent);
 
 		// Area to choose the project name.
@@ -94,15 +94,15 @@ public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 		prjText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 		// Create the viewer to choose the list of events.
-		viewer = new RodinElementSelectionViewer<T>(prjNameComp,
-				type, Messages.wizard_elements);
+		viewer = new RodinElementSelectionViewer<T>(prjNameComp, type,
+				Messages.wizard_elements);
 		viewer.setInput(subModel.getMachineRoot());
 
 		return control;
 	}
 
 	@Override
-	protected void okPressed() {
+	protected final void okPressed() {
 		// Set the project name to be returned.
 		prjName = prjText.getText();
 
@@ -123,7 +123,7 @@ public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 	 * 
 	 * @return the chosen project name.
 	 */
-	public String getProjectName() {
+	public final String getProjectName() {
 		return prjName;
 	}
 
@@ -132,7 +132,7 @@ public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 	 * 
 	 * @return the elements.
 	 */
-	public IRodinElement[] getElements() {
+	public final IRodinElement[] getElements() {
 		return elements;
 	}
 

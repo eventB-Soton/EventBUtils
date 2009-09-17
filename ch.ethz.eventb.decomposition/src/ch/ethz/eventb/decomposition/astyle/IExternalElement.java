@@ -39,6 +39,8 @@ public interface IExternalElement {
 	/**
 	 * Sets the event as external.
 	 * 
+	 * @param external
+	 *            the external status
 	 * @param monitor
 	 *            a progress monitor, or <code>null</code> if progress reporting
 	 *            is not desired

@@ -39,13 +39,13 @@ import org.eventb.core.seqprover.eventbExtensions.Lib;
 import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
-import ch.ethz.eventb.decomposition.utils.EventBUtils;
-import ch.ethz.eventb.decomposition.utils.Messages;
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -53,7 +53,12 @@ import ch.ethz.eventb.internal.decomposition.ISubModel;
  *         Class containing useful methods to perform A-style decomposition.
  *         </p>
  */
-public class DecompositionUtils {
+public final class DecompositionUtils {
+
+	/** Constructor. */
+	private DecompositionUtils() {
+		// An utility class shall not have a public or default constructor.
+	}
 
 	/**
 	 * @author htson
@@ -68,9 +73,16 @@ public class DecompositionUtils {
 	 *         </p> {@see DecompositionUtils#getEventType(ISubModel, IEvent)}.
 	 */
 	enum DecomposedEventType {
-		EXTERNAL(2), INTERNAL(1), NONE(0);
+		/** The external type. */
+		EXTERNAL(2),
 
-		// The code.
+		/** The internal type. */
+		INTERNAL(1),
+
+		/** No type. */
+		NONE(0);
+
+		/** The code of the type. */
 		private final int code;
 
 		/**
@@ -79,7 +91,7 @@ public class DecompositionUtils {
 		 * @param code
 		 *            the internal code.
 		 */
-		DecomposedEventType(int code) {
+		DecomposedEventType(final int code) {
 			this.code = code;
 		}
 
@@ -105,8 +117,8 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void decompose(IModelDecomposition modelDecomp,
-			IProgressMonitor monitor) throws RodinDBException {
+	public static void decompose(final IModelDecomposition modelDecomp,
+			final IProgressMonitor monitor) throws RodinDBException {
 		ISubModel[] subModels = modelDecomp.getSubModels();
 
 		// The number of works is the number of sub-models.
@@ -130,8 +142,8 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static void createSubModel(ISubModel subModel,
-			SubProgressMonitor monitor) throws RodinDBException {
+	private static void createSubModel(final ISubModel subModel,
+			final SubProgressMonitor monitor) throws RodinDBException {
 		// Monitor has 8 works.
 		monitor.beginTask(Messages.decomposition_submodel, 8);
 		IMachineRoot src = subModel.getMachineRoot();
@@ -149,8 +161,7 @@ public class DecompositionUtils {
 
 		// 3: Create machine.
 		monitor.subTask(Messages.decomposition_machine);
-		IMachineRoot dest = EventBUtils.createMachine(prj,
-				src.getElementName(), monitor);
+		IMachineRoot dest = createMachine(prj, src.getElementName(), monitor);
 		monitor.worked(1);
 
 		// 4: Copy SEES clauses.
@@ -179,13 +190,34 @@ public class DecompositionUtils {
 	}
 
 	/**
+	 * Utility method to create a machine with the specified name in the
+	 * specified project.
+	 * 
+	 * @param prj
+	 *            a project.
+	 * @param name
+	 *            the machine name.
+	 * @return the newly created machine.
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database.
+	 */
+	public static IMachineRoot createMachine(final IEventBProject prj,
+			final String name, final IProgressMonitor monitor)
+			throws RodinDBException {
+		IMachineRoot mch = EventBUtils.createMachine(prj, name, monitor);
+		return mch;
+	}
+
+	/**
 	 * Returns the set of variables accessed by a sub-model.
 	 * 
+	 * @param subModel
+	 *            the sub-model to be considered
 	 * @return the labels of the accessed variables.
-	 * @throw RodinDBException if a problem occurs when accessing the Rodin
-	 *        database.
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static Set<String> getAccessedVariables(ISubModel subModel)
+	public static Set<String> getAccessedVariables(final ISubModel subModel)
 			throws RodinDBException {
 		IMachineRoot mch = subModel.getMachineRoot();
 		Set<String> vars = new HashSet<String>();
@@ -218,8 +250,9 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void decomposeVariables(IMachineRoot mch, ISubModel subModel,
-			IProgressMonitor monitor) throws RodinDBException {
+	public static void decomposeVariables(final IMachineRoot mch,
+			final ISubModel subModel, final IProgressMonitor monitor)
+			throws RodinDBException {
 		Set<String> accessedVars = getAccessedVariables(subModel);
 		IModelDecomposition modelDecomp = subModel.getModelDecomposition();
 		Collection<String> sharedVars = getSharedVariables(modelDecomp);
@@ -242,27 +275,47 @@ public class DecompositionUtils {
 	 * Gets the set of variables shared between the sub-models of the
 	 * decomposition (in {@link String}).
 	 * 
-	 * @return the labels of the shared variables.
+	 * @param modelDecomp
+	 *            the model decomposition
+	 * @return the labels of the shared variables
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
-	public static Set<String> getSharedVariables(IModelDecomposition modelDecomp)
+	public static Set<String> getSharedVariables(
+			final IModelDecomposition modelDecomp) throws RodinDBException {
+		return getSharedVariables(modelDecomp.getSubModels());
+	}
+
+	/**
+	 * Gets the set of variables shared between the sub-models of the
+	 * decomposition (in {@link String}).
+	 * 
+	 * @param subModels
+	 *            the sub-models
+	 * @return the labels of the shared variables
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database
+	 */
+	public static Set<String> getSharedVariables(final ISubModel[] subModels)
 			throws RodinDBException {
 		Set<String> sharedVars = new HashSet<String>();
-		for (IVariable var : modelDecomp.getMachineRoot().getVariables()) {
-			int occurrence = 0;
-			String ident = var.getIdentifierString();
-			for (ISubModel subModel : modelDecomp.getSubModels()) {
-				if (getAccessedVariables(subModel).contains(ident)) {
-					occurrence++;
+		if (subModels.length != 0) {
+			IMachineRoot nonDecomposedMachine = subModels[0].getMachineRoot();
+			for (IVariable var : nonDecomposedMachine.getVariables()) {
+				int occurrence = 0;
+				String ident = var.getIdentifierString();
+				for (ISubModel subModel : subModels) {
+					if (getAccessedVariables(subModel).contains(ident)) {
+						occurrence++;
+					}
+					if (occurrence > 1) {
+						break;
+					}
 				}
-				if (occurrence > 1)
-					break;
+				if (occurrence > 1) {
+					sharedVars.add(ident);
+				}
 			}
-			if (occurrence > 1) {
-				sharedVars.add(ident);
-			}
-
 		}
 		return sharedVars;
 	}
@@ -279,8 +332,8 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static IVariable createSharedVariable(IMachineRoot mch, String ident)
-			throws RodinDBException {
+	private static IVariable createSharedVariable(final IMachineRoot mch,
+			final String ident) throws RodinDBException {
 		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null, monitor);
 		var.setIdentifierString(ident, monitor);
 		var.setComment(Messages.decomposition_shared_comment, monitor);
@@ -302,8 +355,8 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static IVariable createPrivateVariable(IMachineRoot mch,
-			String ident) throws RodinDBException {
+	private static IVariable createPrivateVariable(final IMachineRoot mch,
+			final String ident) throws RodinDBException {
 		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null, monitor);
 		var.setIdentifierString(ident, monitor);
 		var.setComment(Messages.decomposition_private_comment, monitor);
@@ -328,8 +381,8 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void decomposeInvariants(IMachineRoot mch,
-			ISubModel subModel, IProgressMonitor monitor)
+	public static void decomposeInvariants(final IMachineRoot mch,
+			final ISubModel subModel, final IProgressMonitor monitor)
 			throws RodinDBException {
 		IMachineRoot src = subModel.getMachineRoot();
 		Set<String> vars = getAccessedVariables(subModel);
@@ -355,12 +408,14 @@ public class DecompositionUtils {
 	 *            the source machine containing the variables.
 	 * @param vars
 	 *            the set of variables (in {@link String}).
+	 * @param monitor
+	 *            the progress monitor.
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static void createTypingTheorems(IMachineRoot mch,
-			IMachineRoot src, Set<String> vars, IProgressMonitor monitor)
-			throws RodinDBException {
+	private static void createTypingTheorems(final IMachineRoot mch,
+			final IMachineRoot src, final Set<String> vars,
+			final IProgressMonitor monitor) throws RodinDBException {
 		monitor.beginTask(Messages.decomposition_typingtheorems, vars.size());
 		for (String var : vars) {
 			IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE, null,
@@ -387,8 +442,9 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void decomposeEvents(IMachineRoot dest, ISubModel subModel,
-			IProgressMonitor monitor) throws RodinDBException {
+	public static void decomposeEvents(final IMachineRoot dest,
+			final ISubModel subModel, final IProgressMonitor monitor)
+			throws RodinDBException {
 		IMachineRoot src = subModel.getMachineRoot();
 
 		// Create other events.
@@ -424,14 +480,16 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static DecomposedEventType getEventType(ISubModel subModel,
-			IEvent evt) throws RodinDBException {
-		if (evt.isInitialisation())
+	private static DecomposedEventType getEventType(final ISubModel subModel,
+			final IEvent evt) throws RodinDBException {
+		if (evt.isInitialisation()) {
 			return DecomposedEventType.EXTERNAL;
+		}
 
 		for (IRodinElement element : subModel.getElements()) {
-			if (evt.getLabel().equals(((IEvent)element).getLabel()))
+			if (evt.getLabel().equals(((IEvent) element).getLabel())) {
 				return DecomposedEventType.INTERNAL;
+			}
 		}
 
 		Collection<String> idents = EventBUtils.getFreeIdentifiers(evt);
@@ -457,34 +515,34 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static void createExternalEvent(IMachineRoot mch,
-			ISubModel subModel, IEvent evt) throws RodinDBException {
+	private static void createExternalEvent(final IMachineRoot mch,
+			final ISubModel subModel, final IEvent evt) throws RodinDBException {
 		// Flatten the original event.
-		evt = EventBUtils.flatten(evt);
+		IEvent flattened = EventBUtils.flatten(evt);
 
 		// Create the new event.
 		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null, monitor);
-		
+
 		// Set the external attribute.
 		IExternalElement elt = (IExternalElement) newEvt
 				.getAdapter(IExternalElement.class);
 		elt.setExternal(true, monitor);
 
 		// Set event signature.
-		newEvt.setLabel(evt.getLabel(), monitor);
+		newEvt.setLabel(flattened.getLabel(), monitor);
 		newEvt.setConvergence(Convergence.ORDINARY, monitor);
 		newEvt.setExtended(false, monitor);
 		newEvt.setComment(Messages.decomposition_external_comment, monitor);
 
 		// Copying the parameters from the source event.
-		EventBUtils.copyParameters(newEvt, evt);
+		EventBUtils.copyParameters(newEvt, flattened);
 
 		// Copying the guards from the source event.
-		EventBUtils.copyGuards(newEvt, evt);
+		EventBUtils.copyGuards(newEvt, flattened);
 
 		// Decomposing actions.
 		Set<String> vars = getAccessedVariables(subModel);
-		decomposeActions(newEvt, evt, vars);
+		decomposeActions(newEvt, flattened, vars);
 
 		// Creating missing parameters and guards.
 		EventBUtils.createExtraParametersAndGuards(subModel.getMachineRoot(),
@@ -504,13 +562,14 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static void decomposeActions(IEvent dest, IEvent src,
-			Set<String> vars) throws RodinDBException {
+	private static void decomposeActions(final IEvent dest, final IEvent src,
+			final Set<String> vars) throws RodinDBException {
 		IAction[] acts = src.getActions();
 		for (IAction act : acts) {
 			String newAssignmentStr = decomposeAction(act, vars);
-			if (newAssignmentStr == null)
+			if (newAssignmentStr == null) {
 				continue;
+			}
 			IAction newAct = dest.createChild(IAction.ELEMENT_TYPE, null,
 					monitor);
 			newAct.setLabel(act.getLabel(), monitor);
@@ -530,8 +589,8 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static String decomposeAction(IAction act, Set<String> vars)
-			throws RodinDBException {
+	public static String decomposeAction(final IAction act,
+			final Set<String> vars) throws RodinDBException {
 
 		// Parsing the assignment string and getting assigned variables.
 		String assignmentStr = act.getAssignmentString();
@@ -627,10 +686,10 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static void createInternalEvent(IMachineRoot mch, IEvent evt)
-			throws RodinDBException {
+	private static void createInternalEvent(final IMachineRoot mch,
+			final IEvent evt) throws RodinDBException {
 		// Flatten the original event.
-		evt = EventBUtils.flatten(evt);
+		IEvent flattened = EventBUtils.flatten(evt);
 
 		// Create the new event.
 		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null, monitor);
@@ -641,12 +700,12 @@ public class DecompositionUtils {
 		elt.setExternal(false, monitor);
 
 		// Set event signature.
-		newEvt.setLabel(evt.getLabel(), monitor);
+		newEvt.setLabel(flattened.getLabel(), monitor);
 		newEvt.setConvergence(Convergence.ORDINARY, monitor);
 		newEvt.setExtended(false, monitor);
 
 		// Copy the parameters.
-		IParameter[] params = evt.getParameters();
+		IParameter[] params = flattened.getParameters();
 		for (IParameter param : params) {
 			IParameter newParam = newEvt.createChild(IParameter.ELEMENT_TYPE,
 					null, monitor);
@@ -654,7 +713,7 @@ public class DecompositionUtils {
 		}
 
 		// Copy the guards.
-		IGuard[] grds = evt.getGuards();
+		IGuard[] grds = flattened.getGuards();
 		for (IGuard grd : grds) {
 			IGuard newGrd = newEvt.createChild(IGuard.ELEMENT_TYPE, null,
 					monitor);
@@ -664,7 +723,7 @@ public class DecompositionUtils {
 		}
 
 		// Copy the actions.
-		IAction[] acts = evt.getActions();
+		IAction[] acts = flattened.getActions();
 		for (IAction act : acts) {
 			IAction newAct = newEvt.createChild(IAction.ELEMENT_TYPE, null,
 					monitor);

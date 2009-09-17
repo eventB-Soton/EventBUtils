@@ -14,7 +14,7 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Composite;
 
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
 
 /**
  * An extension of {@link ComboViewer} to provide a way to choose a
@@ -33,10 +33,10 @@ public class DecompositionComboViewer<T extends IModelDecomposition> extends
 	 * @param container
 	 *            the parent composite to create the widget.
 	 */
-	public DecompositionComboViewer(Composite container) {
+	public DecompositionComboViewer(final Composite container) {
 		super(container);
 		setContentProvider(new DecompositionContentProvider() {
-			public Object[] getElements(Object inputElement) {
+			public Object[] getElements(final Object inputElement) {
 				return new Object[] { inputElement };
 			}
 		});
@@ -51,7 +51,7 @@ public class DecompositionComboViewer<T extends IModelDecomposition> extends
 	 *         selected.
 	 */
 	@SuppressWarnings("unchecked")
-	public T getElement() {
+	public final T getElement() {
 		IStructuredSelection selection = (IStructuredSelection) getSelection();
 		return (T) selection.getFirstElement();
 	}

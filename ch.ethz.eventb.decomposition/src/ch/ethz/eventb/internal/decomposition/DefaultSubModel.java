@@ -15,8 +15,8 @@ package ch.ethz.eventb.internal.decomposition;
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.IRodinElement;
 
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 
 /**
  * @author htson
@@ -29,13 +29,13 @@ import ch.ethz.eventb.internal.decomposition.ISubModel;
  */
 public class DefaultSubModel implements ISubModel {
 
-	// The project name.
+	/** The project name. */
 	private String prjName;
 	
-	// The set of Rodin elements.
+	/** The set of Rodin elements. */
 	private IRodinElement[] elements;
 	
-	// The associated model distribution.
+	/** The associated model distribution. */
 	private IModelDecomposition modelDecomp;
 
 	/**
@@ -45,33 +45,33 @@ public class DefaultSubModel implements ISubModel {
 	 * @param modelDecomp
 	 *            a model decomposition.
 	 */
-	public DefaultSubModel(IModelDecomposition modelDecomp) {
+	public DefaultSubModel(final IModelDecomposition modelDecomp) {
 		this.modelDecomp = modelDecomp;
 		prjName = ISubModel.DEFAULT_PROJECT_NAME;
 		elements = new IRodinElement[0];
 	}
 	
-	public IModelDecomposition getModelDecomposition() {
+	public final IModelDecomposition getModelDecomposition() {
 		return modelDecomp;
 	}
 
-	public IMachineRoot getMachineRoot() {
+	public final IMachineRoot getMachineRoot() {
 		return modelDecomp.getMachineRoot();
 	}
 
-	public void setProjectName(String prjName) {
+	public final void setProjectName(final String prjName) {
 		this.prjName = prjName;
 	}
 
-	public String getProjectName() {
+	public final String getProjectName() {
 		return prjName;
 	}
 
-	public void setElements(IRodinElement... elements) {
+	public final void setElements(final IRodinElement... elements) {
 		this.elements = elements;
 	}
 
-	public IRodinElement[] getElements() {
+	public final IRodinElement[] getElements() {
 		return elements;
 	}
 	

@@ -13,26 +13,25 @@
 package ch.ethz.eventb.internal.decomposition.astyle;
 
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.eventb.core.IVariable;
+import org.rodinp.core.IInternalElement;
 
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
-import ch.ethz.eventb.decomposition.astyle.Variable;
+
 
 @SuppressWarnings("unchecked")
 public class VariableAdapterFactory implements IAdapterFactory {
-	
-	private static final Class[] ADAPTERS = new Class[] {
-		INatureElement.class,
-	};
-	
-	public INatureElement getAdapter(Object adaptableObject, Class adapterType) {
+
+	private static final Class[] ADAPTERS = new Class[] { INatureElement.class };
+
+	public final INatureElement getAdapter(final Object adaptableObject,
+			final Class adapterType) {
 		if (INatureElement.class.equals(adapterType)) {
-			return new Variable((IVariable) adaptableObject);
+				return new Variable((IInternalElement) adaptableObject);
 		}
 		return null;
 	}
 
-	public Class[] getAdapterList() {
+	public final Class[] getAdapterList() {
 		return ADAPTERS;
 	}
 

@@ -24,12 +24,12 @@ public interface EventBAttributes {
 	/**
 	 * The attribute used to tag the events as internal or external.
 	 */
-	public final static IAttributeType.Boolean EXTERNAL_ATTRIBUTE = RodinCore
+	IAttributeType.Boolean EXTERNAL_ATTRIBUTE = RodinCore
 			.getBooleanAttrType(DecompositionPlugin.PLUGIN_ID + ".external");
 
 	/**
 	 * The attribute used to tag the variables as private or shared.
 	 */
-	public final static IAttributeType.Integer NATURE_ATTRIBUTE = RodinCore
+	IAttributeType.Integer NATURE_ATTRIBUTE = RodinCore
 			.getIntegerAttrType(DecompositionPlugin.PLUGIN_ID + ".nature");
 }

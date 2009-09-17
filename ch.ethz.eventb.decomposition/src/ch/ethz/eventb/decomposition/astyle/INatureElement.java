@@ -37,11 +37,22 @@ public interface INatureElement {
 	 * access the database without this interface.
 	 */
 	enum Nature {
-		PRIVATE(0), SHARED(1);
+		/** The private nature. */
+		PRIVATE(0),
 
+		/** The shared nature. */
+		SHARED(1);
+
+		/** The nature code. */
 		private final int code;
 
-		Nature(int code) {
+		/**
+		 * Builds a new nature.
+		 * 
+		 * @param code
+		 *            the code of the nature to be built
+		 */
+		Nature(final int code) {
 			this.code = code;
 		}
 
@@ -54,7 +65,8 @@ public interface INatureElement {
 			return code;
 		}
 
-		private static final INatureElement.Nature[] natures = new INatureElement.Nature[] {
+		/** The list of natures. */
+		private static final INatureElement.Nature[] NATURES = new INatureElement.Nature[] {
 				INatureElement.Nature.PRIVATE, INatureElement.Nature.SHARED };
 
 		/**
@@ -64,10 +76,11 @@ public interface INatureElement {
 		 *            the code of the nature to be returned
 		 * @return the nature with the <tt>n</tt> code
 		 */
-		public static Nature valueOf(int n) {
-			if (n < 0 || n > 1)
+		public static Nature valueOf(final int n) {
+			if (n < 0 || n > 1) {
 				throw new IllegalArgumentException("Nature value out of range");
-			return natures[n];
+			}
+			return NATURES[n];
 		}
 
 	}

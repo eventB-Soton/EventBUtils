@@ -35,7 +35,7 @@ import org.rodinp.core.IElementType;
 import org.rodinp.core.IParent;
 import org.rodinp.core.IRodinElement;
 
-import ch.ethz.eventb.decomposition.utils.Messages;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -49,27 +49,27 @@ import ch.ethz.eventb.decomposition.utils.Messages;
  */
 public class RodinElementSelectionViewer<T extends IRodinElement> {
 
-	// A list viewer for available elements.
+	/** A list viewer for available elements. */
 	private ListViewer availableViewer;
-	
-	// A list viewer for selected elements.
+
+	/** A list viewer for selected elements. */
 	private ListViewer selectedViewer;
-	
-	// The list of selected elements.
+
+	/** The list of selected elements. */
 	List<T> selectedElement;
-	
-	// The element type of the chosen elements.
+
+	/** The element type of the chosen elements. */
 	private IElementType<T> type;
-	
-	// The title.
+
+	/** The title. */
 	private String title;
 
-	// The "Add" button.
+	/** The "Add" button. */
 	private Button add;
-	
-	// The "Remove" button.
+
+	/** The "Remove" button. */
 	private Button remove;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -80,12 +80,12 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	 * @param title
 	 *            the title of the chooser.
 	 */
-	public RodinElementSelectionViewer(Composite parent, IElementType<T> type,
-			String title) {
+	public RodinElementSelectionViewer(final Composite parent,
+			final IElementType<T> type, final String title) {
 		this.type = type;
 		selectedElement = new ArrayList<T>();
 		this.title = title;
-		
+
 		// Create the main control of the dialog.
 		createViewer(parent);
 	}
@@ -96,8 +96,8 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	 * @param comp
 	 *            the parent composite.
 	 */
-	private void createViewer(Composite comp) {
-		
+	private void createViewer(final Composite comp) {
+
 		// Create the parent.
 		Group parent = new Group(comp, SWT.DEFAULT);
 		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -107,36 +107,36 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 		layout.numColumns = 3;
 		parent.setLayout(layout);
 		parent.setText(title);
-		
+
 		// Create the labels.
 		createLabels(parent);
-		
+
 		// Create the available elements list.
-        availableViewer = createListViewer(parent);
+		availableViewer = createListViewer(parent);
 		availableViewer.addFilter(new ViewerFilter() {
 
 			@Override
-			public boolean select(Viewer viewer, Object parentElement,
-					Object element) {
+			public boolean select(final Viewer viewer,
+					final Object parentElement, final Object element) {
 				return !selectedElement.contains(element);
 			}
-			
+
 		});
-        
-        // Create the buttons.
+
+		// Create the buttons.
 		createButtons(parent);
-		
+
 		// Create the selected elements list.
 		selectedViewer = createListViewer(parent);
 		selectedViewer.addFilter(new ViewerFilter() {
 
 			@Override
-			public boolean select(Viewer viewer, Object parentElement,
-					Object element) {
+			public boolean select(final Viewer viewer,
+					final Object parentElement, final Object element) {
 				return selectedElement.contains(element);
 			}
-			
-		});		
+
+		});
 	}
 
 	/**
@@ -145,23 +145,21 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	 * @param parent
 	 *            the parent composite.
 	 */
-	private void createLabels(Composite parent) {
+	private void createLabels(final Composite parent) {
 		Label availableLabel = new Label(parent, SWT.LEFT);
-	    availableLabel
-				.setText(Messages.label_available);
-	    GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-	    availableLabel.setLayoutData(gd);
-	
-	    Label tmpLabel = new Label(parent, SWT.CENTER);
-	    gd = new GridData();
-	    gd.verticalAlignment = GridData.CENTER;
-	    tmpLabel.setLayoutData(gd);
-	    
-	    Label selectedLabel = new Label(parent, SWT.LEFT);
-	    selectedLabel
-				.setText(Messages.label_selected);
-	    gd = new GridData(GridData.FILL_HORIZONTAL);
-	    selectedLabel.setLayoutData(gd);	
+		availableLabel.setText(Messages.label_available);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		availableLabel.setLayoutData(gd);
+
+		Label tmpLabel = new Label(parent, SWT.CENTER);
+		gd = new GridData();
+		gd.verticalAlignment = GridData.CENTER;
+		tmpLabel.setLayoutData(gd);
+
+		Label selectedLabel = new Label(parent, SWT.LEFT);
+		selectedLabel.setText(Messages.label_selected);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		selectedLabel.setLayoutData(gd);
 	}
 
 	/**
@@ -171,59 +169,57 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	 *            the parent control
 	 * @return the list viewer
 	 */
-    private ListViewer createListViewer(Composite parent) {
+	private ListViewer createListViewer(final Composite parent) {
 		ListViewer viewer = new ListViewer(parent, SWT.BORDER | SWT.MULTI
 				| SWT.V_SCROLL | SWT.H_SCROLL);
 		viewer.getControl().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		viewer.setLabelProvider(new RodinElementLabelProvider());
-		viewer
-				.setContentProvider(new RodinElementContentProvider<T>(
-						type));
+		viewer.setContentProvider(new RodinElementContentProvider<T>(type));
 		return viewer;
 	}
-    
+
 	/**
 	 * Creates the set of buttons.
 	 * 
 	 * @param parent
 	 *            the parent composite used to create the buttons.
 	 */
-	private void createButtons(Composite parent) {
+	private void createButtons(final Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		container.setLayout(layout);
-		
+
 		// Add button.
 		add = new Button(container, SWT.PUSH);
 		add.setText(">>");
 		add.addSelectionListener(new SelectionListener() {
 
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void widgetDefaultSelected(final SelectionEvent e) {
 				widgetSelected(e);
 			}
 
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				addElement();
 			}
-			
+
 		});
 		add.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		// Remove button.
 		remove = new Button(container, SWT.PUSH);
 		remove.setText("<<");
 		remove.addSelectionListener(new SelectionListener() {
 
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void widgetDefaultSelected(final SelectionEvent e) {
 				widgetSelected(e);
 			}
 
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				removeElements();
 			}
-			
+
 		});
 		remove.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 	}
@@ -231,7 +227,7 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	/**
 	 * Utility method to add selected elements.
 	 */
-	protected void addElement() {
+	protected final void addElement() {
 		selectedElement.addAll(selectionToList(availableViewer.getSelection()));
 		refresh();
 	}
@@ -239,7 +235,7 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	/**
 	 * Utility method to remove selected elements.
 	 */
-	protected void removeElements() {
+	protected final void removeElements() {
 		selectedElement
 				.removeAll(selectionToList(selectedViewer.getSelection()));
 		refresh();
@@ -261,7 +257,7 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	 * @return the elements in this selection as a list.
 	 */
 	@SuppressWarnings("unchecked")
-	private Collection<T> selectionToList(ISelection selection) {
+	private Collection<T> selectionToList(final ISelection selection) {
 		if (selection instanceof IStructuredSelection) {
 			IStructuredSelection ssel = (IStructuredSelection) selection;
 			return new ArrayList<T>(ssel.toList());
@@ -275,7 +271,7 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	 * @param input
 	 *            a parent input element.
 	 */
-	public void setInput(IParent input) {
+	public final void setInput(final IParent input) {
 		availableViewer.setInput(input);
 		selectedViewer.setInput(input);
 		selectedElement = new ArrayList<T>();
@@ -286,8 +282,8 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	 * 
 	 * @return the selected elements.
 	 */
-	public Collection<T> getSelected() {
+	public final Collection<T> getSelected() {
 		return selectedElement;
 	}
-	
+
 }

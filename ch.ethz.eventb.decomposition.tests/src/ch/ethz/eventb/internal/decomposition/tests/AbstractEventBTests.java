@@ -10,9 +10,9 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests;
+package ch.ethz.eventb.internal.decomposition.tests;
 
-import static org.eventb.core.IConfigurationElement.DEFAULT_CONFIGURATION;
+import static ch.ethz.eventb.internal.decomposition.utils.EventBUtils.DECOMPOSITION_CONFIGURATION;
 import junit.framework.TestCase;
 
 import org.eclipse.core.resources.IProject;
@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.EventBPlugin;
 import org.eventb.core.IAction;
@@ -56,6 +57,11 @@ import org.rodinp.internal.core.debug.DebugHelpers;
  *         builder tests by Laurent Voisin.
  */
 public abstract class AbstractEventBTests extends TestCase {
+
+	/**
+	 * The progress monitor.
+	 */
+	private static final IProgressMonitor monitor = new NullProgressMonitor();
 
 	/**
 	 * The testing workspace.
@@ -139,8 +145,8 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 	/**
-	 * Utility method to create a context with the given bare name. The
-	 * context is created as a child of the input Event-B project.
+	 * Utility method to create a context with the given bare name. The context
+	 * is created as a child of the input Event-B project.
 	 * 
 	 * @param project
 	 *            an Event-B project.
@@ -155,13 +161,13 @@ public abstract class AbstractEventBTests extends TestCase {
 		IRodinFile file = project.getContextFile(bareName);
 		file.create(true, null);
 		IContextRoot result = (IContextRoot) file.getRoot();
-		result.setConfiguration(DEFAULT_CONFIGURATION, null);
+		result.setConfiguration(DECOMPOSITION_CONFIGURATION, monitor);
 		return result;
 	}
 
 	/**
-	 * Utility method to create an EXTENDS clause within the input context
-	 * for an abstract context.
+	 * Utility method to create an EXTENDS clause within the input context for
+	 * an abstract context.
 	 * 
 	 * @param ctx
 	 *            a context.
@@ -174,15 +180,15 @@ public abstract class AbstractEventBTests extends TestCase {
 	protected IExtendsContext createExtendsContextClause(IContextRoot ctx,
 			String absCtxName) throws RodinDBException {
 		IExtendsContext extClause = ctx.createChild(
-				IExtendsContext.ELEMENT_TYPE, null, new NullProgressMonitor());
+				IExtendsContext.ELEMENT_TYPE, null, monitor);
 		extClause.setAbstractContextName(EventBPlugin
-				.getComponentName(absCtxName), new NullProgressMonitor());
+				.getComponentName(absCtxName), monitor);
 		return extClause;
 	}
 
 	/**
-	 * Utility method to create a carrier set within the input context with
-	 * the given identifier string.
+	 * Utility method to create a carrier set within the input context with the
+	 * given identifier string.
 	 * 
 	 * @param ctx
 	 *            a context.
@@ -195,8 +201,8 @@ public abstract class AbstractEventBTests extends TestCase {
 	protected ICarrierSet createCarrierSet(IContextRoot ctx,
 			String identifierString) throws RodinDBException {
 		ICarrierSet set = ctx.createChild(ICarrierSet.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		set.setIdentifierString(identifierString, new NullProgressMonitor());
+				monitor);
+		set.setIdentifierString(identifierString, monitor);
 		return set;
 	}
 
@@ -214,15 +220,14 @@ public abstract class AbstractEventBTests extends TestCase {
 	 */
 	protected IConstant createConstant(IContextRoot ctx, String identifierString)
 			throws RodinDBException {
-		IConstant cst = ctx.createChild(IConstant.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		cst.setIdentifierString(identifierString, new NullProgressMonitor());
+		IConstant cst = ctx.createChild(IConstant.ELEMENT_TYPE, null, monitor);
+		cst.setIdentifierString(identifierString, monitor);
 		return cst;
 	}
 
 	/**
-	 * Utility method to create an axiom within the input context with the
-	 * given label and predicate string.
+	 * Utility method to create an axiom within the input context with the given
+	 * label and predicate string.
 	 * 
 	 * @param ctx
 	 *            a context.
@@ -239,17 +244,16 @@ public abstract class AbstractEventBTests extends TestCase {
 	 */
 	protected IAxiom createAxiom(IContextRoot ctx, String label,
 			String predStr, boolean isTheorem) throws RodinDBException {
-		IAxiom axm = ctx.createChild(IAxiom.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		axm.setLabel(label, new NullProgressMonitor());
-		axm.setPredicateString(predStr, new NullProgressMonitor());
-		axm.setTheorem(isTheorem, new NullProgressMonitor());
+		IAxiom axm = ctx.createChild(IAxiom.ELEMENT_TYPE, null, monitor);
+		axm.setLabel(label, monitor);
+		axm.setPredicateString(predStr, monitor);
+		axm.setTheorem(isTheorem, monitor);
 		return axm;
 	}
 
 	/**
-	 * Utility method to create a machine with the given bare name. The
-	 * machine is created as a child of the input Event-B project.
+	 * Utility method to create a machine with the given bare name. The machine
+	 * is created as a child of the input Event-B project.
 	 * 
 	 * @param bareName
 	 *            the bare name (without the extension .bum) of the context
@@ -262,7 +266,7 @@ public abstract class AbstractEventBTests extends TestCase {
 		IRodinFile file = project.getMachineFile(bareName);
 		file.create(true, null);
 		IMachineRoot result = (IMachineRoot) file.getRoot();
-		result.setConfiguration(DEFAULT_CONFIGURATION, null);
+		result.setConfiguration(DECOMPOSITION_CONFIGURATION, monitor);
 		return result;
 	}
 
@@ -281,16 +285,15 @@ public abstract class AbstractEventBTests extends TestCase {
 	protected IRefinesMachine createRefinesMachineClause(IMachineRoot mch,
 			String absMchName) throws RodinDBException {
 		IRefinesMachine refMch = mch.createChild(IRefinesMachine.ELEMENT_TYPE,
-				null, new NullProgressMonitor());
+				null, monitor);
 		refMch.setAbstractMachineName(
-				EventBPlugin.getComponentName(absMchName),
-				new NullProgressMonitor());
+				EventBPlugin.getComponentName(absMchName), monitor);
 		return refMch;
 	}
 
 	/**
-	 * Utility method to create a SEES clause within the input machine for
-	 * the input context.
+	 * Utility method to create a SEES clause within the input machine for the
+	 * input context.
 	 * 
 	 * @param mch
 	 *            a machine.
@@ -303,7 +306,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	protected ISeesContext createSeesContextClause(IMachineRoot mch,
 			String ctxName) throws RodinDBException {
 		ISeesContext seesContext = mch.createChild(ISeesContext.ELEMENT_TYPE,
-				null, new NullProgressMonitor());
+				null, monitor);
 		seesContext.setSeenContextName(ctxName, null);
 		return seesContext;
 	}
@@ -322,9 +325,8 @@ public abstract class AbstractEventBTests extends TestCase {
 	 */
 	protected IVariable createVariable(IMachineRoot mch, String identifierString)
 			throws RodinDBException {
-		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		var.setIdentifierString(identifierString, new NullProgressMonitor());
+		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null, monitor);
+		var.setIdentifierString(identifierString, monitor);
 		return var;
 	}
 
@@ -344,17 +346,17 @@ public abstract class AbstractEventBTests extends TestCase {
 	 */
 	protected IInvariant createInvariant(IMachineRoot mch, String label,
 			String predicate, boolean isTheorem) throws RodinDBException {
-		IInvariant inv = mch.createChild(IInvariant.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		inv.setLabel(label, new NullProgressMonitor());
-		inv.setPredicateString(predicate, new NullProgressMonitor());
-		inv.setTheorem(isTheorem, new NullProgressMonitor());
+		IInvariant inv = mch
+				.createChild(IInvariant.ELEMENT_TYPE, null, monitor);
+		inv.setLabel(label, monitor);
+		inv.setPredicateString(predicate, monitor);
+		inv.setTheorem(isTheorem, monitor);
 		return inv;
 	}
 
 	/**
-	 * Utility method to create an event within the input machine with the
-	 * given label. By default, the extended attribute of the event is set to
+	 * Utility method to create an event within the input machine with the given
+	 * label. By default, the extended attribute of the event is set to
 	 * <code>false</code>. and the convergence status is set to
 	 * <code>ordinary</code>
 	 * 
@@ -368,11 +370,10 @@ public abstract class AbstractEventBTests extends TestCase {
 	 */
 	protected IEvent createEvent(IMachineRoot mch, String label)
 			throws RodinDBException {
-		IEvent event = mch.createChild(IEvent.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		event.setLabel(label, new NullProgressMonitor());
-		event.setExtended(false, new NullProgressMonitor());
-		event.setConvergence(Convergence.ORDINARY, new NullProgressMonitor());
+		IEvent event = mch.createChild(IEvent.ELEMENT_TYPE, null, monitor);
+		event.setLabel(label, monitor);
+		event.setExtended(false, monitor);
+		event.setConvergence(Convergence.ORDINARY, monitor);
 		return event;
 	}
 
@@ -391,8 +392,8 @@ public abstract class AbstractEventBTests extends TestCase {
 	protected IRefinesEvent createRefinesEventClause(IEvent evt,
 			String absEvtLabel) throws RodinDBException {
 		IRefinesEvent refEvt = evt.createChild(IRefinesEvent.ELEMENT_TYPE,
-				null, new NullProgressMonitor());
-		refEvt.setAbstractEventLabel(absEvtLabel, new NullProgressMonitor());
+				null, monitor);
+		refEvt.setAbstractEventLabel(absEvtLabel, monitor);
 		return refEvt;
 	}
 
@@ -411,8 +412,8 @@ public abstract class AbstractEventBTests extends TestCase {
 	protected IParameter createParameter(IEvent evt, String identifierString)
 			throws RodinDBException {
 		IParameter param = evt.createChild(IParameter.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		param.setIdentifierString(identifierString, new NullProgressMonitor());
+				monitor);
+		param.setIdentifierString(identifierString, monitor);
 		return param;
 	}
 
@@ -432,16 +433,15 @@ public abstract class AbstractEventBTests extends TestCase {
 	 */
 	protected IGuard createGuard(IEvent evt, String label,
 			String predicateString) throws RodinDBException {
-		IGuard grd = evt.createChild(IGuard.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		grd.setLabel(label, new NullProgressMonitor());
-		grd.setPredicateString(predicateString, new NullProgressMonitor());
+		IGuard grd = evt.createChild(IGuard.ELEMENT_TYPE, null, monitor);
+		grd.setLabel(label, monitor);
+		grd.setPredicateString(predicateString, monitor);
 		return grd;
 	}
 
 	/**
-	 * Utility method to create a witness within the input event with the
-	 * given label and predicate string.
+	 * Utility method to create a witness within the input event with the given
+	 * label and predicate string.
 	 * 
 	 * @param evt
 	 *            an event.
@@ -455,16 +455,15 @@ public abstract class AbstractEventBTests extends TestCase {
 	 */
 	protected IWitness createWitness(IEvent evt, String label,
 			String predicateString) throws RodinDBException {
-		IWitness wit = evt.createChild(IWitness.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		wit.setLabel(label, new NullProgressMonitor());
-		wit.setPredicateString(predicateString, new NullProgressMonitor());
+		IWitness wit = evt.createChild(IWitness.ELEMENT_TYPE, null, monitor);
+		wit.setLabel(label, monitor);
+		wit.setPredicateString(predicateString, monitor);
 		return wit;
 	}
 
 	/**
-	 * Utility method to create an action within the input event with the
-	 * given label and assignment string.
+	 * Utility method to create an action within the input event with the given
+	 * label and assignment string.
 	 * 
 	 * @param evt
 	 *            an event
@@ -478,10 +477,9 @@ public abstract class AbstractEventBTests extends TestCase {
 	 */
 	protected IAction createAction(IEvent evt, String label,
 			String assignmentString) throws RodinDBException {
-		IAction act = evt.createChild(IAction.ELEMENT_TYPE, null,
-				new NullProgressMonitor());
-		act.setLabel(label, new NullProgressMonitor());
-		act.setAssignmentString(assignmentString, new NullProgressMonitor());
+		IAction act = evt.createChild(IAction.ELEMENT_TYPE, null, monitor);
+		act.setLabel(label, monitor);
+		act.setAssignmentString(assignmentString, monitor);
 		return act;
 	}
 
@@ -510,8 +508,8 @@ public abstract class AbstractEventBTests extends TestCase {
 					.getLabel());
 			assertEquals(message + ": Extended attribute incorrect",
 					expExtended, evt.isExtended());
-			assertEquals(message + ": Convergence attribute incorrect", expConv,
-					evt.getConvergence());
+			assertEquals(message + ": Convergence attribute incorrect",
+					expConv, evt.getConvergence());
 			IRefinesEvent[] refClauses = evt.getRefinesClauses();
 			assertEquals(message + ": Incorrect number of refines clauses",
 					expAbsEvts.length, refClauses.length);
@@ -573,14 +571,15 @@ public abstract class AbstractEventBTests extends TestCase {
 	 *            expected set of guards (each guard is in the form
 	 *            "label: predicate: isTheorem") and order is important.
 	 */
-	protected void testEventGuards(String message, IEvent evt, String... expected) {
+	protected void testEventGuards(String message, IEvent evt,
+			String... expected) {
 		try {
 			IGuard[] grds = evt.getGuards();
 			assertEquals(message + ": Incorrect number of guards",
 					expected.length, grds.length);
 			for (int i = 0; i < grds.length; i++) {
 				testGuard(message, grds[i], expected[i]);
-				
+
 			}
 		} catch (RodinDBException e) {
 			e.printStackTrace();

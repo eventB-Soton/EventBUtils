@@ -23,9 +23,8 @@ import org.eventb.ui.EventBUIPlugin;
 import ch.ethz.eventb.internal.decomposition.ui.wizards.DecompositionWizard;
 
 /**
- * The class used to handle the Decompose action.
- * <br>
- * This action is contributed into the Event-B explorer's view and its popup 
+ * The class used to handle the Decompose action. <br>
+ * This action is contributed into the Event-B explorer's view and its popup
  * menu.
  */
 public class Decompose implements IViewActionDelegate, IObjectActionDelegate {
@@ -35,26 +34,29 @@ public class Decompose implements IViewActionDelegate, IObjectActionDelegate {
 	 */
 	private ISelection selection;
 
-	public void init(IViewPart viewPart) {
+	public void init(final IViewPart viewPart) {
 		// do nothing
 	}
 
-	public void run(IAction action) {
+	public final void run(final IAction action) {
 		DecompositionWizard wizard = new DecompositionWizard();
-		if (selection instanceof IStructuredSelection)
+		if (selection instanceof IStructuredSelection) {
 			wizard.init(EventBUIPlugin.getDefault().getWorkbench(),
 					(IStructuredSelection) selection);
+		}
 		WizardDialog dialog = new WizardDialog(EventBUIPlugin
 				.getActiveWorkbenchShell(), wizard);
 		dialog.create();
 		dialog.open();
 	}
 
-	public void selectionChanged(IAction action, ISelection selection) {
+	public final void selectionChanged(final IAction action,
+			final ISelection selection) {
 		this.selection = selection;
 	}
 
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+	public final void setActivePart(final IAction action,
+			final IWorkbenchPart targetPart) {
 		// do nothing
 	}
 

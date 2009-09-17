@@ -10,7 +10,7 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests.astyle;
+package ch.ethz.eventb.internal.decomposition.tests.astyle;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,8 +25,8 @@ import org.eventb.core.IConvergenceElement.Convergence;
 import org.junit.Test;
 import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.decomposition.utils.Messages;
 import ch.ethz.eventb.internal.decomposition.astyle.DecompositionUtils;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
@@ -38,6 +38,23 @@ import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
  *         </p>
  */
 public class DecompositionUtilsTests extends AbstractDecompositionTests {
+
+	/**
+	 * Test method
+	 * {@link DecompositionUtils#createMachine(org.eventb.core.IEventBProject, String)}
+	 * .
+	 */
+	@Test
+	public void testCreateMachine() {
+		try {
+			DecompositionUtils.createMachine(P2, "mch",
+					new NullProgressMonitor());
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+			fail("Create variables 1: There should be no exception");
+			return;
+		}
+	}
 
 	/**
 	 * Test method
@@ -159,9 +176,10 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			return;
 		}
 
-		testInvariants("Create invariants 1", mch2_1, "typing_z: z ∈ ℤ: true",
-				"typing_v: v ∈ ℤ: true", "mch1_2_inv1_2_2: v ∈ ℕ: false",
-				"mch1_2_thm1_2_3: v ≥ 0: true");
+		testInvariants("Create invariants 1", mch2_1,
+				Messages.decomposition_typing + "_z: z ∈ ℤ: true",
+				Messages.decomposition_typing + "_v: v ∈ ℤ: true",
+				"mch1_2_inv1_2_2: v ∈ ℕ: false", "mch1_2_thm1_2_3: v ≥ 0: true");
 
 		try {
 			DecompositionUtils.decomposeInvariants(mch3_1, subModel2,
@@ -172,8 +190,10 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			return;
 		}
 
-		testInvariants("Create invariants 2", mch3_1, "typing_u: u ∈ U: true",
-				"typing_y: y ∈ ℤ: true", "typing_v: v ∈ ℤ: true",
+		testInvariants("Create invariants 2", mch3_1,
+				Messages.decomposition_typing + "_u: u ∈ U: true",
+				Messages.decomposition_typing + "_y: y ∈ ℤ: true",
+				Messages.decomposition_typing + "_v: v ∈ ℤ: true",
 				"mch1_1_inv1_1_2: y ∈ ℕ: false",
 				"mch1_1_thm1_1_3: y ≥ 0: true",
 				"mch1_2_inv1_2_1: u ∈ U: false",
@@ -188,8 +208,10 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			return;
 		}
 
-		testInvariants("Create invariants 3", mch4_1, "typing_u: u ∈ U: true",
-				"typing_p: p ∈ ℙ(ℤ × V): true", "typing_v: v ∈ ℤ: true",
+		testInvariants("Create invariants 3", mch4_1,
+				Messages.decomposition_typing + "_u: u ∈ U: true",
+				Messages.decomposition_typing + "_p: p ∈ ℙ(ℤ × V): true",
+				Messages.decomposition_typing + "_v: v ∈ ℤ: true",
 				"mch1_2_inv1_2_1: u ∈ U: false",
 				"mch1_2_inv1_2_2: v ∈ ℕ: false",
 				"mch1_2_thm1_2_3: v ≥ 0: true",
@@ -291,9 +313,10 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			testEventSignature("Create events 4", evt, "evt1_3_2", false,
 					Convergence.ORDINARY);
 			testEventParameters("Create events 4", evt, "y", "u");
-			testEventGuards("Create events 4", evt, "typing_y: y ∈ ℤ: true",
-					"typing_u: u ∈ U: true", "grd1_3_2_1: y ≠ 0: false",
-					"grd1_3_2_2: u = f: false");
+			testEventGuards("Create events 4", evt,
+					Messages.decomposition_typing + "_y: y ∈ ℤ: true",
+					Messages.decomposition_typing + "_u: u ∈ U: true",
+					"grd1_3_2_1: y ≠ 0: false", "grd1_3_2_2: u = f: false");
 			testEventWitnesses("Create events 2", evt);
 			testEventActions("Create events 2", evt, "act1_3_2_3: v ≔ v + 1");
 
@@ -305,7 +328,8 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			testEventSignature("Create events 5", evt, "evt1_3_3", false,
 					Convergence.ORDINARY);
 			testEventParameters("Create events 5", evt, "t", "y");
-			testEventGuards("Create events 5", evt, "typing_y: y ∈ ℤ: true",
+			testEventGuards("Create events 5", evt,
+					Messages.decomposition_typing + "_y: y ∈ ℤ: true",
 					"grd1_3_3_1: t ≠ a: false", "grd1_3_3_2: y ≥ 5: false",
 					"grd1_3_3_3: y > v: false");
 			testEventWitnesses("Create events 2", evt);
@@ -320,8 +344,9 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 					Convergence.ORDINARY);
 			testEventParameters("Create events 6", evt, "r", "p");
 			testEventGuards("Create events 6", evt,
-					"typing_p: p ∈ ℙ(ℤ × V): true", "grd1_2_4_1: v ≥ 3: false",
-					"grd1_3_4_1: r ∈ ℕ: false", "grd1_3_4_2: p(r) = g: false");
+					Messages.decomposition_typing + "_p: p ∈ ℙ(ℤ × V): true",
+					"grd1_2_4_1: v ≥ 3: false", "grd1_3_4_1: r ∈ ℕ: false",
+					"grd1_3_4_2: p(r) = g: false");
 			testEventWitnesses("Create events 2", evt);
 			testEventActions("Create events 6", evt, "act1_2_4_1: v ≔ v − 1");
 

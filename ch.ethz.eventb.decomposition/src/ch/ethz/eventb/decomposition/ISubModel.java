@@ -10,12 +10,12 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition;
+package ch.ethz.eventb.decomposition;
 
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.IRodinElement;
 
-import ch.ethz.eventb.decomposition.utils.Messages;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -35,14 +35,14 @@ public interface ISubModel {
 	 * 
 	 * @return the model decomposition associated with the sub-model.
 	 */
-	public IModelDecomposition getModelDecomposition();
+	IModelDecomposition getModelDecomposition();
 
 	/**
 	 * Returns the machine root for this decomposition.
 	 * 
 	 * @return the decomposed machine.
 	 */
-	public IMachineRoot getMachineRoot();
+	IMachineRoot getMachineRoot();
 
 	/**
 	 * Sets the name of the project associated to this sub-model.
@@ -50,14 +50,14 @@ public interface ISubModel {
 	 * @param prjName
 	 *            the project name.
 	 */
-	public void setProjectName(String prjName);
+	void setProjectName(String prjName);
 
 	/**
 	 * Returns the name of the project associated to this sub-model.
 	 * 
 	 * @return the project name.
 	 */
-	public String getProjectName();
+	String getProjectName();
 
 	/**
 	 * Sets the elements chosen by the end-user for this sub-model.
@@ -65,12 +65,12 @@ public interface ISubModel {
 	 * @param elements
 	 *            the chosen elements.
 	 */
-	public void setElements(IRodinElement... elements);
+	void setElements(IRodinElement... elements);
 
 	/**
 	 * Returns the elements chosen by the end-user for this sub-model.
 	 * 
 	 * @return the chosen elements.
 	 */
-	public IRodinElement[] getElements();
+	IRodinElement[] getElements();
 }

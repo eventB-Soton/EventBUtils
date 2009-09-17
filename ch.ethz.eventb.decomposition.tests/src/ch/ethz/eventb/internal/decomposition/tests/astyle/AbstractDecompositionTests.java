@@ -10,17 +10,17 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.wizards.tests.astyle;
+package ch.ethz.eventb.internal.decomposition.tests.astyle;
 
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Before;
 
-import ch.ethz.eventb.internal.decomposition.IModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.ISubModel;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition;
-import ch.ethz.eventb.internal.decomposition.wizards.tests.EventBTests;
+import ch.ethz.eventb.internal.decomposition.tests.EventBTests;
 
 /**
  * @author htson
@@ -47,7 +47,7 @@ public abstract class AbstractDecompositionTests extends EventBTests {
 	protected ISubModel subModel3;
 	
 	/* (non-Javadoc)
-	 * @see ch.ethz.eventb.internal.decomposition.wizards.tests.astyle.EventBTests#setUp()
+	 * @see ch.ethz.eventb.internal.decomposition.tests.astyle.EventBTests#setUp()
 	 */
 	@Before
 	@Override

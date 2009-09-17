@@ -10,13 +10,13 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition;
+package ch.ethz.eventb.decomposition;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.decomposition.utils.Messages;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -31,41 +31,41 @@ public interface IModelDecomposition {
 	/**
 	 * The A-style decomposition.
 	 */
-	public final static String A_STYLE = Messages.decomposition_astyle;
+	String A_STYLE = Messages.decomposition_astyle;
 
 	/**
 	 * The B-style decomposition.
 	 */
-	public final static String B_STYLE = Messages.decomposition_bstyle;
+	String B_STYLE = Messages.decomposition_bstyle;
 
 	/**
 	 * Sets the machine root for this decomposition.
 	 * 
-	 * @param mch
+	 * @param root
 	 *            the machine root.
 	 */
-	public void setMachineRoot(IMachineRoot root);
+	void setMachineRoot(IMachineRoot root);
 
 	/**
 	 * Returns the machine root for this decomposition.
 	 * 
 	 * @return the decomposed machine.
 	 */
-	public IMachineRoot getMachineRoot();
+	IMachineRoot getMachineRoot();
 
 	/**
 	 * Creates a sub-model.
 	 * 
 	 * @return the newly created model.
 	 */
-	public ISubModel addSubModel();
+	ISubModel addSubModel();
 
 	/**
 	 * Returns the set of sub-models.
 	 * 
 	 * @return the sub-models.
 	 */
-	public ISubModel[] getSubModels();
+	ISubModel[] getSubModels();
 
 	/**
 	 * Removes a sub-model.
@@ -73,14 +73,14 @@ public interface IModelDecomposition {
 	 * @param model
 	 *            the model to be removed.
 	 */
-	public void removeSubModel(ISubModel model);
+	void removeSubModel(ISubModel model);
 
 	/**
 	 * Gets the decomposition style.
 	 * 
 	 * @return the decomposition style.
 	 */
-	public String getStyle();
+	String getStyle();
 
 	/**
 	 * Performs the decomposition.
@@ -90,5 +90,5 @@ public interface IModelDecomposition {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public void perform(IProgressMonitor monitor) throws RodinDBException;
+	void perform(IProgressMonitor monitor) throws RodinDBException;
 }
