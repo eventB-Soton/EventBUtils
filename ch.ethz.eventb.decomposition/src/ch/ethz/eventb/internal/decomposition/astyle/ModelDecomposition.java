@@ -58,6 +58,6 @@ public class ModelDecomposition extends DefaultModelDecomposition {
 
 	public final void perform(final IProgressMonitor monitor)
 			throws RodinDBException {
-		DecompositionUtils.decompose(this, monitor);
+		AStyleUtils.decompose(this, monitor);
 	}
 }

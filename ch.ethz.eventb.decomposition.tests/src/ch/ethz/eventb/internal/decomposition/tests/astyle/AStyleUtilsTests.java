@@ -18,15 +18,16 @@ import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.IAction;
 import org.eventb.core.IEvent;
-import org.eventb.core.IInvariant;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IVariable;
 import org.eventb.core.IConvergenceElement.Convergence;
 import org.junit.Test;
 import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.internal.decomposition.astyle.DecompositionUtils;
+import ch.ethz.eventb.internal.decomposition.astyle.AStyleUtils;
+import ch.ethz.eventb.internal.decomposition.tests.AbstractDecompositionTests;
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
+import ch.ethz.eventb.decomposition.IModelDecomposition;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
@@ -34,38 +35,21 @@ import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
 /**
  * @author htson
  *         <p>
- *         Test class for {@link DecompositionUtils}.
+ *         Test class for {@link AStyleUtils}.
  *         </p>
  */
-public class DecompositionUtilsTests extends AbstractDecompositionTests {
+public class AStyleUtilsTests extends AbstractDecompositionTests {
 
 	/**
 	 * Test method
-	 * {@link DecompositionUtils#createMachine(org.eventb.core.IEventBProject, String)}
-	 * .
-	 */
-	@Test
-	public void testCreateMachine() {
-		try {
-			DecompositionUtils.createMachine(P2, "mch",
-					new NullProgressMonitor());
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail("Create variables 1: There should be no exception");
-			return;
-		}
-	}
-
-	/**
-	 * Test method
-	 * {@link DecompositionUtils#decomposeVariables(org.eventb.core.IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
+	 * {@link AStyleUtils#decomposeVariables(org.eventb.core.IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
 	 * .
 	 */
 	@Test
 	public void testCreateVariables() {
 
 		try {
-			DecompositionUtils.decomposeVariables(mch2_1, subModel1,
+			AStyleUtils.decomposeVariables(mch2_1, subModel1,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -78,7 +62,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				+ Messages.decomposition_shared_comment);
 
 		try {
-			DecompositionUtils.decomposeVariables(mch3_1, subModel2,
+			AStyleUtils.decomposeVariables(mch3_1, subModel2,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -92,7 +76,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				+ Messages.decomposition_shared_comment);
 
 		try {
-			DecompositionUtils.decomposeVariables(mch4_1, subModel3,
+			AStyleUtils.decomposeVariables(mch4_1, subModel3,
 					new NullProgressMonitor());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -108,7 +92,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 
 	/**
 	 * Utility method to test
-	 * {@link DecompositionUtils#decomposeVariables(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
+	 * {@link AStyleUtils#decomposeVariables(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
 	 * .
 	 * 
 	 * @param message
@@ -162,104 +146,13 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 
 	/**
 	 * Test method for
-	 * {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
-	 * .
-	 */
-	@Test
-	public void testCreateInvariants() {
-		try {
-			DecompositionUtils.decomposeInvariants(mch2_1, subModel1,
-					new NullProgressMonitor());
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail("Create invariants 1: There should be no exception");
-			return;
-		}
-
-		testInvariants("Create invariants 1", mch2_1,
-				Messages.decomposition_typing + "_z: z ∈ ℤ: true",
-				Messages.decomposition_typing + "_v: v ∈ ℤ: true",
-				"mch1_2_inv1_2_2: v ∈ ℕ: false", "mch1_2_thm1_2_3: v ≥ 0: true");
-
-		try {
-			DecompositionUtils.decomposeInvariants(mch3_1, subModel2,
-					new NullProgressMonitor());
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail("Create invariants 2: There should be no exception");
-			return;
-		}
-
-		testInvariants("Create invariants 2", mch3_1,
-				Messages.decomposition_typing + "_u: u ∈ U: true",
-				Messages.decomposition_typing + "_y: y ∈ ℤ: true",
-				Messages.decomposition_typing + "_v: v ∈ ℤ: true",
-				"mch1_1_inv1_1_2: y ∈ ℕ: false",
-				"mch1_1_thm1_1_3: y ≥ 0: true",
-				"mch1_2_inv1_2_1: u ∈ U: false",
-				"mch1_2_inv1_2_2: v ∈ ℕ: false", "mch1_2_thm1_2_3: v ≥ 0: true");
-
-		try {
-			DecompositionUtils.decomposeInvariants(mch4_1, subModel3,
-					new NullProgressMonitor());
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail("Create invariants 3: There should be no exception");
-			return;
-		}
-
-		testInvariants("Create invariants 3", mch4_1,
-				Messages.decomposition_typing + "_u: u ∈ U: true",
-				Messages.decomposition_typing + "_p: p ∈ ℙ(ℤ × V): true",
-				Messages.decomposition_typing + "_v: v ∈ ℤ: true",
-				"mch1_2_inv1_2_1: u ∈ U: false",
-				"mch1_2_inv1_2_2: v ∈ ℕ: false",
-				"mch1_2_thm1_2_3: v ≥ 0: true",
-				"mch1_3_inv1_3_5: p ∈ ℕ → V: false");
-	}
-
-	/**
-	 * Utility method to test
-	 * {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
-	 * .
-	 * 
-	 * @param message
-	 *            a message.
-	 * @param mch
-	 *            a machine.
-	 * @param expected
-	 *            expected set of invariant (in the form
-	 *            "label: predicate: isTheorem").
-	 */
-	private void testInvariants(String message, IMachineRoot mch,
-			String... expected) {
-		try {
-			IInvariant[] invs = mch.getInvariants();
-			assertEquals(message + ": Incorrect number of invariants",
-					expected.length, invs.length);
-			for (int i = 0; i < invs.length; i++) {
-				String actual = invs[i].getLabel() + ": "
-						+ invs[i].getPredicateString() + ": "
-						+ invs[i].isTheorem();
-				assertEquals(message + ": Incorrect invariant", expected[i],
-						actual);
-			}
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail(message + ": There should be no exception");
-			return;
-		}
-	}
-
-	/**
-	 * Test method for
-	 * {@link DecompositionUtils#decomposeEvents(IMachineRoot, ISubModel, IProgressMonitor)}
+	 * {@link AStyleUtils#decomposeEvents(IMachineRoot, ISubModel, IProgressMonitor)}
 	 * .
 	 */
 	@Test
 	public void testDecomposeEvents() {
 		try {
-			DecompositionUtils.decomposeEvents(mch2_1, subModel1,
+			AStyleUtils.decomposeEvents(mch2_1, subModel1,
 					new NullProgressMonitor());
 
 			// Test number of events.
@@ -360,7 +253,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 
 	/**
 	 * Utility method to test
-	 * {@link DecompositionUtils#decomposeEvents(IMachineRoot, ISubModel, IProgressMonitor)}
+	 * {@link AStyleUtils#decomposeEvents(IMachineRoot, ISubModel, IProgressMonitor)}
 	 * .
 	 * 
 	 * @param message
@@ -389,7 +282,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 	}
 
 	/**
-	 * Test method for {@link DecompositionUtils#decomposeAction(IAction, Set)}.
+	 * Test method for {@link AStyleUtils#decomposeAction(IAction, Set)}.
 	 */
 	@Test
 	public void testDecomposeAction() {
@@ -400,52 +293,52 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			vars.add("z");
 			vars.add("v");
 
-			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_1,
+			assignmentStr = AStyleUtils.decomposeAction(act_init1_3_1,
 					vars);
 			assertNull("Incorrect decomposed action 1", assignmentStr);
 
-			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_2,
+			assignmentStr = AStyleUtils.decomposeAction(act_init1_3_2,
 					vars);
 			assertEquals("Incorrect decomposed action 2", assignmentStr,
 					"v ≔ 0");
 
-			assignmentStr = DecompositionUtils.decomposeAction(act_init1_3_3,
+			assignmentStr = AStyleUtils.decomposeAction(act_init1_3_3,
 					vars);
 			assertEquals("Incorrect decomposed action 3", assignmentStr,
 					"z ≔ 0");
 
-			assignmentStr = DecompositionUtils
+			assignmentStr = AStyleUtils
 					.decomposeAction(act1_3_1_1, vars);
 			assertEquals("Incorrect decomposed action 4", assignmentStr,
 					"v ≔ 2");
 
-			assignmentStr = DecompositionUtils
+			assignmentStr = AStyleUtils
 					.decomposeAction(act1_3_2_1, vars);
 			assertNull("Incorrect decomposed action 5", assignmentStr);
 
-			assignmentStr = DecompositionUtils
+			assignmentStr = AStyleUtils
 					.decomposeAction(act1_3_2_2, vars);
 			assertNull("Incorrect decomposed action 6", assignmentStr);
 
-			assignmentStr = DecompositionUtils
+			assignmentStr = AStyleUtils
 					.decomposeAction(act1_3_2_3, vars);
 			assertEquals("Incorrect decomposed action 7", assignmentStr,
 					"v ≔ v + 1");
 
-			assignmentStr = DecompositionUtils
+			assignmentStr = AStyleUtils
 					.decomposeAction(act1_3_3_1, vars);
 			assertNull("Incorrect decomposed action 8", assignmentStr);
 
-			assignmentStr = DecompositionUtils
+			assignmentStr = AStyleUtils
 					.decomposeAction(act1_3_3_2, vars);
 			assertEquals("Incorrect decomposed action 9", assignmentStr,
 					"v ≔ v + 1");
 
-			assignmentStr = DecompositionUtils
+			assignmentStr = AStyleUtils
 					.decomposeAction(act1_3_4_1, vars);
 			assertNull("Incorrect decomposed action 10", assignmentStr);
 
-			assignmentStr = DecompositionUtils
+			assignmentStr = AStyleUtils
 					.decomposeAction(act1_3_5_1, vars);
 			assertEquals("Incorrect decomposed action 11", assignmentStr,
 					"z ≔ z − 1");
@@ -455,5 +348,42 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			return;
 		}
 	}
+	
+	/**
+	 * Test method for {@link IModelDecomposition#getSharedVariables()}.
+	 */
+	@Test
+	public void testGetSharedVariables() {
+		Set<String> vars;
+		try {
+			vars = AStyleUtils.getSharedVariables(modelDecomp3);
+			assertEqualsVariables("", vars, "u", "v");
+			vars = AStyleUtils.getSharedVariables(modelDecomp1);
+			assertEqualsVariables("", vars);
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+			fail("There should be no exception");
+			return;
+		}
+	}
 
+	/**
+	 * Utility method to compare two sets of variables (in {@link String}).
+	 * 
+	 * @param message
+	 *            a message.
+	 * @param actual
+	 *            actual set of variables.
+	 * @param expected
+	 *            expected array of variables.
+	 */
+	private void assertEqualsVariables(String message, Set<String> actual,
+			String... expected) {
+		assertEquals(message + ": Incorrect number of expected variables",
+				expected.length, actual.size());
+		for (String exp : expected) {
+			assertTrue(message + ": Expected variable " + exp + " not found",
+					actual.contains(exp));
+		}
+	}
 }

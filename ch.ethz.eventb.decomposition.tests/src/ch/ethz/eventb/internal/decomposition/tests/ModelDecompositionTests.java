@@ -10,16 +10,12 @@
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.tests.astyle;
-
-import java.util.Set;
+package ch.ethz.eventb.internal.decomposition.tests;
 
 import org.junit.Test;
-import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.decomposition.IModelDecomposition;
 import ch.ethz.eventb.decomposition.ISubModel;
-import ch.ethz.eventb.internal.decomposition.astyle.DecompositionUtils;
 
 /**
  * @author htson
@@ -144,43 +140,4 @@ public class ModelDecompositionTests extends AbstractDecompositionTests {
 		assertContains("Remove element distribution 4", subModels, subModel1);
 		assertContains("Remove element distribution 5", subModels, subModel3);
 	}
-
-	/**
-	 * Test method for {@link IModelDecomposition#getSharedVariables()}.
-	 */
-	@Test
-	public void testGetSharedVariables() {
-		Set<String> vars;
-		try {
-			vars = DecompositionUtils.getSharedVariables(modelDecomp3);
-			assertEqualsVariables("", vars, "u", "v");
-			vars = DecompositionUtils.getSharedVariables(modelDecomp1);
-			assertEqualsVariables("", vars);
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail("There should be no exception");
-			return;
-		}
-	}
-
-	/**
-	 * Utility method to compare two sets of variables (in {@link String}).
-	 * 
-	 * @param message
-	 *            a message.
-	 * @param actual
-	 *            actual set of variables.
-	 * @param expected
-	 *            expected array of variables.
-	 */
-	private void assertEqualsVariables(String message, Set<String> actual,
-			String... expected) {
-		assertEquals(message + ": Incorrect number of expected variables",
-				expected.length, actual.size());
-		for (String exp : expected) {
-			assertTrue(message + ": Expected variable " + exp + " not found",
-					actual.contains(exp));
-		}
-	}
-
 }
