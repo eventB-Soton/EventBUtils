@@ -10,9 +10,9 @@
  *     Systerel - initial API and implementation
  ******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.astyle.sc;
+package ch.ethz.eventb.internal.decomposition.sc.astyle;
 
-import static ch.ethz.eventb.decomposition.astyle.EventBAttributes.EXTERNAL_ATTRIBUTE;
+import static ch.ethz.eventb.decomposition.astyle.AStyleAttributes.EXTERNAL_ATTRIBUTE;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;

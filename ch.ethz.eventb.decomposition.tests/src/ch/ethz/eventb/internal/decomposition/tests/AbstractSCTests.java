@@ -10,7 +10,7 @@
  *     Systerel - initial API and implementation
  ******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.tests.astyle.sc;
+package ch.ethz.eventb.internal.decomposition.tests;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -29,16 +29,15 @@ import org.rodinp.core.IRodinProblem;
 import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinMarkerUtil;
 
-import ch.ethz.eventb.internal.decomposition.tests.AbstractEventBTests;
 
 /**
  * The class used to test the behavior of the static checker on refinements.
  */
-public abstract class MachineRefinesModuleTest extends AbstractEventBTests {
+public abstract class AbstractSCTests extends AbstractEventBTests {
 
-	final static IProgressMonitor monitor = new NullProgressMonitor();
+	protected final static IProgressMonitor monitor = new NullProgressMonitor();
 	
-	void runBuilder(IEventBProject prj) throws CoreException {
+	protected void runBuilder(IEventBProject prj) throws CoreException {
 		final IRodinProject rp = (IRodinProject) prj
 				.getAdapter(IRodinProject.class);
 		final IProject project = rp.getProject();
@@ -55,7 +54,7 @@ public abstract class MachineRefinesModuleTest extends AbstractEventBTests {
 		}
 	}
 
-	void containsMarkers(IInternalElement element, boolean yes)
+	protected void containsMarkers(IInternalElement element, boolean yes)
 			throws CoreException {
 		IFile file = element.getResource();
 		IMarker[] markers = file.findMarkers(
@@ -68,12 +67,12 @@ public abstract class MachineRefinesModuleTest extends AbstractEventBTests {
 			assertEquals("should not contain markers", 0, markers.length);
 	}
 
-	void hasMarker(IRodinElement element, IAttributeType attrType)
+	protected void hasMarker(IRodinElement element, IAttributeType attrType)
 			throws Exception {
 		hasMarker(element, attrType, null);
 	}
 
-	void hasMarker(IRodinElement element, IAttributeType attrType,
+	protected void hasMarker(IRodinElement element, IAttributeType attrType,
 			IRodinProblem problem, String... args) throws Exception {
 		IRodinFile file = (IRodinFile) element.getOpenable();
 		IMarker[] markers = file.getResource().findMarkers(

@@ -50,6 +50,7 @@ import org.rodinp.core.RodinCore;
 import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.decomposition.DecompositionPlugin;
+import ch.ethz.eventb.decomposition.IDecomposedElement;
 
 /**
  * @author htson
@@ -61,10 +62,16 @@ import ch.ethz.eventb.decomposition.DecompositionPlugin;
 public final class EventBUtils {
 
 	/**
-	 * Configuration of the static checker.
+	 * Configuration used by the static checker.
 	 */
-	public static final String DECOMPOSITION_CONFIGURATION = DecompositionPlugin.PLUGIN_ID
+	public static final String DECOMPOSITION_CONFIG_SC = DecompositionPlugin.PLUGIN_ID
 			+ ".mchBase";
+
+	/**
+	 * Configuration used by the proof obligation generator.
+	 */
+	public static final String DECOMPOSITION_CONFIG_POG = DecompositionPlugin.PLUGIN_ID
+			+ ".pogConfig";
 
 	private EventBUtils() {
 		// Utility classes shall not have a public or default constructor.
@@ -149,12 +156,14 @@ public final class EventBUtils {
 		machine.create(false, new NullProgressMonitor());
 		IMachineRoot root = (IMachineRoot) machine.getRoot();
 
-		// Tag the machine as generated
-		root.setGenerated(true, monitor);
+		// Tag the machine as decomposed and generated
+		IDecomposedElement elt = (IDecomposedElement) root
+				.getAdapter(IDecomposedElement.class);
+		elt.setDecomposed(monitor);
 
 		// Set the configuration
 		((IConfigurationElement) root).setConfiguration(
-				DECOMPOSITION_CONFIGURATION, monitor);
+				DECOMPOSITION_CONFIG_SC, monitor);
 
 		monitor.worked(1);
 		monitor.done();
@@ -194,14 +203,16 @@ public final class EventBUtils {
 			ctxFile.copy(to.getRodinProject(), null, null, true, monitor);
 		}
 
-		// Tag the contexts as generated and set the configuration
+		// Tag the contexts as decomposed and generated and set the configuration
 		for (IContextRoot context : contexts) {
 			IContextRoot copiedContext = to.getContextRoot(context
 					.getElementName());
-			copiedContext.setGenerated(true, monitor);
+			IDecomposedElement elt = (IDecomposedElement) copiedContext
+					.getAdapter(IDecomposedElement.class);
+			elt.setDecomposed(monitor);
+			
 			((IConfigurationElement) copiedContext).setConfiguration(
-					DECOMPOSITION_CONFIGURATION, monitor);
-
+					DECOMPOSITION_CONFIG_SC, monitor);
 		}
 	}
 

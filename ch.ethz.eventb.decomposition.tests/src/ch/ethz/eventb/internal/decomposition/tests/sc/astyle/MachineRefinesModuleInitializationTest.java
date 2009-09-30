@@ -10,10 +10,8 @@
  *     Systerel - initial API and implementation
  ******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.tests.astyle.sc;
+package ch.ethz.eventb.internal.decomposition.tests.sc.astyle;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.IAction;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
@@ -24,15 +22,14 @@ import org.junit.Test;
 
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
-import ch.ethz.eventb.internal.decomposition.astyle.sc.DecompositionProblem;
+import ch.ethz.eventb.internal.decomposition.sc.astyle.DecompositionProblem;
+import ch.ethz.eventb.internal.decomposition.tests.AbstractSCTests;
 
 /**
  * The class used to test the behavior of the static checker on refinements.
  */
 public class MachineRefinesModuleInitializationTest extends
-		MachineRefinesModuleTest {
-
-	private final static IProgressMonitor monitor = new NullProgressMonitor();
+		AbstractSCTests {
 
 	private IEventBProject prj;
 	private IMachineRoot abstractMachine;
@@ -121,7 +118,7 @@ public class MachineRefinesModuleInitializationTest extends
 	}
 
 	/**
-	 * Checks that an error is detected if the initialization event of a
+	 * Checks that an error is detected if the initialization event of an
 	 * abstract machine defines an action modifying a "shared" variable which is
 	 * not present any longer in the concrete machine.
 	 */
@@ -147,7 +144,7 @@ public class MachineRefinesModuleInitializationTest extends
 	}
 
 	/**
-	 * Checks that an error is detected if the initialization event of a
+	 * Checks that an error is detected if the initialization event of an
 	 * abstract machine defines an action modifying a "shared" variable which is
 	 * syntactically different in the concrete machine.
 	 */

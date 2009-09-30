@@ -10,7 +10,7 @@
  *     Systerel - initial API and implementation
  ******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.astyle.sc;
+package ch.ethz.eventb.internal.decomposition.sc.astyle;
 
 import static org.eclipse.core.resources.IMarker.SEVERITY_ERROR;
 

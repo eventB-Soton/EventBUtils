@@ -10,7 +10,7 @@
  *     Systerel - initial API and implementation
  ******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.astyle.sc;
+package ch.ethz.eventb.internal.decomposition.sc.astyle;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,15 +42,15 @@ import org.rodinp.core.IRodinFile;
 import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.decomposition.DecompositionPlugin;
-import ch.ethz.eventb.decomposition.astyle.EventBAttributes;
+import ch.ethz.eventb.decomposition.astyle.AStyleAttributes;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
 import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
 
 import static org.eventb.core.EventBAttributes.EXTENDED_ATTRIBUTE;
-import static ch.ethz.eventb.decomposition.astyle.EventBAttributes.NATURE_ATTRIBUTE;
-import static ch.ethz.eventb.decomposition.astyle.EventBAttributes.EXTERNAL_ATTRIBUTE;
+import static ch.ethz.eventb.decomposition.astyle.AStyleAttributes.NATURE_ATTRIBUTE;
+import static ch.ethz.eventb.decomposition.astyle.AStyleAttributes.EXTERNAL_ATTRIBUTE;
 
 public class MachineRefinesModule extends SCProcessorModule {
 
@@ -188,7 +188,7 @@ public class MachineRefinesModule extends SCProcessorModule {
 					if (!elt.isExternal()) {
 						createProblemMarker(concreteEvent, EXTERNAL_ATTRIBUTE,
 								DecompositionProblem.EventInvalidStatusError,
-								label, EventBAttributes.EXTERNAL_ATTRIBUTE
+								label, AStyleAttributes.EXTERNAL_ATTRIBUTE
 										.getName());
 					}
 					if (!concreteEvent.isExtended()) {
@@ -267,6 +267,8 @@ public class MachineRefinesModule extends SCProcessorModule {
 	 */
 	private void fetchSCInit() throws CoreException {
 		IEvent concreteInit = EventBUtils.getInitialisation(machineRoot);
+		if (concreteInit.isExtended())
+			return;
 		IAction[] initActions = concreteInit.getActions();
 		Map<String, ISCVariable> absVarMap = new HashMap<String, ISCVariable>();
 		for (ISCVariable variable : scAbstractMachineRoot.getSCVariables()) {

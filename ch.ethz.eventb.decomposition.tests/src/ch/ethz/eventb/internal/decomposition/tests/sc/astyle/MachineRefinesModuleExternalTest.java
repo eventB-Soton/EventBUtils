@@ -10,28 +10,25 @@
  *     Systerel - initial API and implementation
  ******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.tests.astyle.sc;
+package ch.ethz.eventb.internal.decomposition.tests.sc.astyle;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
 import org.eventb.core.IMachineRoot;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.ethz.eventb.decomposition.astyle.EventBAttributes;
+import ch.ethz.eventb.decomposition.astyle.AStyleAttributes;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
-import ch.ethz.eventb.internal.decomposition.astyle.sc.DecompositionProblem;
+import ch.ethz.eventb.internal.decomposition.sc.astyle.DecompositionProblem;
+import ch.ethz.eventb.internal.decomposition.tests.AbstractSCTests;
 
 import static org.eventb.core.EventBAttributes.EXTENDED_ATTRIBUTE;
 
 /**
  * The class used to test the behavior of the static checker on refinements.
  */
-public class MachineRefinesModuleExternalTest extends MachineRefinesModuleTest {
-
-	private final static IProgressMonitor monitor = new NullProgressMonitor();
+public class MachineRefinesModuleExternalTest extends AbstractSCTests {
 
 	private IEventBProject prj;
 	private IMachineRoot abstractMachine;
@@ -82,9 +79,9 @@ public class MachineRefinesModuleExternalTest extends MachineRefinesModuleTest {
 		runBuilder(prj);
 
 		containsMarkers(abstractMachine, false);
-		hasMarker(concreteEvent, EventBAttributes.EXTERNAL_ATTRIBUTE,
+		hasMarker(concreteEvent, AStyleAttributes.EXTERNAL_ATTRIBUTE,
 				DecompositionProblem.EventInvalidStatusError, concreteEvent
-						.getLabel(), EventBAttributes.EXTERNAL_ATTRIBUTE
+						.getLabel(), AStyleAttributes.EXTERNAL_ATTRIBUTE
 						.getName());
 	}
 

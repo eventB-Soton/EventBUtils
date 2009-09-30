@@ -57,6 +57,11 @@
             kind="boolean"
             name="%eventBExternalAttribute">
       </attributeType>
+      <attributeType
+            id="decomposed"
+            kind="boolean"
+            name="%eventBDecomposedAttribute">
+      </attributeType>
    </extension>
   <extension point="org.eventb.ui.editorItems"> 
       
@@ -119,6 +124,20 @@
               type="ch.ethz.eventb.decomposition.astyle.IExternalElement">
         </adapter>
      </factory>
+     <factory
+           adaptableType="org.eventb.core.IMachineRoot"
+           class="ch.ethz.eventb.internal.decomposition.RootAdapterFactory">
+        <adapter
+              type="ch.ethz.eventb.decomposition.IDecomposedElement">
+        </adapter>
+     </factory>
+     <factory
+           adaptableType="org.eventb.core.IContextRoot"
+           class="ch.ethz.eventb.internal.decomposition.RootAdapterFactory">
+        <adapter
+              type="ch.ethz.eventb.decomposition.IDecomposedElement">
+        </adapter>
+     </factory>
   </extension>
   <extension
         point="org.eventb.core.configurations">
@@ -137,24 +156,40 @@
         <scModule
               id="ch.ethz.eventb.decomposition.refinesModule">
         </scModule>
+        <scModule
+              id="ch.ethz.eventb.decomposition.machineModule">
+        </scModule>
+        <scModule
+              id="ch.ethz.eventb.decomposition.contextModule">
+        </scModule>
+     </configuration>
+     <configuration
+           id="pogConfig"
+           name="%pogConfig">
+        <pogModule
+              id="ch.ethz.eventb.decomposition.pogContextModule">
+        </pogModule>
+        <pogModule
+              id="ch.ethz.eventb.decomposition.pogMachineModule">
+        </pogModule>
      </configuration>
   </extension>
   <extension
         point="org.eventb.core.scModuleTypes">
      <filterType
-           class="ch.ethz.eventb.internal.decomposition.astyle.sc.MachineVariableModule"
+           class="ch.ethz.eventb.internal.decomposition.sc.astyle.MachineVariableModule"
            id="varModule"
            name="%varModule"
            parent="org.eventb.core.machineVariableModule">
      </filterType>
      <filterType
-           class="ch.ethz.eventb.internal.decomposition.astyle.sc.MachineEventModule"
+           class="ch.ethz.eventb.internal.decomposition.sc.astyle.MachineEventModule"
            id="evtModule"
            name="%evtModule"
            parent="org.eventb.core.machineEventModule">
      </filterType>
      <processorType
-           class="ch.ethz.eventb.internal.decomposition.astyle.sc.MachineRefinesModule"
+           class="ch.ethz.eventb.internal.decomposition.sc.astyle.MachineRefinesModule"
            id="refinesModule"
            name="%refinesModule"
            parent="org.eventb.core.machineModule">
@@ -168,6 +203,33 @@
               id="org.eventb.core.machineEventExtendedModule">
         </prereq>
      </processorType>
+     <processorType
+           class="ch.ethz.eventb.internal.decomposition.sc.ContextModule"
+           id="contextModule"
+           name="%contextModule"
+           parent="org.eventb.core.contextModule">
+     </processorType>
+     <processorType
+           class="ch.ethz.eventb.internal.decomposition.sc.MachineModule"
+           id="machineModule"
+           name="%machineModule"
+           parent="org.eventb.core.machineModule">
+     </processorType>
+  </extension>
+  <extension
+        point="org.eventb.core.pogModuleTypes">
+     <rootType
+           class="ch.ethz.eventb.internal.decomposition.pog.POGContextProcessorModule"
+           id="pogContextModule"
+           input="org.eventb.core.scContextFile"
+           name="%pogContextModule">
+     </rootType>
+     <rootType
+           class="ch.ethz.eventb.internal.decomposition.pog.POGMachineProcessorModule"
+           id="pogMachineModule"
+           input="org.eventb.core.scMachineFile"
+           name="%pogMachineModule">
+     </rootType>
   </extension>
 
 </plugin>

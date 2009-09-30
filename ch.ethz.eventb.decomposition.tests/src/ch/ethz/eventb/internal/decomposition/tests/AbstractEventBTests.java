@@ -12,7 +12,7 @@
 
 package ch.ethz.eventb.internal.decomposition.tests;
 
-import static ch.ethz.eventb.internal.decomposition.utils.EventBUtils.DECOMPOSITION_CONFIGURATION;
+import static ch.ethz.eventb.internal.decomposition.utils.EventBUtils.DECOMPOSITION_CONFIG_SC;
 import junit.framework.TestCase;
 
 import org.eclipse.core.resources.IProject;
@@ -161,7 +161,7 @@ public abstract class AbstractEventBTests extends TestCase {
 		IRodinFile file = project.getContextFile(bareName);
 		file.create(true, null);
 		IContextRoot result = (IContextRoot) file.getRoot();
-		result.setConfiguration(DECOMPOSITION_CONFIGURATION, monitor);
+		result.setConfiguration(DECOMPOSITION_CONFIG_SC, monitor);
 		return result;
 	}
 
@@ -266,7 +266,7 @@ public abstract class AbstractEventBTests extends TestCase {
 		IRodinFile file = project.getMachineFile(bareName);
 		file.create(true, null);
 		IMachineRoot result = (IMachineRoot) file.getRoot();
-		result.setConfiguration(DECOMPOSITION_CONFIGURATION, monitor);
+		result.setConfiguration(DECOMPOSITION_CONFIG_SC, monitor);
 		return result;
 	}
 

@@ -41,6 +41,7 @@ import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinCore;
 import org.rodinp.core.RodinDBException;
 
+import ch.ethz.eventb.decomposition.IDecomposedElement;
 import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
 
 /**
@@ -121,10 +122,14 @@ public class EventBUtilsTests extends EventBTests {
 		for (IContextRoot context : originalContexts) {
 			IContextRoot testContext = P2.getContextRoot(context
 					.getElementName());
+			IDecomposedElement elt = (IDecomposedElement) testContext
+					.getAdapter(IDecomposedElement.class);
 			assertTrue("The context should exist", testContext.exists());
 			try {
 				assertTrue("The context should be tagged as generated",
 						testContext.isGenerated());
+				assertTrue("The context should be tagged as decomposed", elt
+						.isDecomposed());
 			} catch (RodinDBException e) {
 				e.printStackTrace();
 				fail("There should be no exception");
@@ -142,9 +147,13 @@ public class EventBUtilsTests extends EventBTests {
 		IMachineRoot machine;
 		String bareName = "test0001";
 		boolean generated = false;
+		boolean decomposed = false;
 		try {
 			machine = EventBUtils.createMachine(P1, EventBPlugin
 					.getMachineFileName(bareName), new NullProgressMonitor());
+			IDecomposedElement elt = (IDecomposedElement) machine
+					.getAdapter(IDecomposedElement.class);
+			decomposed = elt.isDecomposed();
 			generated = machine.isGenerated();
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -153,6 +162,7 @@ public class EventBUtilsTests extends EventBTests {
 		}
 		assertTrue("The machine should exist", machine.exists());
 		assertTrue("The machine should be tagged as generated", generated);
+		assertTrue("The machine should be tagged as decomposed", decomposed);
 		assertEquals("The machine should belong to project P1", machine
 				.getEventBProject(), P1);
 		assertEquals("The name of the file must be consistent", EventBPlugin

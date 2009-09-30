@@ -589,7 +589,7 @@ public final class AStyleUtils extends DecompositionUtils {
 		// Create the new event.
 		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null, monitor);
 		newEvt.setLabel(flattened.getLabel(), monitor);
-
+		
 		// Set the external attribute.
 		IExternalElement elt = (IExternalElement) newEvt
 				.getAdapter(IExternalElement.class);

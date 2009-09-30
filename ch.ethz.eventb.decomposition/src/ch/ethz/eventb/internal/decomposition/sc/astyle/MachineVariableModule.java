@@ -10,7 +10,7 @@
  *     Systerel - initial API and implementation
  ******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.astyle.sc;
+package ch.ethz.eventb.internal.decomposition.sc.astyle;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,7 +26,7 @@ import org.rodinp.core.IRodinElement;
 import ch.ethz.eventb.decomposition.DecompositionPlugin;
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 
-import static ch.ethz.eventb.decomposition.astyle.EventBAttributes.NATURE_ATTRIBUTE;
+import static ch.ethz.eventb.decomposition.astyle.AStyleAttributes.NATURE_ATTRIBUTE;
 
 public class MachineVariableModule extends SCFilterModule {
 

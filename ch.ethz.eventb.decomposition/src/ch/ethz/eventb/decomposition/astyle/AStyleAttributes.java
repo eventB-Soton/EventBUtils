@@ -19,7 +19,7 @@ import ch.ethz.eventb.decomposition.DecompositionPlugin;
  * This interface lists all attribute names used by the A-style decomposition
  * plug-in.
  */
-public interface EventBAttributes {
+public interface AStyleAttributes {
 
 	/**
 	 * The attribute used to tag the events as internal or external.

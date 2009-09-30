@@ -17,7 +17,7 @@ import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 
-import static ch.ethz.eventb.decomposition.astyle.EventBAttributes.EXTERNAL_ATTRIBUTE;
+import static ch.ethz.eventb.decomposition.astyle.AStyleAttributes.EXTERNAL_ATTRIBUTE;
 
 /**
  * Implementation of Event-B events as an extension of the Rodin database.

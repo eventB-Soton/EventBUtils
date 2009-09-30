@@ -19,7 +19,7 @@ import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
-import static ch.ethz.eventb.decomposition.astyle.EventBAttributes.NATURE_ATTRIBUTE;
+import static ch.ethz.eventb.decomposition.astyle.AStyleAttributes.NATURE_ATTRIBUTE;
 
 /**
  * Implementation of Event-B variables as an extension of the Rodin database.

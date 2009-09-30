@@ -10,10 +10,8 @@
  *     Systerel - initial API and implementation
  ******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.tests.astyle.sc;
+package ch.ethz.eventb.internal.decomposition.tests.sc.astyle;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
 import org.eventb.core.IMachineRoot;
@@ -21,17 +19,16 @@ import org.eventb.core.IVariable;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.ethz.eventb.decomposition.astyle.EventBAttributes;
+import ch.ethz.eventb.decomposition.astyle.AStyleAttributes;
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
-import ch.ethz.eventb.internal.decomposition.astyle.sc.DecompositionProblem;
+import ch.ethz.eventb.internal.decomposition.sc.astyle.DecompositionProblem;
+import ch.ethz.eventb.internal.decomposition.tests.AbstractSCTests;
 
 /**
  * The class used to test the behavior of the static checker on refinements.
  */
-public class MachineRefinesModuleSharedTest extends MachineRefinesModuleTest {
-
-	private final static IProgressMonitor monitor = new NullProgressMonitor();
+public class MachineRefinesModuleSharedTest extends AbstractSCTests {
 
 	private IEventBProject prj;
 	private IMachineRoot abstractMachine;
@@ -88,7 +85,7 @@ public class MachineRefinesModuleSharedTest extends MachineRefinesModuleTest {
 		runBuilder(prj);
 
 		containsMarkers(abstractMachine, false);
-		hasMarker(concreteVariable, EventBAttributes.NATURE_ATTRIBUTE,
+		hasMarker(concreteVariable, AStyleAttributes.NATURE_ATTRIBUTE,
 				DecompositionProblem.VariableInvalidNatureError,
 				concreteVariable.getIdentifierString());
 	}

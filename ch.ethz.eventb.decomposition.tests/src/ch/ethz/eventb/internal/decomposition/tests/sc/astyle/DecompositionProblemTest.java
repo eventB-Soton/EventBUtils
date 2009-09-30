@@ -10,7 +10,7 @@
  *     Systerel - initial API and implementation
  ******************************************************************************/
 
-package ch.ethz.eventb.internal.decomposition.tests.astyle.sc;
+package ch.ethz.eventb.internal.decomposition.tests.sc.astyle;
 
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -27,7 +27,7 @@ import org.rodinp.core.IRodinProblem;
 import org.rodinp.core.RodinMarkerUtil;
 
 import ch.ethz.eventb.decomposition.DecompositionPlugin;
-import ch.ethz.eventb.internal.decomposition.astyle.sc.DecompositionProblem;
+import ch.ethz.eventb.internal.decomposition.sc.astyle.DecompositionProblem;
 
 /**
  * The class used to check the problems detected by the static checker.
