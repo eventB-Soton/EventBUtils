@@ -165,7 +165,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 			assertNotNull("Create events 1: Cannot find event INITIALISATION",
 					evt);
 			assertEvent("Create events 1", evt,
-					Messages.decomposition_external_comment);
+					Messages.decomposition_internal_comment);
 			testEventSignature("Create events 1", evt, "INITIALISATION", false,
 					Convergence.ORDINARY);
 			testEventParameters("Create events 1", evt);

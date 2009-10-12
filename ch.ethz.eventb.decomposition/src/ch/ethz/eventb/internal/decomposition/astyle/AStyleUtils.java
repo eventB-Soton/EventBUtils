@@ -413,12 +413,16 @@ public final class AStyleUtils extends DecompositionUtils {
 		// Create the new event.
 		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null, monitor);
 		newEvt.setLabel(flattened.getLabel(), monitor);
-		newEvt.setComment(Messages.decomposition_external_comment, monitor);
+		if (!evt.isInitialisation()) {
+			newEvt.setComment(Messages.decomposition_external_comment, monitor);
+		}
 
 		// Set the external attribute.
-		IExternalElement elt = (IExternalElement) newEvt
-				.getAdapter(IExternalElement.class);
-		elt.setExternal(true, monitor);
+		if (!evt.isInitialisation()) {
+			IExternalElement elt = (IExternalElement) newEvt
+					.getAdapter(IExternalElement.class);
+			elt.setExternal(true, monitor);
+		}
 
 		// Set the status.
 		setEventStatus(evt, newEvt, monitor);
@@ -589,7 +593,7 @@ public final class AStyleUtils extends DecompositionUtils {
 		// Create the new event.
 		IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null, monitor);
 		newEvt.setLabel(flattened.getLabel(), monitor);
-		
+
 		// Set the external attribute.
 		IExternalElement elt = (IExternalElement) newEvt
 				.getAdapter(IExternalElement.class);
