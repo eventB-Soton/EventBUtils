@@ -1,6 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Zurich.
- * 
+ * Copyright (c) 2009 ETH Zurich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +8,6 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
-
 package ch.ethz.eventb.internal.decomposition.tests;
 
 import java.util.List;
@@ -17,13 +15,9 @@ import java.util.List;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.EventBPlugin;
 import org.eventb.core.IAction;
-import org.eventb.core.IAxiom;
-import org.eventb.core.ICarrierSet;
-import org.eventb.core.IConstant;
 import org.eventb.core.IContextRoot;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
-import org.eventb.core.IExtendsContext;
 import org.eventb.core.IGuard;
 import org.eventb.core.IInvariant;
 import org.eventb.core.IMachineRoot;
@@ -192,7 +186,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param des
 	 *            destination machine.
 	 */
-	private void testCopySeesClause(IMachineRoot src, IMachineRoot des) {
+	private static void testCopySeesClause(IMachineRoot src, IMachineRoot des) {
 		try {
 			EventBUtils.copySeesClauses(src, des, new NullProgressMonitor());
 			ISeesContext[] original = src.getSeesClauses();
@@ -337,7 +331,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            the expected display text.
 	 */
-	private void testGetDisplayText(String message, IRodinElement elem,
+	private static void testGetDisplayText(String message, IRodinElement elem,
 			String expected) {
 		String actual = EventBUtils.getDisplayedText(elem);
 		assertEquals(message + ": Incorrect display text", expected, actual);
@@ -384,7 +378,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            an array of expected free identifiers (in {@link String}).
 	 */
-	private void testGetEventFreeIdentifiers(String message, IEvent evt,
+	private static void testGetEventFreeIdentifiers(String message, IEvent evt,
 			String... expected) {
 		try {
 			List<String> freeIdents = EventBUtils.getFreeIdentifiers(evt);
@@ -406,7 +400,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            an array of expected free identifiers (in {@link String}).
 	 */
-	private void testFreeIdentifiers(String message, List<String> actual,
+	private static void testFreeIdentifiers(String message, List<String> actual,
 			String... expected) {
 		assertEquals(message
 				+ ": Incorrect number of expected free identfiers ",
@@ -600,7 +594,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            expected set of free identifiers.
 	 */
-	private void testGetGuardFreeIdentifiers(String message, IGuard grd,
+	private static void testGetGuardFreeIdentifiers(String message, IGuard grd,
 			String... expected) {
 		try {
 			List<String> freeIdents = EventBUtils.getFreeIdentifiers(grd);
@@ -636,7 +630,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            expected set of free identifiers.
 	 */
-	private void testGetPredicateFreeIdentifiers(String message,
+	private static void testGetPredicateFreeIdentifiers(String message,
 			String predicateString, String... expected) {
 		List<String> freeIdents = EventBUtils
 				.getPredicateFreeIdentifiers(predicateString);
@@ -698,7 +692,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            expected set of identifiers.
 	 */
-	private void testGetActionFreeIdentifiers(String message, IAction act,
+	private static void testGetActionFreeIdentifiers(String message, IAction act,
 			String... expected) {
 		try {
 			List<String> freeIdents = EventBUtils.getFreeIdentifiers(act);
@@ -736,11 +730,16 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            expected set of free identifiers.
 	 */
-	private void testGetAssignmentFreeIdentifiers(String message,
+	private static void testGetAssignmentFreeIdentifiers(String message,
 			String assignmentString, String... expected) {
 		List<String> freeIdents = EventBUtils
 				.getAssignmentFreeIdentifiers(assignmentString);
 		testFreeIdentifiers(message, freeIdents, expected);
+	}
+
+	private static void assertSeenSetsAndConstants(List<String> idents,
+			String... expected) {
+		assertSameStrings("Seen sets and constants", "identifier", idents, expected);
 	}
 
 	/**
@@ -772,12 +771,12 @@ public class EventBUtilsTests extends EventBTests {
 	 *            expected set of carrier sets and constants (in {@link String}
 	 *            ).
 	 */
-	private void testGetMachineSeenCarrierSetsAndConstants(String message,
+	private static void testGetMachineSeenCarrierSetsAndConstants(String message,
 			IMachineRoot mch, String... expected) {
 		try {
 			List<String> idents = EventBUtils
 					.getSeenCarrierSetsAndConstants(mch);
-			testFreeIdentifiers(message, idents, expected);
+			assertSeenSetsAndConstants(idents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -812,212 +811,17 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            expected set of carrier sets and constants.
 	 */
-	private void testGetContextCarrierSetsAndConstants(String message,
+	private static void testGetContextCarrierSetsAndConstants(String message,
 			IContextRoot ctx, String... expected) {
 		try {
 			List<String> idents = EventBUtils.getCarrierSetsAndConstants(ctx);
-			testFreeIdentifiers(message, idents, expected);
+			assertSeenSetsAndConstants(idents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
 			return;
 		}
 
-	}
-
-	/**
-	 * Test method for {@link EventBUtils#flatten(IContextRoot)}.
-	 */
-	@Test
-	public void testFlattenContext() {
-		try {
-			IContextRoot ctx;
-
-			ctx = EventBUtils.flatten(ctx1_1);
-			testContextSignature("Flatten context signature 1", ctx, "ctx1_1");
-			testContextCarrierSets("Flatten context carrier sets 1", ctx, "S",
-					"T");
-			testContextConstants("Flatten context constants 1", ctx, "a", "b",
-					"c", "d");
-			testContextAxioms("Flatten context axioms 1", ctx,
-					"axm1_1_1: partition(S, {a}, {b}, {c}): false",
-					"axm1_1_2: d ∈ ℕ: false", "thm1_1_3: a ≠ b: true");
-
-			ctx = EventBUtils.flatten(ctx1_2);
-			testContextSignature("Flatten context signature 2", ctx, "ctx1_2");
-			testContextCarrierSets("Flatten context carrier sets 2", ctx, "U");
-			testContextConstants("Flatten context constants 2", ctx, "e", "f");
-			testContextAxioms("Flatten context axioms 2", ctx,
-					"axm1_2_1: partition(U, {e}, {f}): false",
-					"thm1_2_2: e ≠ f: true");
-
-			ctx = EventBUtils.flatten(ctx1_3);
-			testContextSignature("Flatten context signature 3", ctx, "ctx1_3");
-			testContextCarrierSets("Flatten context carrier sets 3", ctx, "S",
-					"T", "U", "V");
-			testContextConstants("Flatten context constants 3", ctx, "a", "b",
-					"c", "d", "e", "f", "g", "h");
-			testContextAxioms("Flatten context axioms 3", ctx,
-					"axm1_1_1: partition(S, {a}, {b}, {c}): false",
-					"axm1_1_2: d ∈ ℕ: false", "thm1_1_3: a ≠ b: true",
-					"axm1_2_1: partition(U, {e}, {f}): false",
-					"thm1_2_2: e ≠ f: true",
-					"axm1_3_1: partition(V, {g}, {h}): false",
-					"thm1_3_2: g ≠ h: true");
-
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail("There should be no exception");
-			return;
-		}
-	}
-
-	/**
-	 * Utility method to test context signature: bare name, abstract context
-	 * names.
-	 * 
-	 * @param message
-	 *            a message.
-	 * @param ctx
-	 *            a context.
-	 * @param expBareName
-	 *            expected bare name.
-	 * @param expAbsCtxNames
-	 *            expected array of abstract context names.
-	 * @throws RodinDBException
-	 *             if some error occurred.
-	 */
-	private void testContextSignature(String message, IContextRoot ctx,
-			String expBareName, String... expAbsCtxNames)
-			throws RodinDBException {
-		assertEquals(message + ": Incorrect bare name", expBareName, ctx
-				.getComponentName());
-		IExtendsContext[] extClauses = ctx.getExtendsClauses();
-		assertEquals(message + ": Incorrect number of EXTENDS clauses",
-				expAbsCtxNames.length, extClauses.length);
-		for (IExtendsContext extClause : extClauses) {
-			String absCtxName = extClause.getAbstractContextName();
-			boolean found = false;
-			for (String expAbsCtxName : expAbsCtxNames) {
-				if (expAbsCtxName.equals(absCtxName)) {
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				fail(message + ": Do not expect EXTENDS for " + absCtxName);
-			}
-		}
-	}
-
-	/**
-	 * Utility method to test context carrier sets.
-	 * 
-	 * @param message
-	 *            a message.
-	 * @param ctx
-	 *            a context.
-	 * @param expected
-	 *            expected set of carrier sets (in {@link String}).
-	 */
-	private void testContextCarrierSets(String message, IContextRoot ctx,
-			String... expected) {
-		try {
-			ICarrierSet[] sets = ctx.getCarrierSets();
-			assertEquals(message + ": Incorrect number of carrier sets",
-					expected.length, sets.length);
-			for (ICarrierSet set : sets) {
-				String identStr = set.getIdentifierString();
-				boolean found = false;
-				for (String expLabel : expected) {
-					if (expLabel.equals(identStr)) {
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					fail(message + ": Do not expect carrier set " + identStr);
-				}
-			}
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail("There should be no exception");
-			return;
-		}
-	}
-
-	/**
-	 * Utility method to test context constants.
-	 * 
-	 * @param message
-	 *            a message.
-	 * @param ctx
-	 *            a context.
-	 * @param expected
-	 *            expected set of constants (in {@link String}).
-	 */
-	private void testContextConstants(String message, IContextRoot ctx,
-			String... expected) {
-		try {
-			IConstant[] csts = ctx.getConstants();
-			assertEquals(message + ": Incorrect number of constants",
-					expected.length, csts.length);
-			for (IConstant cst : csts) {
-				String identStr = cst.getIdentifierString();
-				boolean found = false;
-				for (String expLabel : expected) {
-					if (expLabel.equals(identStr)) {
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					fail(message + ": Do not expect constant " + identStr);
-				}
-			}
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail("There should be no exception");
-			return;
-		}
-	}
-
-	/**
-	 * Utility method to test context axioms.
-	 * 
-	 * @param message
-	 *            a message.
-	 * @param ctx
-	 *            a context.
-	 * @param expected
-	 *            expected set of axioms (each axiom is in the form
-	 *            "label: predicate: isTheorem").
-	 */
-	private void testContextAxioms(String message, IContextRoot ctx,
-			String... expected) {
-		try {
-			IAxiom[] axms = ctx.getAxioms();
-			assertEquals(message + ": Incorrect number of axioms",
-					expected.length, axms.length);
-			for (IAxiom axm : axms) {
-				String actual = axm.getLabel() + ": "
-						+ axm.getPredicateString() + ": " + axm.isTheorem();
-				boolean found = false;
-				for (String expGrd : expected) {
-					if (expGrd.equals(actual)) {
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					fail(message + ": Do not expect axiom " + actual);
-				}
-			}
-		} catch (RodinDBException e) {
-			e.printStackTrace();
-			fail("There should be no exception");
-			return;
-		}
 	}
 
 	/**
@@ -1060,7 +864,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            expected set of free identifiers.
 	 */
-	private void testGetInvariantFreeIdentifiers(String message,
+	private static void testGetInvariantFreeIdentifiers(String message,
 			IInvariant inv, String... expected) {
 		try {
 			List<String> freeIdents = EventBUtils.getFreeIdentifiers(inv);
@@ -1114,7 +918,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            expected CSV string.
 	 */
-	private void testIdentsToCSVString(String message, String srcStr,
+	private static void testIdentsToCSVString(String message, String srcStr,
 			Formula<? extends Formula<?>> formula, String expected) {
 		FreeIdentifier[] idents = formula.getFreeIdentifiers();
 		assertEquals(message + ": Incorrect CSV string", expected, EventBUtils
@@ -1163,7 +967,7 @@ public class EventBUtilsTests extends EventBTests {
 	 * @param expected
 	 *            expected CSV string.
 	 */
-	private void testIdentsToPrimedCSVString(String message, String srcStr,
+	private static void testIdentsToPrimedCSVString(String message, String srcStr,
 			Formula<? extends Formula<?>> formula, String expected) {
 		FreeIdentifier[] idents = formula.getFreeIdentifiers();
 		assertEquals(message + ": Incorrect CSV string", expected, EventBUtils

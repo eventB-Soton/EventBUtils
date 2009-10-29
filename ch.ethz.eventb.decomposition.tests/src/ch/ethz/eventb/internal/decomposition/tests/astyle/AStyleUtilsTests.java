@@ -1,6 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Zurich.
- * 
+ * Copyright (c) 2009 ETH Zurich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,12 +8,12 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
-
 package ch.ethz.eventb.internal.decomposition.tests.astyle;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.IAction;
 import org.eventb.core.IEvent;
@@ -24,13 +23,14 @@ import org.eventb.core.IConvergenceElement.Convergence;
 import org.junit.Test;
 import org.rodinp.core.RodinDBException;
 
-import ch.ethz.eventb.internal.decomposition.astyle.AStyleUtils;
-import ch.ethz.eventb.internal.decomposition.tests.AbstractDecompositionTests;
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
 import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
+import ch.ethz.eventb.internal.decomposition.astyle.AStyleUtils;
+import ch.ethz.eventb.internal.decomposition.tests.AbstractDecompositionTests;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -357,33 +357,13 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 		Set<String> vars;
 		try {
 			vars = AStyleUtils.getSharedVariables(modelDecomp3);
-			assertEqualsVariables("", vars, "u", "v");
+			assertSameStrings("Shared Variables", "variable", vars, "u", "v");
 			vars = AStyleUtils.getSharedVariables(modelDecomp1);
-			assertEqualsVariables("", vars);
+			assertSameStrings("Shared Variables", "variable", vars);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
 			return;
-		}
-	}
-
-	/**
-	 * Utility method to compare two sets of variables (in {@link String}).
-	 * 
-	 * @param message
-	 *            a message.
-	 * @param actual
-	 *            actual set of variables.
-	 * @param expected
-	 *            expected array of variables.
-	 */
-	private void assertEqualsVariables(String message, Set<String> actual,
-			String... expected) {
-		assertEquals(message + ": Incorrect number of expected variables",
-				expected.length, actual.size());
-		for (String exp : expected) {
-			assertTrue(message + ": Expected variable " + exp + " not found",
-					actual.contains(exp));
 		}
 	}
 }

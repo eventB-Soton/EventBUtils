@@ -1,6 +1,5 @@
 /*******************************************************************************
  * Copyright (c) 2009 Systerel and others.
- * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +8,6 @@
  * Contributors:
  *     Systerel - initial API and implementation
  ******************************************************************************/
-
 package ch.ethz.eventb.internal.decomposition.tests.sc;
 
 import org.eventb.core.IEventBProject;

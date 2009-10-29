@@ -1,6 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Zurich.
- * 
+ * Copyright (c) 2009 ETH Zurich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,16 +8,24 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
-
 package ch.ethz.eventb.internal.decomposition.tests;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eventb.core.EventBPlugin;
+import org.eventb.core.IAxiom;
+import org.eventb.core.ICarrierSet;
+import org.eventb.core.IConstant;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
+import org.eventb.core.IIdentifierElement;
 import org.eventb.core.IInvariant;
 import org.eventb.core.IMachineRoot;
+import org.eventb.core.IPredicateElement;
+import org.eventb.core.ISeesContext;
 import org.eventb.core.IConvergenceElement.Convergence;
 import org.junit.Test;
 import org.rodinp.core.RodinDBException;
@@ -26,6 +33,8 @@ import org.rodinp.core.RodinDBException;
 import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.internal.decomposition.DecompositionUtils;
+import ch.ethz.eventb.internal.decomposition.astyle.AStyleUtils;
+import ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
@@ -35,6 +44,9 @@ import ch.ethz.eventb.internal.decomposition.utils.Messages;
  *         </p>
  */
 public class DecompositionUtilsTests extends AbstractDecompositionTests {
+
+	private static final String DECOMPOSED_MCH_NAME = "decomposed";
+	private static final String DECOMPOSED_MCH_NAME_EXT = EventBPlugin.getMachineFileName(DECOMPOSED_MCH_NAME);
 
 	/**
 	 * Test method for {@link DecompositionUtils#getAccessedVariables()}.
@@ -120,27 +132,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			fail("Get accessed variables: There should be no exception");
 			return;
 		}
-		assertEqualsVariables(message, expected, vars);
-	}
-
-	/**
-	 * Utility method to compare two set of variables (in {@link String}).
-	 * 
-	 * @param message
-	 *            a message.
-	 * @param expected
-	 *            expected array of variables.
-	 * @param actual
-	 *            actual set of variables.
-	 */
-	private void assertEqualsVariables(String message, String[] expected,
-			Set<String> actual) {
-		assertEquals(message + ": Incorrect number of expected variables",
-				expected.length, actual.size());
-		for (String exp : expected) {
-			assertTrue(message + ": Expected variable " + exp + " not found",
-					actual.contains(exp));
-		}
+		assertSameStrings("Accessed Variables", "variable", vars, expected);
 	}
 
 	/**
@@ -370,4 +362,102 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 		assertTrue("The destination event should be external", destElt
 				.isExternal());
 	}
+	
+	private static void assertIdentifiers(String message, String type,
+			IIdentifierElement[] actual, String... expected)
+			throws RodinDBException {
+		final Set<String> idents = new HashSet<String>();
+		for (IIdentifierElement element : actual) {
+			idents.add(element.getIdentifierString());
+		}
+		assertSameStrings(message, type, idents, expected);
+	}
+	
+	private static void assertPredicates(String message, String type,
+			IPredicateElement[] actual, String... expected)
+			throws RodinDBException {
+		final Set<String> predicates = new HashSet<String>();
+		for (IPredicateElement element : actual) {
+			predicates.add(element.getPredicateString());
+		}
+		assertSameStrings(message, type, predicates, expected);
+	}
+	
+	
+	private static <T> T[] ls(T... t) {
+		return t;
+	}
+	
+	/**
+	 * Test method for
+	 * {@link AStyleUtils#decomposeContexts(IMachineRoot, ISubModel, IProgressMonitor)}
+	 */
+	@Test
+	public void testDecomposeContexts1() throws Exception {
+		final ModelDecomposition modelDecomp = new ModelDecomposition(mch1_1);
+		final ISubModel subModel = modelDecomp.addSubModel();
+		mch1_1.getRodinFile().copy(P2.getRodinProject(), null, DECOMPOSED_MCH_NAME_EXT, false, null);
+		final IMachineRoot decomposedMch = P2.getMachineRoot(DECOMPOSED_MCH_NAME);
+		decomposedMch.getEvent(evt1_1_3.getElementName()).delete(true, null);
+		deleteSeesClauses(decomposedMch);
+		
+		doTestDecompContext(decomposedMch, subModel, ls("a","b"), ls("S"),ls("a ∈ S","b ∈ S","a ≠ b"));
+	}
+
+	/**
+	 * Test method for
+	 * {@link AStyleUtils#decomposeContexts(IMachineRoot, ISubModel, IProgressMonitor)}
+	 */
+	@Test
+	public void testDecomposeContexts2() throws Exception {
+		final ModelDecomposition modelDecomp = new ModelDecomposition(mch1_3);
+		final ISubModel subModel = modelDecomp.addSubModel();
+		mch1_3.getRodinFile().copy(P2.getRodinProject(), null, DECOMPOSED_MCH_NAME_EXT, false, null);
+		final IMachineRoot decomposedMch = P2.getMachineRoot(DECOMPOSED_MCH_NAME);
+		decomposedMch.getEvent(evt1_3_1.getElementName()).delete(true, null);
+		decomposedMch.getEvent(evt1_3_2.getElementName()).delete(true, null);
+		deleteSeesClauses(decomposedMch);
+		
+		doTestDecompContext(decomposedMch, subModel,
+				ls("a", "b", "c", "e", "g", "h"),
+				ls("S", "U", "V"),
+				ls("a ∈ S","b ∈ S","c ∈ S","partition(S, {a}, {b}, {c})", "a ≠ b",
+						"e ∈ U","g ∈ V","h ∈ V","partition(V, {g}, {h})", "g ≠ h"));
+	}
+
+	private static void deleteSeesClauses(IMachineRoot mchRoot)
+			throws RodinDBException {
+		final ISeesContext[] seesClauses = mchRoot.getSeesClauses();
+		for (ISeesContext seesContext : seesClauses) {
+			seesContext.delete(true, null);
+		}
+	}
+
+	private void doTestDecompContext(IMachineRoot decomposedMch, ISubModel subModel,
+			String[] expectedConstants, String[] expectedSets,
+			String[] expectedAxioms) {
+		try {
+			ctx2_1.clear(true, null);
+			AStyleUtils.decomposeContext(ctx2_1, decomposedMch, subModel,
+					new NullProgressMonitor());
+
+			// Test constants
+			IConstant[] constants = ctx2_1.getConstants();
+			assertIdentifiers("decomposing context", "constant", constants, expectedConstants);
+
+			// Test carrier sets
+			final ICarrierSet[] carrierSets = ctx2_1.getCarrierSets();
+			assertIdentifiers("decomposing context", "carrier set", carrierSets, expectedSets);
+			
+			// Test  axioms
+			final IAxiom[] axioms = ctx2_1.getAxioms();
+			assertPredicates("decomposing context", "axiom", axioms, expectedAxioms);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Decompose contexts: There should be no exception");
+		}
+	}
+
+
 }

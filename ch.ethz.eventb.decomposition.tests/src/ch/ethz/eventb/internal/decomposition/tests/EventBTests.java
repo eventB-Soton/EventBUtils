@@ -1,6 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Zurich.
- * 
+ * Copyright (c) 2009 ETH Zurich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,8 +8,10 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
-
 package ch.ethz.eventb.internal.decomposition.tests;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.IAction;
@@ -34,6 +35,29 @@ import org.junit.Before;
  *         </p>
  */
 public abstract class EventBTests extends AbstractEventBTests {
+
+	/**
+	 * Utility method to compare two string collections.
+	 * 
+	 * @param message
+	 *            a message
+	 * @param type
+	 *            the type of items in collections
+	 * @param actual
+	 *            actual set of variables.
+	 * @param expected
+	 *            expected array of variables.
+	 */
+	protected static void assertSameStrings(String message, String type,
+			Collection<String> actual, String... expected) {
+		assertEquals(message + ": Incorrect number of " + type + "s\n"
+				+ Arrays.toString(actual.toArray(new String[actual.size()])),
+				expected.length, actual.size());
+		for (String exp : expected) {
+			assertTrue(message + ": Expected " + type + " " + exp
+					+ " not found", actual.contains(exp));
+		}
+	}
 
 	/**
 	 * Some predefined projects.
@@ -638,6 +662,11 @@ public abstract class EventBTests extends AbstractEventBTests {
 		//   extended
 		// STATUS ordinary
 		// REFINES evt1_2_4
+		// ANY r
+		// WHEN
+		//   grd1_3_4_1: r ∈ ℕ
+		//   grd1_3_4_2: p(r) = g
+		//   act1_3_4_1: p(r) ≔ h
 		evt1_3_4 = createEvent(mch1_3, "evt1_3_4");
 		evt1_3_4.setExtended(true, new NullProgressMonitor());
 		createRefinesEventClause(evt1_3_4, "evt1_2_4");
