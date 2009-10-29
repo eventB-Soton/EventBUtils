@@ -1,6 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Zurich.
- * 
+ * Copyright (c) 2009 ETH Zurich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +7,7 @@
  *
  * Contributors:
  *     ETH Zurich - initial API and implementation
+ *     Systerel - implemented context decomposition
  *******************************************************************************/
 
 package ch.ethz.eventb.internal.decomposition;
@@ -35,11 +35,14 @@ public abstract class DefaultModelDecomposition implements IModelDecomposition {
 	/** A list of sub-models. */
 	private List<ISubModel> subModels;
 
+	private ContextDecomposition contextDecomposition;
+
 	/**
 	 * Constructor. Creates a model decomposition.
 	 */
 	public DefaultModelDecomposition() {
 		subModels = new ArrayList<ISubModel>();
+		contextDecomposition = ContextDecomposition.MINIMAL_FLATTENED_CONTEXT;
 	}
 
 	/**
@@ -78,5 +81,14 @@ public abstract class DefaultModelDecomposition implements IModelDecomposition {
 	public final void removeSubModel(final ISubModel model) {
 		subModels.remove(model);
 		return;
+	}
+	
+	public ContextDecomposition getContextDecomposition() {
+		return contextDecomposition;
+	}
+	
+	public void setContextDecomposition(
+			ContextDecomposition contextDecomposition) {
+		this.contextDecomposition = contextDecomposition;
 	}
 }

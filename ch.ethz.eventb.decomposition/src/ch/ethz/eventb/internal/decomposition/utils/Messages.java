@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2009 ETH Systerel and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Systerel - initial API and implementation
+ *******************************************************************************/
 package ch.ethz.eventb.internal.decomposition.utils;
 
 import org.eclipse.osgi.util.NLS;
@@ -10,12 +20,16 @@ public final class Messages extends NLS {
 	public static String button_edit;
 	
 	public static String label_available;
+
+	public static String label_decomposedContextName;
 	public static String label_selected;
 	public static String label_project;
 	public static String label_machine;
 	public static String label_style;
 
 	public static String wizard_name;
+	public static String wizard_decomposeContextsLabel;
+
 	public static String wizard_description;
 	public static String wizard_title;
 	public static String wizard_machine;
@@ -25,6 +39,8 @@ public final class Messages extends NLS {
 	public static String wizard_style;
 
 	public static String decomposition_forbidden;
+	public static String decomposition_decomposeContexts;
+
 	public static String decomposition_defaultproject;
 	public static String decomposition_description;
 	public static String decomposition_cleanup;
@@ -44,6 +60,7 @@ public final class Messages extends NLS {
 	public static String decomposition_variable;
 	public static String decomposition_variables;
 	public static String decomposition_error_existingmachine;
+	public static String decomposition_error_existingcontext;
 	public static String decomposition_error_existingproject;
 	public static String decomposition_astyle;
 	public static String decomposition_bstyle;

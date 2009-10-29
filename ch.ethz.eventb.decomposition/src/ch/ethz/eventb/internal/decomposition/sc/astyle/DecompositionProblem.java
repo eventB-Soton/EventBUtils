@@ -1,6 +1,5 @@
 /*******************************************************************************
  * Copyright (c) 2009 Systerel and others.
- * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +48,7 @@ public enum DecompositionProblem implements IRodinProblem {
 	private DecompositionProblem(int severity, String message) {
 		this.severity = severity;
 		this.message = message;
-		this.errorCode = DecompositionPlugin.PLUGIN_ID + "." + name();
+		this.errorCode = DecompositionPlugin.PLUGIN_ID + "." + name(); //$NON-NLS-1$
 		this.arity = -1;
 	}
 

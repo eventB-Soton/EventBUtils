@@ -1,13 +1,13 @@
 /*****************************************************************************
- * Copyright (c) 2009 Systerel.
+ * Copyright (c) 2009 Systerel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
  * Contributors:
  *     Systerel - initial API and implementation
  ****************************************************************************/
-
 package ch.ethz.eventb.decomposition.astyle;
 
 import org.rodinp.core.IAttributeType;
@@ -25,11 +25,11 @@ public interface AStyleAttributes {
 	 * The attribute used to tag the events as internal or external.
 	 */
 	IAttributeType.Boolean EXTERNAL_ATTRIBUTE = RodinCore
-			.getBooleanAttrType(DecompositionPlugin.PLUGIN_ID + ".external");
+			.getBooleanAttrType(DecompositionPlugin.PLUGIN_ID + ".external"); //$NON-NLS-1$
 
 	/**
 	 * The attribute used to tag the variables as private or shared.
 	 */
 	IAttributeType.Integer NATURE_ATTRIBUTE = RodinCore
-			.getIntegerAttrType(DecompositionPlugin.PLUGIN_ID + ".nature");
+			.getIntegerAttrType(DecompositionPlugin.PLUGIN_ID + ".nature"); //$NON-NLS-1$
 }

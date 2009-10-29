@@ -1,6 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Zurich.
- * 
+ * Copyright (c) 2009 ETH Zurich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +7,7 @@
  *
  * Contributors:
  *     ETH Zurich - initial API and implementation
+ *     Systerel - implemented context decomposition
  *******************************************************************************/
 
 package ch.ethz.eventb.decomposition;
@@ -27,6 +27,10 @@ import ch.ethz.eventb.internal.decomposition.utils.Messages;
  *         </p>
  */
 public interface IModelDecomposition {
+
+	public static enum ContextDecomposition {
+		NO_DECOMPOSITION, MINIMAL_FLATTENED_CONTEXT, CONTEXT_SELECTION,
+	}
 
 	/**
 	 * The A-style decomposition.
@@ -81,7 +85,22 @@ public interface IModelDecomposition {
 	 * @return the decomposition style.
 	 */
 	String getStyle();
+	
+	/**
+	 * Returns the type of context decomposition.
+	 * 
+	 * @return the type of context decomposition
+	 */
+	ContextDecomposition getContextDecomposition();
 
+	/**
+	 * Sets the type of context decomposition
+	 * 
+	 * @param contextDecomposition
+	 *            the type of context decomposition
+	 */
+	void setContextDecomposition(ContextDecomposition contextDecomposition);
+	
 	/**
 	 * Performs the decomposition.
 	 * 

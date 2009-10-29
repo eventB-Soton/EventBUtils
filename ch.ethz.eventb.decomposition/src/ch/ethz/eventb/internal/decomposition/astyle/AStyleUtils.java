@@ -1,11 +1,13 @@
 /*****************************************************************************
- * Copyright (c) 2009 ETH Zurich.
+ * Copyright (c) 2009 ETH Zurich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
  * Contributors:
  *     ETH Zurich - initial API and implementation
+ *     Systerel - implemented context decomposition
  ****************************************************************************/
 
 package ch.ethz.eventb.internal.decomposition.astyle;
@@ -20,11 +22,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eventb.core.IAction;
+import org.eventb.core.IContextRoot;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
 import org.eventb.core.IGuard;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IParameter;
+import org.eventb.core.ISeesContext;
 import org.eventb.core.IVariable;
 import org.eventb.core.ast.Assignment;
 import org.eventb.core.ast.BecomesEqualTo;
@@ -39,6 +43,7 @@ import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.decomposition.IModelDecomposition;
 import ch.ethz.eventb.decomposition.ISubModel;
+import ch.ethz.eventb.decomposition.IModelDecomposition.ContextDecomposition;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
@@ -120,7 +125,7 @@ public final class AStyleUtils extends DecompositionUtils {
 		for (ISubModel subModel : subModels) {
 			// For each distribution, create the corresponding model.
 			monitor.subTask(Messages.decomposition_submodel);
-			createSubModel(subModel, new SubProgressMonitor(monitor, 1));
+			createSubModel(subModel, modelDecomp.getContextDecomposition(), new SubProgressMonitor(monitor, 1));
 		}
 		monitor.done();
 		return;
@@ -136,8 +141,10 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static void createSubModel(final ISubModel subModel,
+	private static void createSubModel(final ISubModel subModel, ContextDecomposition contextDecomp,
 			final SubProgressMonitor monitor) throws RodinDBException {
+		// TODO manage monitor cancellation
+		
 		// Monitor has 8 works.
 		monitor.beginTask(Messages.decomposition_submodel, 8);
 		IMachineRoot src = subModel.getMachineRoot();
@@ -148,36 +155,62 @@ public final class AStyleUtils extends DecompositionUtils {
 				.getProjectName(), monitor);
 		monitor.worked(1);
 
-		// 2: Copy contexts from the original project
-		monitor.subTask(Messages.decomposition_contexts);
-		EventBUtils.copyContexts(src.getEventBProject(), prj, monitor);
-		monitor.worked(1);
-
-		// 3: Create machine.
+		// 2: Create machine.
 		monitor.subTask(Messages.decomposition_machine);
 		IMachineRoot dest = EventBUtils.createMachine(prj,
 				src.getElementName(), monitor);
 		monitor.worked(1);
 
-		// 4: Copy SEES clauses.
-		monitor.subTask(Messages.decomposition_seesclauses);
-		EventBUtils.copySeesClauses(src, dest, monitor);
-		monitor.worked(1);
-
-		// 5: Create variables.
+		// 3: Create variables.
 		monitor.subTask(Messages.decomposition_variables);
 		AStyleUtils.decomposeVariables(dest, subModel, new SubProgressMonitor(
 				monitor, 1));
 
-		// 6: Create invariants.
+		// 4: Create invariants.
 		monitor.subTask(Messages.decomposition_invariants);
 		AStyleUtils.decomposeInvariants(dest, subModel, new SubProgressMonitor(
 				monitor, 1));
 
-		// 7: Create events.
+		// 5: Create events.
 		monitor.subTask(Messages.decomposition_external);
 		AStyleUtils.decomposeEvents(dest, subModel, new SubProgressMonitor(
 				monitor, 1));
+
+		// 6: Copy or decompose contexts from the original project
+		// 7: Make SEES clauses.
+		final String flattenedContextName = Messages.label_decomposedContextName; // TODO better idea ?
+		switch(contextDecomp) {
+		case NO_DECOMPOSITION:
+			monitor.subTask(Messages.decomposition_contexts);
+			EventBUtils.copyContexts(src.getEventBProject(), prj, monitor);
+			monitor.worked(1);
+
+			monitor.subTask(Messages.decomposition_seesclauses);
+			EventBUtils.copySeesClauses(src, dest, monitor);
+			monitor.worked(1);
+			break;
+		case MINIMAL_FLATTENED_CONTEXT:
+			monitor.subTask(Messages.decomposition_contexts);
+			final IContextRoot ctx = EventBUtils.createContext(prj,
+					flattenedContextName, monitor);
+			decomposeContext(ctx, dest, subModel, new SubProgressMonitor(monitor, 1));
+			if (!ctx.hasChildren()) {
+				// empty context => remove it and do not create sees clause
+				ctx.getRodinFile().delete(false, monitor);
+				break;
+			}
+			ctx.getRodinFile().save(new SubProgressMonitor(monitor, 1), false);
+
+			monitor.subTask(Messages.decomposition_seesclauses);
+			final ISeesContext sees = dest.createChild(
+					ISeesContext.ELEMENT_TYPE, null, monitor);
+			sees.setSeenContextName(flattenedContextName, monitor);
+			monitor.worked(1);
+			break;
+		default:
+			assert false;
+			break;
+		}
 
 		// 8: Save the resulting sub-model.
 		dest.getRodinFile().save(new SubProgressMonitor(monitor, 1), false);

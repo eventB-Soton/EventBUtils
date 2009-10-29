@@ -1,7 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2009 ETH Zurich and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     ETH Zurich - initial API and implementation
+ *     Systerel - added context related methods, used symbol tables
+ *******************************************************************************/
 package ch.ethz.eventb.internal.decomposition.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -15,13 +27,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eventb.core.IAction;
-import org.eventb.core.IAxiom;
 import org.eventb.core.ICarrierSet;
 import org.eventb.core.IConfigurationElement;
 import org.eventb.core.IConstant;
 import org.eventb.core.IContextRoot;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
+import org.eventb.core.IEventBRoot;
 import org.eventb.core.IExtendsContext;
 import org.eventb.core.IGuard;
 import org.eventb.core.IIdentifierElement;
@@ -31,10 +43,12 @@ import org.eventb.core.IMachineRoot;
 import org.eventb.core.IParameter;
 import org.eventb.core.IRefinesEvent;
 import org.eventb.core.IRefinesMachine;
+import org.eventb.core.ISCContextRoot;
+import org.eventb.core.ISCIdentifierElement;
 import org.eventb.core.ISCMachineRoot;
-import org.eventb.core.ISCVariable;
 import org.eventb.core.ISeesContext;
 import org.eventb.core.ast.Assignment;
+import org.eventb.core.ast.Expression;
 import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.ast.FreeIdentifier;
 import org.eventb.core.ast.Predicate;
@@ -51,6 +65,8 @@ import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.decomposition.DecompositionPlugin;
 import ch.ethz.eventb.decomposition.IDecomposedElement;
+import ch.ethz.eventb.internal.decomposition.utils.symbols.ContextSymbolGatherer;
+import ch.ethz.eventb.internal.decomposition.utils.symbols.SymbolTable;
 
 /**
  * @author htson
@@ -61,17 +77,19 @@ import ch.ethz.eventb.decomposition.IDecomposedElement;
  */
 public final class EventBUtils {
 
+	private static final FormulaFactory FORMULA_FACTORY = FormulaFactory.getDefault();
+
 	/**
 	 * Configuration used by the static checker.
 	 */
 	public static final String DECOMPOSITION_CONFIG_SC = DecompositionPlugin.PLUGIN_ID
-			+ ".mchBase";
+			+ ".mchBase"; //$NON-NLS-1$
 
 	/**
 	 * Configuration used by the proof obligation generator.
 	 */
 	public static final String DECOMPOSITION_CONFIG_POG = DecompositionPlugin.PLUGIN_ID
-			+ ".pogConfig";
+			+ ".pogConfig"; //$NON-NLS-1$
 
 	private EventBUtils() {
 		// Utility classes shall not have a public or default constructor.
@@ -137,14 +155,7 @@ public final class EventBUtils {
 	 *            the progress monitor used to create this machine.
 	 * @return the handle to newly created machine.
 	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>creating a new machine
-	 *             {@link IRodinFile#create(boolean, IProgressMonitor)}.</li>
-	 *             <li>setting the configuration for the created machine
-	 *             {@link IConfigurationElement#setConfiguration(String, IProgressMonitor)}
-	 *             .</li>
-	 *             </ul>
+	 *             if there are problems accessing the database
 	 */
 	public static IMachineRoot createMachine(final IEventBProject project,
 			final String fileName, final IProgressMonitor monitor)
@@ -156,7 +167,48 @@ public final class EventBUtils {
 		machine.create(false, new NullProgressMonitor());
 		IMachineRoot root = (IMachineRoot) machine.getRoot();
 
-		// Tag the machine as decomposed and generated
+		setDecomposed(root, monitor);
+
+		monitor.worked(1);
+		monitor.done();
+		return (IMachineRoot) root;
+	}
+
+	/**
+	 * Utility method to create a new context (*.buc) with the given name within
+	 * an existing project. There must be no existing construct with the same
+	 * bare-name. The context is tagged as generated.
+	 * 
+	 * @param project
+	 *            The Event-B project
+	 * @param fileName
+	 *            the full name with of the new context
+	 * @param monitor
+	 *            the progress monitor used to create this context
+	 * @return the handle to newly created context
+	 * @throws RodinDBException
+	 *             if there are problems accessing the database
+	 */
+	public static IContextRoot createContext(final IEventBProject project,
+			final String fileName, final IProgressMonitor monitor)
+			throws RodinDBException {
+		monitor.beginTask(Messages.decomposition_contexts, 1);
+		IRodinFile context = project.getContextFile(fileName);
+		Assert.isTrue(!context.exists(),
+				Messages.decomposition_error_existingmachine);
+		context.create(false, new NullProgressMonitor());
+		IContextRoot root = (IContextRoot) context.getRoot();
+
+		setDecomposed(root, monitor);
+
+		monitor.worked(1);
+		monitor.done();
+		return root;
+	}
+
+	private static void setDecomposed(IEventBRoot root,
+			final IProgressMonitor monitor) throws RodinDBException {
+		// Tag the root as decomposed and generated
 		IDecomposedElement elt = (IDecomposedElement) root
 				.getAdapter(IDecomposedElement.class);
 		elt.setDecomposed(monitor);
@@ -164,10 +216,6 @@ public final class EventBUtils {
 		// Set the configuration
 		((IConfigurationElement) root).setConfiguration(
 				DECOMPOSITION_CONFIG_SC, monitor);
-
-		monitor.worked(1);
-		monitor.done();
-		return (IMachineRoot) root;
 	}
 
 	/**
@@ -256,137 +304,10 @@ public final class EventBUtils {
 	}
 
 	/**
-	 * Utility method to flatten a context. This is done by merging the context
-	 * with the content (carrier sets, constants and axioms) of flattened
-	 * abstract contexts.
-	 * 
-	 * @param ctx
-	 *            a context.
-	 * @return a flatten version of the input context.
-	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>getting the EXTENDS clause of the input context
-	 *             {@link IContextRoot#getExtendsClauses()}.</li>
-	 *             <li>getting the abstract context name of the EXTENDS clause
-	 *             of the input context
-	 *             {@link IExtendsContext#getAbstractContextName()}.</li>
-	 *             <li>merging the input context with any abstract context
-	 *             {@link #merge(IContextRoot, IContextRoot)}.</li>
-	 *             <li>deleting the EXTENDS clauses of the input context
-	 *             {@link IExtendsContext#delete(boolean, IProgressMonitor)}.</li>
-	 *             </ul>
-	 */
-	public static IContextRoot flatten(IContextRoot ctx)
-			throws RodinDBException {
-		IExtendsContext[] extClauses = ctx.getExtendsClauses();
-		for (int i = extClauses.length - 1; 0 <= i; i--) {
-			IExtendsContext extClause = extClauses[i];
-			String absCtxName = extClause.getAbstractContextName();
-			IEventBProject prj = ctx.getEventBProject();
-			IContextRoot absCtx = (IContextRoot) prj.getContextFile(absCtxName)
-					.getRoot();
-			ctx = merge(ctx, flatten(absCtx));
-			extClause.delete(false, new NullProgressMonitor());
-		}
-		return ctx;
-	}
-
-	/**
-	 * Utility method to merge two contexts by copying the content of the source
-	 * context into the destination context. The contents of the source context
-	 * is copied to the beginning of the destination context.
-	 * 
-	 * @param dest
-	 *            destination context.
-	 * @param src
-	 *            source context.
-	 * @return the merged context.
-	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>getting the carrier sets of the source context
-	 *             {@link IContextRoot#getCarrierSets()}.</li>
-	 *             <li>creating a new carrier set/constant/axiom in the
-	 *             destination context
-	 *             {@link IContextRoot#createChild(org.rodinp.core.IInternalElementType, IInternalElement, IProgressMonitor)}.
-	 *             <li>
-	 *             <li>setting the identifier string of the created carrier set
-	 *             {@link ICarrierSet#setIdentifierString(String, IProgressMonitor)}
-	 *             .</li>
-	 *             <li>getting the constants of the source context
-	 *             {@link IContextRoot#getConstants()}.</li>
-	 *             <li>setting the identifier string of the created constant
-	 *             {@link IConstant#setIdentifierString(String, IProgressMonitor)}
-	 *             .</li>
-	 *             <li>getting the axioms of the source context
-	 *             {@link IContextRoot#getAxioms()}.</li>
-	 *             <li>setting the label of the created axiom
-	 *             {@link IAxiom#setLabel(String, IProgressMonitor)}.</li>
-	 *             <li>setting the predicate string of the created axiom
-	 *             {@link IAxiom#setPredicateString(String, IProgressMonitor)}.</li>
-	 *             <li>setting the theorem of the created axiom
-	 *             {@link IAxiom#setTheorem(boolean, IProgressMonitor)}.</li>
-	 *             </ul>
-	 */
-	public static IContextRoot merge(final IContextRoot dest,
-			final IContextRoot src) throws RodinDBException {
-		// Get the first current carrier set.
-		ICarrierSet fstSet = null;
-		ICarrierSet[] currSets = dest.getCarrierSets();
-		if (currSets.length != 0) {
-			fstSet = currSets[0];
-		}
-
-		// Copy carrier sets from the source context.
-		ICarrierSet[] sets = src.getCarrierSets();
-		for (ICarrierSet set : sets) {
-			ICarrierSet newSet = dest.createChild(ICarrierSet.ELEMENT_TYPE,
-					fstSet, new NullProgressMonitor());
-			newSet.setIdentifierString(set.getIdentifierString(),
-					new NullProgressMonitor());
-		}
-
-		// Get the first current constant.
-		IConstant fstCst = null;
-		IConstant[] currCsts = dest.getConstants();
-		if (currCsts.length != 0) {
-			fstCst = currCsts[0];
-		}
-
-		// Copy constants from the source context.
-		IConstant[] csts = src.getConstants();
-		for (IConstant cst : csts) {
-			IConstant newCst = dest.createChild(IConstant.ELEMENT_TYPE, fstCst,
-					new NullProgressMonitor());
-			newCst.setIdentifierString(cst.getIdentifierString(),
-					new NullProgressMonitor());
-		}
-
-		// Get the first current axiom.
-		IAxiom fstAxm = null;
-		IAxiom[] currAxms = dest.getAxioms();
-		if (currAxms.length != 0) {
-			fstAxm = currAxms[0];
-		}
-
-		// Copy axioms from the abstract context.
-		IAxiom[] axms = src.getAxioms();
-		for (IAxiom axm : axms) {
-			IAxiom newAxm = dest.createChild(IAxiom.ELEMENT_TYPE, fstAxm,
-					new NullProgressMonitor());
-			newAxm.setLabel(axm.getLabel(), new NullProgressMonitor());
-			newAxm.setPredicateString(axm.getPredicateString(),
-					new NullProgressMonitor());
-			newAxm.setTheorem(axm.isTheorem(), new NullProgressMonitor());
-		}
-		return dest;
-	}
-
-	/**
 	 * Utility method to get the set of seen carrier sets and constants of a
 	 * machine. This is the set of carrier sets and constants from all the seen
-	 * contexts in the order of the SEES clauses.
+	 * contexts. No assumption should be made concerning the order of returned
+	 * elements.
 	 * 
 	 * @param mch
 	 *            a machine.
@@ -404,18 +325,9 @@ public final class EventBUtils {
 	 */
 	public static List<String> getSeenCarrierSetsAndConstants(
 			final IMachineRoot mch) throws RodinDBException {
-		List<String> result = new ArrayList<String>();
-
-		ISeesContext[] seesClauses = mch.getSeesClauses();
-		for (int i = 0; i < seesClauses.length; i++) {
-			ISeesContext seesClause = seesClauses[i];
-			String seenCtxName = seesClause.getSeenContextName();
-			IEventBProject prj = mch.getEventBProject();
-			IContextRoot ctx = (IContextRoot) prj.getContextFile(seenCtxName)
-					.getRoot();
-			result.addAll(getCarrierSetsAndConstants(ctx));
-		}
-		return result;
+		final Set<IContextRoot> seenContexts = getSeenContexts(mch);
+		final SymbolTable symbolTable = getConstantAndSetSymbols(seenContexts);
+		return new ArrayList<String>(symbolTable.getNames());
 	}
 
 	/**
@@ -441,22 +353,65 @@ public final class EventBUtils {
 	 */
 	public static List<String> getCarrierSetsAndConstants(IContextRoot ctx)
 			throws RodinDBException {
-		List<String> result = new ArrayList<String>();
-		ctx = flatten(ctx);
+		// TODO not used  ? => can be removed 
+		final Set<IContextRoot> contexts = new LinkedHashSet<IContextRoot>();
+		addExtendedContexts(ctx, contexts);
+		contexts.add(ctx);
+		final SymbolTable symbolTable = getConstantAndSetSymbols(contexts);
+		return new ArrayList<String>(symbolTable.getNames());
+	}
 
-		// Copy the carrier sets
-		ICarrierSet[] sets = ctx.getCarrierSets();
-		for (ICarrierSet set : sets) {
-			result.add(set.getIdentifierString());
+	/**
+	 * Returns a set of all contexts seen (directly or not) by the given
+	 * machine.
+	 * 
+	 * @param mch
+	 *            a machine root
+	 * @return a (possibly empty) set of context roots
+	 * @throws RodinDBException
+	 *             if there was a problem accessing the database
+	 */
+	public static Set<IContextRoot> getSeenContexts(IMachineRoot mch)
+			throws RodinDBException {
+		final Set<IContextRoot> seenContexts = new LinkedHashSet<IContextRoot>();
+		final ISeesContext[] seesClauses = mch.getSeesClauses();
+		for (ISeesContext seesContext : seesClauses) {
+			final IContextRoot ctx = seesContext.getSeenContextRoot();
+			addExtendedContexts(ctx, seenContexts);
+			seenContexts.add(ctx);
 		}
+		return seenContexts;
+	}
 
-		// Copy the constant
-		IConstant[] csts = ctx.getConstants();
-		for (IConstant cst : csts) {
-			result.add(cst.getIdentifierString());
+	private static void addExtendedContexts(IContextRoot ctx,
+			Set<IContextRoot> contexts) throws RodinDBException {
+		final IExtendsContext[] extendsClauses = ctx.getExtendsClauses();
+		for (IExtendsContext extendsContext : extendsClauses) {
+			final IContextRoot absCtx = extendsContext.getAbstractContextRoot();
+			addExtendedContexts(absCtx, contexts);
+			contexts.add(absCtx);
 		}
+	}
 
-		return result;
+	/**
+	 * Returns a symbol table containing all sets and constants declared in the
+	 * given contexts.
+	 * 
+	 * @param contexts
+	 *            a set of contexts
+	 * @return a symbol table
+	 * @throws RodinDBException
+	 *             if there was a problem accessing the database
+	 */
+	public static SymbolTable getConstantAndSetSymbols(
+			Set<IContextRoot> contexts) throws RodinDBException {
+		final SymbolTable constantSetSymbols = new SymbolTable();
+		for (IContextRoot ctx : contexts) {
+			final ContextSymbolGatherer ctxSymbGth = new ContextSymbolGatherer(
+					ctx);
+			ctxSymbGth.addDeclaredSymbols(constantSetSymbols);
+		}
+		return constantSetSymbols;
 	}
 
 	/**
@@ -497,7 +452,7 @@ public final class EventBUtils {
 	}
 
 	// =========================================================================
-	// Variables
+	// Variables / Constants
 	// =========================================================================
 	/**
 	 * Gets the predicate string corresponding to a variable identifier given an
@@ -512,35 +467,115 @@ public final class EventBUtils {
 	 *            a variable identifier.
 	 * @return the typing predicate string for the input variable identifier.
 	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>getting the list of static checked variables from the
-	 *             static checked machine
-	 *             {@link ISCMachineRoot#getSCVariables()}.</li>
-	 *             <li>getting the identifier string of any static checked
-	 *             variable {@link ISCVariable#getIdentifierString()}.</li>
-	 *             <li>getting the type of the static checked variable
-	 *             {@link ISCVariable#getType(FormulaFactory)}.</li>
-	 *             </ul>
+	 *             if there are problems accessing the database
 	 */
 	public static String getTypingTheorem(final IMachineRoot src,
 			final String var) throws RodinDBException {
-		if (!src.exists()) {
-			return null;
+		return new VariableTypingTheoremMaker(src).getTypingTheorem(var);
+	}
+
+	public static String getTypingTheorem(IContextRoot src,
+			String cst) throws RodinDBException {
+		return new ConstantTypingTheoremMaker(src).getTypingTheorem(cst);
+	}
+	
+	
+	public static Expression getTypeExpression(IContextRoot src,
+			String cst) throws RodinDBException {
+		return new ConstantTypingTheoremMaker(src).getTypingExpression(cst);
+	}
+
+	public static Expression getTypeExpression(IMachineRoot src,
+			String var) throws RodinDBException {
+		return new VariableTypingTheoremMaker(src).getTypingExpression(var);
+	}
+
+	public static String makeTypingTheorem(String ident,
+			Expression typeExpression) {
+		return ident + " ∈ " //$NON-NLS-1$
+				+ typeExpression;
+	}
+	
+	private static abstract class TypingTheoremMaker<T extends IEventBRoot> {
+		
+		protected final T root;
+		
+		public TypingTheoremMaker(T root) {
+			this.root = root;
 		}
-		ISCMachineRoot mchSC = src.getSCMachineRoot();
-		if (!mchSC.exists()) {
-			return null;
-		}
-		ISCVariable[] varSCs = mchSC.getSCVariables();
-		for (ISCVariable varSC : varSCs) {
-			if (varSC.getIdentifierString().equals(var)) {
-				Type type = varSC.getType(FormulaFactory.getDefault());
-				return var + " ∈ " //$NON-NLS-1$
-						+ type.toExpression(FormulaFactory.getDefault());
+		
+		public Expression getTypingExpression(String ident) throws RodinDBException {
+			if (!root.exists()) {
+				return null;
 			}
+			final ISCIdentifierElement[] scIdents = getSCIdents();
+			if (scIdents == null) {
+				return null;
+			}
+			final ISCIdentifierElement scIdent = findSCIdent(ident, scIdents);
+			if (scIdent == null) {
+				return null;
+			}
+			final Type type = scIdent.getType(FORMULA_FACTORY);
+			final Expression typeExpression = type.toExpression(FORMULA_FACTORY);
+			return typeExpression;
+
 		}
-		return null;
+		
+		public String getTypingTheorem(String ident) throws RodinDBException {
+			final Expression typeExpression = getTypingExpression(ident);
+
+			if (typeExpression == null) {
+				return null;
+			}
+
+			return makeTypingTheorem(ident, typeExpression);
+		}
+
+		protected abstract ISCIdentifierElement[] getSCIdents() throws RodinDBException;
+		
+		private static ISCIdentifierElement findSCIdent(String ident,
+				ISCIdentifierElement[] idents) throws RodinDBException {
+			for (ISCIdentifierElement cstSC : idents) {
+				if (cstSC.getIdentifierString().equals(ident)) {
+					return cstSC;
+				}
+			}
+			return null;
+		}
+
+	}
+	
+	private static class ConstantTypingTheoremMaker extends TypingTheoremMaker<IContextRoot> {
+
+		public ConstantTypingTheoremMaker(IContextRoot root) {
+			super(root);
+		}
+
+		@Override
+		protected ISCIdentifierElement[] getSCIdents() throws RodinDBException {
+			ISCContextRoot ctxSC = root.getSCContextRoot();
+			if (!ctxSC.exists()) {
+				return null;
+			}
+			return ctxSC.getSCConstants();
+		}
+	}
+	
+	private static class VariableTypingTheoremMaker extends TypingTheoremMaker<IMachineRoot> {
+
+		public VariableTypingTheoremMaker(IMachineRoot root) {
+			super(root);
+		}
+
+		@Override
+		protected ISCIdentifierElement[] getSCIdents() throws RodinDBException {
+			ISCMachineRoot mchSC = root.getSCMachineRoot();
+			if (!mchSC.exists()) {
+				return null;
+			}
+			return mchSC.getSCVariables();
+		}
 	}
 
 	// =========================================================================
@@ -567,15 +602,15 @@ public final class EventBUtils {
 	 * machine to a destination machine (recursively).
 	 * 
 	 * @param mch
-	 *            the destination machine.
+	 *            the destination machine
 	 * @param src
-	 *            the source machine.
+	 *            the source machine
 	 * @param vars
-	 *            the set of variables (in {@link String}).
+	 *            the set of variables (in {@link String})
 	 * @param monitor
-	 *            the progress monitor.
+	 *            the progress monitor
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
 	public static void copyInvariants(final IMachineRoot mch,
 			final IMachineRoot src, final Set<String> vars,
@@ -638,22 +673,7 @@ public final class EventBUtils {
 	 *            an event.
 	 * @return the set of free identifiers.
 	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>flattening the input event {@link #flatten(IEvent)}.</li>
-	 *             <li>getting the guards of the input event
-	 *             {@link IEvent#getGuards()}.</li>
-	 *             <li>getting the free identifiers of any guard
-	 *             {@link #getFreeIdentifiers(IGuard)}.</li>
-	 *             <li>getting the actions of the input event
-	 *             {@link IEvent#getActions()}.</li>
-	 *             <li>getting the free identifiers of any action
-	 *             {@link #getFreeIdentifiers(IAction)}.</li>
-	 *             <li>getting the parameters of the input event
-	 *             {@link IEvent#getParameters()}.</li>
-	 *             <li>getting the identifier string of any parameter
-	 *             {@link IParameter#getIdentifierString()}.</li>
-	 *             </ul>
+	 *             if there are problems accessing the database
 	 */
 	public static List<String> getFreeIdentifiers(IEvent evt)
 			throws RodinDBException {
@@ -706,16 +726,7 @@ public final class EventBUtils {
 	 *            an event.
 	 * @return the flatten event.
 	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>getting the extended attribute of the input event
-	 *             {@link IEvent#isExtended()}.</li>
-	 *             <li>getting the abstract of the input event
-	 *             {@link #getAbstract(IEvent)}.</li>
-	 *             <li>flattening the abstract event {@link #flatten(IEvent)}.</li>
-	 *             <li>merging the input event with the flatten version of the
-	 *             abstract event {@link #merge(IEvent, IEvent)}.</li>
-	 *             </ul>
+	 *             if there are problems accessing the database
 	 */
 	public static IEvent flatten(final IEvent evt) throws RodinDBException {
 		if (evt.isExtended()) {
@@ -735,22 +746,7 @@ public final class EventBUtils {
 	 * @return the abstract event of the input event or <code>null</code> if
 	 *         there is none.
 	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>getting the REFINES clause of the input event
-	 *             {@link IEvent#getRefinesClauses()}.</li>
-	 *             <li>getting the abstract event label of the REFINES clause
-	 *             {@link IRefinesEvent#getAbstractEventLabel()}.</li>
-	 *             <li>getting the REFINES clause the machine contains the input
-	 *             event {@link IMachineRoot#getRefinesClauses()}.</li>
-	 *             <li>getting the abstract machine corresponding to the REFINES
-	 *             clause of the machine
-	 *             {@link IRefinesMachine#getAbstractMachine()}.</li>
-	 *             <li>getting the abstract events
-	 *             {@link IMachineRoot#getEvents()}.</li>
-	 *             <li>getting the label of the abstract events
-	 *             {@link IEvent#getLabel()}.</li>
-	 *             </ul>
+	 *             if there are problems accessing the database
 	 */
 	public static IEvent getAbstract(final IEvent event)
 			throws RodinDBException {
@@ -796,41 +792,7 @@ public final class EventBUtils {
 	 *            the source event.
 	 * @return the merged event.
 	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>getting the parameters of the destination event
-	 *             {@link IEvent#getParameters()}.</li>
-	 *             <li>getting the parameters of the source event
-	 *             {@link IEvent#getParameters()}.</li>
-	 *             <li>creating a new parameter/guard/action in the destination
-	 *             event
-	 *             {@link IEvent#createChild(org.rodinp.core.IInternalElementType, IInternalElement, IProgressMonitor)}
-	 *             .</li>
-	 *             <li>setting the identifier string of the created parameter
-	 *             {@link IParameter#setIdentifierString(String, IProgressMonitor)}
-	 *             .</li>
-	 *             <li>getting the guards of the destination event
-	 *             {@link IEvent#getGuards()}.
-	 *             <li>
-	 *             <li>getting the guards of the source event
-	 *             {@link IEvent#getGuards()}.</li>
-	 *             <li>setting the label of the created guard
-	 *             {@link IGuard#setLabel(String, IProgressMonitor)}.</li>
-	 *             <li>setting the predicate string of the created guard
-	 *             {@link IGuard#setPredicateString(String, IProgressMonitor)}.</li>
-	 *             <li>getting the actions of the destination event
-	 *             {@link IEvent#getActions()}.
-	 *             <li>
-	 *             <li>getting the actions of the source event
-	 *             {@link IEvent#getActions()}.</li>
-	 *             <li>setting the label of the created action
-	 *             {@link IAction#setLabel(String, IProgressMonitor)}.</li>
-	 *             <li>setting the assignment of the created action
-	 *             {@link IAction#setAssignmentString(String, IProgressMonitor)}
-	 *             .</li>
-	 *             <li>setting the extended attribute of the destination event
-	 *             {@link IEvent#setExtended(boolean, IProgressMonitor)}.</li>
-	 *             </ul>
+	 *             if there are problems accessing the database
 	 */
 	public static IEvent merge(final IEvent dest, final IEvent src)
 			throws RodinDBException {
@@ -899,9 +861,7 @@ public final class EventBUtils {
 	 * @return the initialization event for the input machine if any, or
 	 *         <code>null</code>.
 	 * @throws RodinDBException
-	 *             if some errors occurred when getting the event with label
-	 *             {@link IEvent#INITIALISATION} (
-	 *             {@link #getEventWithLabel(IMachineRoot, String)}).
+	 *             if there are problems accessing the database
 	 */
 	public static IEvent getInitialisation(final IMachineRoot mch)
 			throws RodinDBException {
@@ -918,13 +878,7 @@ public final class EventBUtils {
 	 * @return the event with the given label of the input machine or
 	 *         <code>null</code> if there is no event with the given label.
 	 * @throws RodinDBException
-	 *             if some errors occurred when
-	 *             <ul>
-	 *             <li>getting the events of the input machine
-	 *             {@link IMachineRoot#getEvents()}.</li>
-	 *             <li>getting the labels of the events
-	 *             {@link IEvent#getLabel()}.</li>
-	 *             </ul>
+	 *             if there are problems accessing the database
 	 */
 	public static IEvent getEventWithLabel(final IMachineRoot mch,
 			final String label) throws RodinDBException {
@@ -971,8 +925,7 @@ public final class EventBUtils {
 	 *            a guard.
 	 * @return the set of free identifiers appearing in the guard.
 	 * @throws RodinDBException
-	 *             if some errors occurred when getting the predicate string of
-	 *             the input guard {@link IGuard#getPredicateString()}.
+	 *             if there are problems accessing the database
 	 */
 	public static List<String> getFreeIdentifiers(final IGuard grd)
 			throws RodinDBException {
@@ -1042,8 +995,7 @@ public final class EventBUtils {
 			String typThm = getTypingTheorem(src, ident);
 			IGuard newGrd = evt.createChild(IGuard.ELEMENT_TYPE, fstGrd,
 					new NullProgressMonitor());
-			newGrd.setLabel(Messages.decomposition_typing + "_" + ident,
-					new NullProgressMonitor());
+			newGrd.setLabel(makeTypingLabel(ident), new NullProgressMonitor());
 			newGrd.setPredicateString(typThm, new NullProgressMonitor());
 			newGrd.setTheorem(true, new NullProgressMonitor());
 		}
@@ -1060,8 +1012,7 @@ public final class EventBUtils {
 	 *            an action.
 	 * @return the set of free identifiers appearing in an action.
 	 * @throws RodinDBException
-	 *             if some error occurred when getting the assignment string of
-	 *             the input action {@link IAction#getAssignmentString()}.
+	 *             if there are problems accessing the database
 	 */
 	public static List<String> getFreeIdentifiers(final IAction act)
 			throws RodinDBException {
@@ -1273,5 +1224,31 @@ public final class EventBUtils {
 		return new RodinDBException(new CoreException(new Status(IStatus.ERROR,
 				DecompositionPlugin.PLUGIN_ID, IStatus.OK, Messages.bind(
 						message, args), null)));
+	}
+
+	/**
+	 * Returns a label with given prefix and postfix and an underline character
+	 * in-between.
+	 * 
+	 * @param prefix
+	 *            a string
+	 * @param postfix
+	 *            a string
+	 * @return a string
+	 */
+	public static String makeLabel(String prefix, String postfix) {
+		return prefix + "_" + postfix; //$NON-NLS-1$
+	}
+
+	/**
+	 * Returns a label starting with the typing prefix and ending with the given
+	 * string
+	 * 
+	 * @param ident
+	 *            a unique identifier designing the typed element
+	 * @return a string
+	 */
+	public static String makeTypingLabel(String ident) {
+		return makeLabel(Messages.decomposition_typing, ident);
 	}
 }

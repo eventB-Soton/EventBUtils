@@ -78,7 +78,7 @@ public interface INatureElement {
 		 */
 		public static Nature valueOf(final int n) {
 			if (n < 0 || n > 1) {
-				throw new IllegalArgumentException("Nature value out of range");
+				throw new IllegalArgumentException("Nature value out of range"); //$NON-NLS-1$
 			}
 			return NATURES[n];
 		}

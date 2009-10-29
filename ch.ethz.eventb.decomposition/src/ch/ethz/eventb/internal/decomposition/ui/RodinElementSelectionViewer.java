@@ -1,6 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Zurich.
- * 
+ * Copyright (c) 2009 ETH Zurich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +8,6 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
-
 package ch.ethz.eventb.internal.decomposition.ui;
 
 import java.util.ArrayList;
@@ -193,7 +191,7 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 
 		// Add button.
 		add = new Button(container, SWT.PUSH);
-		add.setText(">>");
+		add.setText(">>"); //$NON-NLS-1$
 		add.addSelectionListener(new SelectionListener() {
 
 			public void widgetDefaultSelected(final SelectionEvent e) {
@@ -209,7 +207,7 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 
 		// Remove button.
 		remove = new Button(container, SWT.PUSH);
-		remove.setText("<<");
+		remove.setText("<<"); //$NON-NLS-1$
 		remove.addSelectionListener(new SelectionListener() {
 
 			public void widgetDefaultSelected(final SelectionEvent e) {

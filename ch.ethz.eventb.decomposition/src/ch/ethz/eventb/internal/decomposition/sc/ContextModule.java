@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2009 Systerel and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Systerel - initial API and implementation
+ ******************************************************************************/
 package ch.ethz.eventb.internal.decomposition.sc;
 
 import org.eclipse.core.runtime.CoreException;
@@ -37,7 +47,7 @@ public class ContextModule extends SCProcessorModule {
 		String fileName = EventBPlugin.getSCContextFileName(contextRoot
 				.getElementName());
 		IRodinFile scTmpFile = contextRoot.getRodinProject().getRodinFile(
-				fileName + "_tmp");
+				fileName + "_tmp"); //$NON-NLS-1$
 		IConfigurationElement confElement = (IConfigurationElement) scTmpFile
 				.getRoot();
 		confElement.setConfiguration(EventBUtils.DECOMPOSITION_CONFIG_POG,

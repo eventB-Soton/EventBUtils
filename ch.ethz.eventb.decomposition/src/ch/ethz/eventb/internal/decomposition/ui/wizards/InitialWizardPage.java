@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Systerel
+ * Copyright (c) 2009 Systerel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,11 +15,15 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.IModelDecomposition.ContextDecomposition;
 import ch.ethz.eventb.internal.decomposition.ui.DecompositionComboViewer;
 import ch.ethz.eventb.internal.decomposition.ui.StyleSelectionGroup;
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
@@ -75,6 +79,8 @@ public class InitialWizardPage extends WizardPage {
 		IModelDecomposition bDecomp = new ch.ethz.eventb.internal.decomposition.bstyle.ModelDecomposition();
 		styleChooser.add(bDecomp);
 
+		createDecompContextsCheckbox(container);
+		
 		// Update the status.
 		updateStatus(null);
 
@@ -91,6 +97,28 @@ public class InitialWizardPage extends WizardPage {
 		styleGroup.getGroup().setLayoutData(gridData);
 	}
 
+	private void createDecompContextsCheckbox(Composite container) {
+		final Button noDecompContextsCheckBox = new Button(container, SWT.CHECK);
+		GridData gd_addToWorkingSetButton = new GridData(SWT.LEFT, SWT.CENTER,
+				false, false, 3, 1);
+		noDecompContextsCheckBox.setLayoutData(gd_addToWorkingSetButton);
+		noDecompContextsCheckBox.setData("name", "decompContextsButton"); //$NON-NLS-1$ //$NON-NLS-2$
+		noDecompContextsCheckBox.setText(Messages.wizard_decomposeContextsLabel);
+		noDecompContextsCheckBox.setSelection(true);
+		noDecompContextsCheckBox.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				final boolean selected = noDecompContextsCheckBox
+						.getSelection();
+				if (selected) {
+					modelDecomp.setContextDecomposition(ContextDecomposition.NO_DECOMPOSITION);
+				} else {
+					modelDecomp.setContextDecomposition(ContextDecomposition.MINIMAL_FLATTENED_CONTEXT);
+				}
+			}
+		});
+	}
+	
 	/**
 	 * Utility method to update the status message and also set the completeness
 	 * of the page.
