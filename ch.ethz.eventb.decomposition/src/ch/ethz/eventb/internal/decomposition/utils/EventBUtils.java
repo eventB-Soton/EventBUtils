@@ -12,7 +12,6 @@
 package ch.ethz.eventb.internal.decomposition.utils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +50,7 @@ import org.eventb.core.ast.Assignment;
 import org.eventb.core.ast.Expression;
 import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.ast.FreeIdentifier;
+import org.eventb.core.ast.ITypeEnvironment;
 import org.eventb.core.ast.Predicate;
 import org.eventb.core.ast.SourceLocation;
 import org.eventb.core.ast.Type;
@@ -325,11 +325,11 @@ public final class EventBUtils {
 	 *             contexts {@link #getCarrierSetsAndConstants(IContextRoot)}.</li>
 	 *             </ul>
 	 */
-	public static List<String> getSeenCarrierSetsAndConstants(
+	public static Set<String> getSeenCarrierSetsAndConstants(
 			final IMachineRoot mch) throws RodinDBException {
 		final Set<IContextRoot> seenContexts = getSeenContexts(mch);
 		final SymbolTable symbolTable = getConstantAndSetSymbols(seenContexts);
-		return new ArrayList<String>(symbolTable.getNames());
+		return symbolTable.getNames();
 	}
 
 	/**
@@ -353,14 +353,14 @@ public final class EventBUtils {
 	 *             </li>
 	 *             </ul>
 	 */
-	public static List<String> getCarrierSetsAndConstants(IContextRoot ctx)
+	public static Set<String> getCarrierSetsAndConstants(IContextRoot ctx)
 			throws RodinDBException {
-		// TODO not used ? => can be removed
+		// TODO not used  ? => can be removed 
 		final Set<IContextRoot> contexts = new LinkedHashSet<IContextRoot>();
 		addExtendedContexts(ctx, contexts);
 		contexts.add(ctx);
 		final SymbolTable symbolTable = getConstantAndSetSymbols(contexts);
-		return new ArrayList<String>(symbolTable.getNames());
+		return symbolTable.getNames();
 	}
 
 	/**
@@ -628,20 +628,73 @@ public final class EventBUtils {
 					.getAbstractMachine().getRoot(), vars, monitor);
 		}
 
+		final Set<String> seenCarrierSetsAndConstants = getSeenCarrierSetsAndConstants(src);
 		// Check local invariants
 		IInvariant[] invs = src.getInvariants();
 		for (IInvariant inv : invs) {
-			if (isRelevant(inv, vars)) {
-				IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE,
+			if (isRelevant(inv, vars, seenCarrierSetsAndConstants)) {
+				final IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE,
 						null, new NullProgressMonitor());
 				newInv.setLabel(src.getComponentName() + "_" + inv.getLabel(), //$NON-NLS-1$
 						new NullProgressMonitor());
 				newInv.setPredicateString(inv.getPredicateString(),
 						new NullProgressMonitor());
 				newInv.setTheorem(inv.isTheorem(), new NullProgressMonitor());
+			} else {
+				addWDTheorems(mch, inv, vars, seenCarrierSetsAndConstants);
 			}
 		}
 
+	}
+
+	// adds WD theorems into mch, deduced from srcInv, which are relevant with
+	// the given set of variables
+	private static void addWDTheorems(IMachineRoot mch, IInvariant srcInv,
+			Set<String> vars, Set<String> seenCarrierSetsAndConstants)
+			throws RodinDBException {
+		final Predicate invWDPred = getWDPredicate(srcInv);
+		if (invWDPred == null) {
+			throw new IllegalArgumentException(
+					"Invariant decomposition: unable to compute WD predicate");
+		}
+		final IMachineRoot src = (IMachineRoot) srcInv.getRoot();
+		final Set<Predicate> invWDPreds = Lib.breakPossibleConjunct(invWDPred);
+		for (Predicate pred : invWDPreds) {
+			if (Lib.isTrue(pred)) {
+				continue;
+			}
+			if (isRelevant(pred, vars, seenCarrierSetsAndConstants)) {
+				// add WD predicate
+				final IInvariant newInv = mch.createChild(
+						IInvariant.ELEMENT_TYPE, null,
+						new NullProgressMonitor());
+				newInv.setLabel("WD" + "_" + src.getComponentName() + "_"
+						+ srcInv.getLabel(), new NullProgressMonitor());
+				newInv.setPredicateString(pred.toString(),
+						new NullProgressMonitor());
+				newInv.setTheorem(true, new NullProgressMonitor());
+			}
+		}
+	}
+
+	private static Predicate getWDPredicate(IInvariant inv)
+			throws RodinDBException {
+		final String predicateString = inv.getPredicateString();
+		final IInternalElement root = inv.getRoot();
+		if (!root.exists()) {
+			return null;
+		}
+		final ISCMachineRoot scRoot = ((IEventBRoot) root)
+				.getSCMachineRoot();
+		if (!scRoot.exists()) {
+			return null;
+		}
+		final ITypeEnvironment typEnv = scRoot.getTypeEnvironment(FORMULA_FACTORY);
+	
+		final Predicate predicate = Lib.parsePredicate(predicateString);
+		final boolean typeCheckClosed = Lib.typeCheckClosed(predicate, typEnv);
+		assert typeCheckClosed;
+		return predicate.getWDPredicate(FORMULA_FACTORY);
 	}
 
 	/**
@@ -658,13 +711,20 @@ public final class EventBUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static boolean isRelevant(final IInvariant inv,
-			final Set<String> vars) throws RodinDBException {
-		Collection<String> idents = getFreeIdentifiers(inv);
+	public static boolean isRelevant(IInvariant inv, Set<String> vars,
+			Set<String> seenCarrierSetsAndConstants) throws RodinDBException {
+		final Predicate predicate = Lib
+				.parsePredicate(inv.getPredicateString());
+		return isRelevant(predicate, vars, seenCarrierSetsAndConstants);
+	}
+	
+	private static boolean isRelevant(Predicate predicate, Set<String> vars,
+			Set<String> seenCarrierSetsAndConstants) throws RodinDBException {
+		final List<String> idents = toStringList(predicate
+				.getSyntacticallyFreeIdentifiers());
 
 		// Remove the seen carrier sets and constants.
-		IMachineRoot mch = (IMachineRoot) inv.getRoot();
-		idents.removeAll(getSeenCarrierSetsAndConstants(mch));
+		idents.removeAll(seenCarrierSetsAndConstants);
 		return vars.containsAll(idents);
 	}
 
@@ -1168,8 +1228,8 @@ public final class EventBUtils {
 	 * @return the set of free identifiers appearing in a predicate string.
 	 */
 	public static List<String> getPredicateFreeIdentifiers(
-			final String predicateString) {
-		Predicate parsePredicate = Lib.parsePredicate(predicateString);
+			String predicateString) {
+		final Predicate parsePredicate = Lib.parsePredicate(predicateString);
 		return toStringList(parsePredicate.getSyntacticallyFreeIdentifiers());
 	}
 

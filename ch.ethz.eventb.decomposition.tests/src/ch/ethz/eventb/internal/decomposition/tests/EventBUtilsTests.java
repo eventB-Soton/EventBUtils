@@ -11,6 +11,7 @@
 package ch.ethz.eventb.internal.decomposition.tests;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.EventBPlugin;
@@ -737,7 +738,7 @@ public class EventBUtilsTests extends EventBTests {
 		testFreeIdentifiers(message, freeIdents, expected);
 	}
 
-	private static void assertSeenSetsAndConstants(List<String> idents,
+	private static void assertSeenSetsAndConstants(Set<String> idents,
 			String... expected) {
 		assertSameStrings("Seen sets and constants", "identifier", idents, expected);
 	}
@@ -774,7 +775,7 @@ public class EventBUtilsTests extends EventBTests {
 	private static void testGetMachineSeenCarrierSetsAndConstants(String message,
 			IMachineRoot mch, String... expected) {
 		try {
-			List<String> idents = EventBUtils
+			Set<String> idents = EventBUtils
 					.getSeenCarrierSetsAndConstants(mch);
 			assertSeenSetsAndConstants(idents, expected);
 		} catch (RodinDBException e) {
@@ -814,7 +815,7 @@ public class EventBUtilsTests extends EventBTests {
 	private static void testGetContextCarrierSetsAndConstants(String message,
 			IContextRoot ctx, String... expected) {
 		try {
-			List<String> idents = EventBUtils.getCarrierSetsAndConstants(ctx);
+			Set<String> idents = EventBUtils.getCarrierSetsAndConstants(ctx);
 			assertSeenSetsAndConstants(idents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();

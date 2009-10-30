@@ -13,6 +13,7 @@ package ch.ethz.eventb.internal.decomposition.tests;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.EventBPlugin;
@@ -193,6 +194,40 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				"mch1_3_inv1_3_5: p ∈ ℕ → V: false");
 	}
 
+	/**
+	 * Test method for
+	 * {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
+	 * Related to WD invariant creation
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testCreateWDInvariants() throws Exception {
+		final String mchName = "mch1_4";
+		final IMachineRoot mch = createMachine(P1, mchName);
+		createVariable(mch, "x");
+		createVariable(mch, "y");
+		createInvariant(mch, "inv1", "0 < x + y", false);
+		final String inv2Label = "inv2";
+		// invariant with WD: x≠0 ∧ y≠0
+		createInvariant(mch, inv2Label, "(1÷x)÷y > 0", false);
+		final IEvent event = createEvent(mch, "evt");
+		createAction(event, "act", "x ≔ x+1");
+		mch.getRodinFile().save(null, true);
+		// runBuilder
+		mch.getRodinProject().getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+		final ModelDecomposition decomp = new ModelDecomposition(mch);
+		final ISubModel subModel = decomp.createSubModel();
+		subModel.setElements(event);
+		
+		DecompositionUtils.decomposeInvariants(mch2_1, subModel,
+				new NullProgressMonitor());
+		testInvariants("WD invariants", mch2_1,
+				Messages.decomposition_typing + "_x: x ∈ ℤ: true",
+				"WD_" + mchName + "_" + inv2Label + ": x≠0: true");
+	}
+	
 	/**
 	 * Utility method to test
 	 * {@link DecompositionUtils#decomposeInvariants(IMachineRoot, ch.ethz.eventb.internal.decomposition.wizards.IElementDistribution, org.eclipse.core.runtime.IProgressMonitor)}
