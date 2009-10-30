@@ -38,7 +38,7 @@ public interface ISubModel {
 	/**
 	 * Returns the machine root for this decomposition.
 	 * 
-	 * @return the decomposed machine.
+	 * @return the non-decomposed machine.
 	 */
 	IMachineRoot getMachineRoot();
 

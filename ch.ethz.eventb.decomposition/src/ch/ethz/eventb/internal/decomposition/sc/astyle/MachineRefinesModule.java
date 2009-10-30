@@ -28,9 +28,7 @@ import org.eventb.core.IVariable;
 import org.eventb.core.ast.Assignment;
 import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.ast.FreeIdentifier;
-import org.eventb.core.ast.IParseResult;
 import org.eventb.core.ast.ITypeEnvironment;
-import org.eventb.core.ast.LanguageVersion;
 import org.eventb.core.sc.SCCore;
 import org.eventb.core.sc.SCProcessorModule;
 import org.eventb.core.sc.state.ISCStateRepository;
@@ -229,29 +227,22 @@ public class MachineRefinesModule extends SCProcessorModule {
 		for (IAction action : concreteInit.getActions()) {
 			boolean foundShared = false;
 			boolean foundPrivate = false;
-			String assignment = action.getAssignmentString();
-			IParseResult result = FormulaFactory.getDefault().parseAssignment(
-					assignment, LanguageVersion.LATEST, null);
-			if (!result.hasProblem()) {
-				for (FreeIdentifier identifier : result.getParsedAssignment()
-						.getAssignedIdentifiers()) {
-					IVariable concreteVariable = varMap.get(identifier
-							.getName());
-					if (concreteVariable != null) {
-						INatureElement elt = (INatureElement) concreteVariable
-								.getAdapter(INatureElement.class);
-						if (elt.getNature() == Nature.SHARED) {
-							foundShared = true;
-						} else {
-							foundPrivate = true;
-						}
+			for (String identifier : EventBUtils.getAssignedIdentifiers(action)) {
+				IVariable concreteVariable = varMap.get(identifier);
+				if (concreteVariable != null) {
+					INatureElement elt = (INatureElement) concreteVariable
+							.getAdapter(INatureElement.class);
+					if (elt.getNature() == Nature.SHARED) {
+						foundShared = true;
+					} else {
+						foundPrivate = true;
 					}
 				}
-				if (foundShared && foundPrivate) {
-					createProblemMarker(action,
-							DecompositionProblem.ActionOnPrivateAndSharedError,
-							action.getLabel());
-				}
+			}
+			if (foundShared && foundPrivate) {
+				createProblemMarker(action,
+						DecompositionProblem.ActionOnPrivateAndSharedError,
+						action.getLabel());
 			}
 		}
 	}

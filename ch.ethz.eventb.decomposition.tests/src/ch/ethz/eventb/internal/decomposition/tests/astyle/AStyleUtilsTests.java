@@ -14,9 +14,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.IAction;
 import org.eventb.core.IEvent;
+import org.eventb.core.IEventBProject;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IVariable;
 import org.eventb.core.IConvergenceElement.Convergence;
@@ -29,6 +29,8 @@ import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement;
 import ch.ethz.eventb.decomposition.astyle.INatureElement.Nature;
 import ch.ethz.eventb.internal.decomposition.astyle.AStyleUtils;
+import ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition;
+import ch.ethz.eventb.internal.decomposition.astyle.AStyleUtils.DecomposedEventType;
 import ch.ethz.eventb.internal.decomposition.tests.AbstractDecompositionTests;
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
@@ -50,7 +52,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 
 		try {
 			AStyleUtils.decomposeVariables(mch2_1, subModel1,
-					new NullProgressMonitor());
+					monitor);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create variables 1: There should be no exception");
@@ -63,7 +65,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 
 		try {
 			AStyleUtils.decomposeVariables(mch3_1, subModel2,
-					new NullProgressMonitor());
+					monitor);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create variables 2: There should be no exception");
@@ -77,7 +79,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 
 		try {
 			AStyleUtils.decomposeVariables(mch4_1, subModel3,
-					new NullProgressMonitor());
+					monitor);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create variables 3: There should be no exception");
@@ -153,7 +155,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 	public void testDecomposeEvents() {
 		try {
 			AStyleUtils.decomposeEvents(mch2_1, subModel1,
-					new NullProgressMonitor());
+					monitor);
 
 			// Test number of events.
 			IEvent[] events = mch2_1.getEvents();
@@ -249,6 +251,131 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 			return;
 		}
 
+	}
+	
+	/**
+	 * Test method for {@link AStyleUtils#getEventType(ISubModel, IEvent)} .
+	 */
+	@Test
+	public void testGetEventType1() throws Exception {
+		IEventBProject prj = createRodinProject("P");
+		IMachineRoot mch = createMachine(prj, "M");
+		createVariable(mch, "v1");
+		final IEvent evt1 = createEvent(mch, "evt1");
+		createAction(evt1, "act1", "v1 ≔ 0");
+		createVariable(mch, "v2");
+		final IEvent evt2 = createEvent(mch, "evt2");
+		createAction(evt2, "act2", "v2 ≔ v1");
+		mch.getRodinFile().save(monitor, false);
+
+		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
+		ISubModel subModel = modelDecomp.addSubModel();
+		subModel.setElements(evt2);
+
+		assertEquals(AStyleUtils.getEventType(subModel, evt1),
+				DecomposedEventType.NONE);
+	}
+	
+	/**
+	 * Test method for {@link AStyleUtils#getEventType(ISubModel, IEvent)} .
+	 */
+	@Test
+	public void testGetEventType2() throws Exception {
+		IEventBProject prj = createRodinProject("P");
+		IMachineRoot mch = createMachine(prj, "M");
+		createVariable(mch, "v1");
+		createVariable(mch, "v2");
+		createVariable(mch, "v3");
+		final IEvent evt1 = createEvent(mch, "evt1");
+		createAction(evt1, "act1", "v2 ≔ v1");
+		final IEvent evt2 = createEvent(mch, "evt2");
+		createAction(evt2, "act2", "v3 ≔ v1");
+		mch.getRodinFile().save(monitor, false);
+
+		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
+		ISubModel subModel1 = modelDecomp.addSubModel();
+		subModel1.setElements(evt1);
+		ISubModel subModel2 = modelDecomp.addSubModel();
+		subModel2.setElements(evt2);
+
+		assertEquals(AStyleUtils.getEventType(subModel1, evt2),
+				DecomposedEventType.NONE);
+	}
+	
+	/**
+	 * Test method for {@link AStyleUtils#getEventType(ISubModel, IEvent)} .
+	 */
+	@Test
+	public void testGetEventType3() throws Exception {
+		IEventBProject prj = createRodinProject("P");
+		IMachineRoot mch = createMachine(prj, "M");
+		createVariable(mch, "v1");
+		createVariable(mch, "v2");
+		createVariable(mch, "v3");
+		final IEvent evt1 = createEvent(mch, "evt1");
+		createAction(evt1, "act1", "v1 ≔ v2");
+		final IEvent evt2 = createEvent(mch, "evt2");
+		createAction(evt2, "act2", "v3 ≔ v1");
+		final IEvent evt3 = createEvent(mch, "evt3");
+		createAction(evt3, "act3", "v3 ≔ v2");
+		mch.getRodinFile().save(monitor, false);
+
+		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
+		ISubModel subModel1 = modelDecomp.addSubModel();
+		subModel1.setElements(evt1);
+		ISubModel subModel2 = modelDecomp.addSubModel();
+		subModel2.setElements(evt2);
+		ISubModel subModel3 = modelDecomp.addSubModel();
+		subModel3.setElements(evt3);
+
+		assertEquals(AStyleUtils.getEventType(subModel3, evt1),
+				DecomposedEventType.NONE);
+	}
+	
+	/**
+	 * Test method for {@link AStyleUtils#getEventType(ISubModel, IEvent)} .
+	 */
+	@Test
+	public void testGetEventType4() throws Exception {
+		IEventBProject prj = createRodinProject("P");
+		IMachineRoot mch = createMachine(prj, "M");
+		createVariable(mch, "v1");
+		createVariable(mch, "v2");
+		createVariable(mch, "v3");
+		final IEvent evt1 = createEvent(mch, "evt1");
+		createAction(evt1, "act1", "v1 ≔ v2");
+		final IEvent evt2 = createEvent(mch, "evt2");
+		createAction(evt2, "act2", "v3 ≔ v1");
+		mch.getRodinFile().save(monitor, false);
+
+		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
+		ISubModel subModel1 = modelDecomp.addSubModel();
+		subModel1.setElements(evt1);
+		ISubModel subModel2 = modelDecomp.addSubModel();
+		subModel2.setElements(evt2);
+
+		assertEquals(AStyleUtils.getEventType(subModel2, evt1),
+				DecomposedEventType.EXTERNAL);
+	}
+	
+	/**
+	 * Test method for {@link AStyleUtils#getEventType(ISubModel, IEvent)} .
+	 */
+	@Test
+	public void testGetEventType5() throws Exception {
+		IEventBProject prj = createRodinProject("P");
+		IMachineRoot mch = createMachine(prj, "M");
+		createVariable(mch, "v1");
+		final IEvent evt1 = createEvent(mch, "evt1");
+		createAction(evt1, "act1", "v1 ≔ 0");
+		mch.getRodinFile().save(monitor, false);
+
+		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
+		ISubModel subModel = modelDecomp.addSubModel();
+		subModel.setElements(evt1);
+
+		assertEquals(AStyleUtils.getEventType(subModel, evt1),
+				DecomposedEventType.INTERNAL);
 	}
 
 	/**

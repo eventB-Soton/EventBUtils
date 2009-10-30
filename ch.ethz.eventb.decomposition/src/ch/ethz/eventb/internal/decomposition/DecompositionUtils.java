@@ -80,7 +80,7 @@ public class DecompositionUtils {
 		vars.removeAll(EventBUtils.getSeenCarrierSetsAndConstants(mch));
 		return vars;
 	}
-
+	
 	private static Set<String> getFreeIdentifiersFromEvents(
 			final ISubModel subModel) throws RodinDBException {
 		final IMachineRoot mch = subModel.getMachineRoot();

@@ -32,7 +32,7 @@ import ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition;
  */
 public abstract class AbstractDecompositionTests extends EventBTests {
 	
-	final static IProgressMonitor monitor = new NullProgressMonitor();
+	protected final static IProgressMonitor monitor = new NullProgressMonitor();
 
 	// Some model distributions.
 	protected IModelDecomposition modelDecomp1;

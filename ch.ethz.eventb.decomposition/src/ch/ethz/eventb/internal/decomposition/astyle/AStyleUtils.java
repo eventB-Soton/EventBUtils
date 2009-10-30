@@ -71,7 +71,7 @@ public final class AStyleUtils extends DecompositionUtils {
 	 *         </ul>
 	 *         </p> {@see AStyleUtils#getEventType(ISubModel, IEvent)}.
 	 */
-	enum DecomposedEventType {
+	public enum DecomposedEventType {
 		/** The external type. */
 		EXTERNAL(2),
 
@@ -125,7 +125,8 @@ public final class AStyleUtils extends DecompositionUtils {
 		for (ISubModel subModel : subModels) {
 			// For each distribution, create the corresponding model.
 			monitor.subTask(Messages.decomposition_submodel);
-			createSubModel(subModel, modelDecomp.getContextDecomposition(), new SubProgressMonitor(monitor, 1));
+			createSubModel(subModel, modelDecomp.getContextDecomposition(),
+					new SubProgressMonitor(monitor, 1));
 		}
 		monitor.done();
 		return;
@@ -141,10 +142,11 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static void createSubModel(final ISubModel subModel, ContextDecomposition contextDecomp,
-			final SubProgressMonitor monitor) throws RodinDBException {
+	private static void createSubModel(final ISubModel subModel,
+			ContextDecomposition contextDecomp, final SubProgressMonitor monitor)
+			throws RodinDBException {
 		// TODO manage monitor cancellation
-		
+
 		// Monitor has 8 works.
 		monitor.beginTask(Messages.decomposition_submodel, 8);
 		IMachineRoot src = subModel.getMachineRoot();
@@ -178,8 +180,8 @@ public final class AStyleUtils extends DecompositionUtils {
 
 		// 6: Copy or decompose contexts from the original project
 		// 7: Make SEES clauses.
-		final String flattenedContextName = Messages.label_decomposedContextName; // TODO better idea ?
-		switch(contextDecomp) {
+		final String flattenedContextName = Messages.label_decomposedContextName;
+		switch (contextDecomp) {
 		case NO_DECOMPOSITION:
 			monitor.subTask(Messages.decomposition_contexts);
 			EventBUtils.copyContexts(src.getEventBProject(), prj, monitor);
@@ -193,7 +195,8 @@ public final class AStyleUtils extends DecompositionUtils {
 			monitor.subTask(Messages.decomposition_contexts);
 			final IContextRoot ctx = EventBUtils.createContext(prj,
 					flattenedContextName, monitor);
-			decomposeContext(ctx, dest, subModel, new SubProgressMonitor(monitor, 1));
+			decomposeContext(ctx, dest, subModel, new SubProgressMonitor(
+					monitor, 1));
 			if (!ctx.hasChildren()) {
 				// empty context => remove it and do not create sees clause
 				ctx.getRodinFile().delete(false, monitor);
@@ -399,22 +402,33 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static DecomposedEventType getEventType(final ISubModel subModel,
+	public static DecomposedEventType getEventType(final ISubModel subModel,
 			final IEvent evt) throws RodinDBException {
+		// Initialization event
 		if (evt.isInitialisation()) {
 			return DecomposedEventType.EXTERNAL;
 		}
 
+		// Internal event
 		for (IRodinElement element : subModel.getElements()) {
 			if (evt.getLabel().equals(((IEvent) element).getLabel())) {
 				return DecomposedEventType.INTERNAL;
 			}
 		}
 
-		Collection<String> idents = EventBUtils.getFreeIdentifiers(evt);
-		for (String var : getAccessedVariables(subModel)) {
-			if (idents.contains(var)) {
-				return DecomposedEventType.EXTERNAL;
+		// External event
+		Collection<String> modifiedVariables = EventBUtils
+				.getAssignedIdentifiers(evt);
+		for (String sharedVariable : getSharedVariables(subModel
+				.getModelDecomposition())) {
+			// If the event modifies a shared variable
+			if (modifiedVariables.contains(sharedVariable)) {
+				// which is accessed in the sub-model
+				if (getAccessedVariables(subModel).contains(sharedVariable)) {
+					// then the event is tagged as external
+					return DecomposedEventType.EXTERNAL;
+				}
+
 			}
 		}
 
@@ -448,11 +462,11 @@ public final class AStyleUtils extends DecompositionUtils {
 		newEvt.setLabel(flattened.getLabel(), monitor);
 		if (!evt.isInitialisation()) {
 			newEvt.setComment(Messages.decomposition_external_comment, monitor);
-			
+
 			// Set the external attribute.
-				IExternalElement elt = (IExternalElement) newEvt
-						.getAdapter(IExternalElement.class);
-				elt.setExternal(true, monitor);		
+			IExternalElement elt = (IExternalElement) newEvt
+					.getAdapter(IExternalElement.class);
+			elt.setExternal(true, monitor);
 		}
 
 		// Set the status.

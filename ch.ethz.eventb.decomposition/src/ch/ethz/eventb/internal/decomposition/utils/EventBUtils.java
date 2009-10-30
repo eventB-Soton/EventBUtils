@@ -77,7 +77,8 @@ import ch.ethz.eventb.internal.decomposition.utils.symbols.SymbolTable;
  */
 public final class EventBUtils {
 
-	private static final FormulaFactory FORMULA_FACTORY = FormulaFactory.getDefault();
+	private static final FormulaFactory FORMULA_FACTORY = FormulaFactory
+			.getDefault();
 
 	/**
 	 * Configuration used by the static checker.
@@ -251,14 +252,15 @@ public final class EventBUtils {
 			ctxFile.copy(to.getRodinProject(), null, null, true, monitor);
 		}
 
-		// Tag the contexts as decomposed and generated and set the configuration
+		// Tag the contexts as decomposed and generated and set the
+		// configuration
 		for (IContextRoot context : contexts) {
 			IContextRoot copiedContext = to.getContextRoot(context
 					.getElementName());
 			IDecomposedElement elt = (IDecomposedElement) copiedContext
 					.getAdapter(IDecomposedElement.class);
 			elt.setDecomposed(monitor);
-			
+
 			((IConfigurationElement) copiedContext).setConfiguration(
 					DECOMPOSITION_CONFIG_SC, monitor);
 		}
@@ -353,7 +355,7 @@ public final class EventBUtils {
 	 */
 	public static List<String> getCarrierSetsAndConstants(IContextRoot ctx)
 			throws RodinDBException {
-		// TODO not used  ? => can be removed 
+		// TODO not used ? => can be removed
 		final Set<IContextRoot> contexts = new LinkedHashSet<IContextRoot>();
 		addExtendedContexts(ctx, contexts);
 		contexts.add(ctx);
@@ -474,19 +476,18 @@ public final class EventBUtils {
 		return new VariableTypingTheoremMaker(src).getTypingTheorem(var);
 	}
 
-	public static String getTypingTheorem(IContextRoot src,
-			String cst) throws RodinDBException {
+	public static String getTypingTheorem(IContextRoot src, String cst)
+			throws RodinDBException {
 		return new ConstantTypingTheoremMaker(src).getTypingTheorem(cst);
 	}
-	
-	
-	public static Expression getTypeExpression(IContextRoot src,
-			String cst) throws RodinDBException {
+
+	public static Expression getTypeExpression(IContextRoot src, String cst)
+			throws RodinDBException {
 		return new ConstantTypingTheoremMaker(src).getTypingExpression(cst);
 	}
 
-	public static Expression getTypeExpression(IMachineRoot src,
-			String var) throws RodinDBException {
+	public static Expression getTypeExpression(IMachineRoot src, String var)
+			throws RodinDBException {
 		return new VariableTypingTheoremMaker(src).getTypingExpression(var);
 	}
 
@@ -495,16 +496,17 @@ public final class EventBUtils {
 		return ident + " ∈ " //$NON-NLS-1$
 				+ typeExpression;
 	}
-	
+
 	private static abstract class TypingTheoremMaker<T extends IEventBRoot> {
-		
+
 		protected final T root;
-		
+
 		public TypingTheoremMaker(T root) {
 			this.root = root;
 		}
-		
-		public Expression getTypingExpression(String ident) throws RodinDBException {
+
+		public Expression getTypingExpression(String ident)
+				throws RodinDBException {
 			if (!root.exists()) {
 				return null;
 			}
@@ -517,11 +519,12 @@ public final class EventBUtils {
 				return null;
 			}
 			final Type type = scIdent.getType(FORMULA_FACTORY);
-			final Expression typeExpression = type.toExpression(FORMULA_FACTORY);
+			final Expression typeExpression = type
+					.toExpression(FORMULA_FACTORY);
 			return typeExpression;
 
 		}
-		
+
 		public String getTypingTheorem(String ident) throws RodinDBException {
 			final Expression typeExpression = getTypingExpression(ident);
 
@@ -532,8 +535,9 @@ public final class EventBUtils {
 			return makeTypingTheorem(ident, typeExpression);
 		}
 
-		protected abstract ISCIdentifierElement[] getSCIdents() throws RodinDBException;
-		
+		protected abstract ISCIdentifierElement[] getSCIdents()
+				throws RodinDBException;
+
 		private static ISCIdentifierElement findSCIdent(String ident,
 				ISCIdentifierElement[] idents) throws RodinDBException {
 			for (ISCIdentifierElement cstSC : idents) {
@@ -545,8 +549,9 @@ public final class EventBUtils {
 		}
 
 	}
-	
-	private static class ConstantTypingTheoremMaker extends TypingTheoremMaker<IContextRoot> {
+
+	private static class ConstantTypingTheoremMaker extends
+			TypingTheoremMaker<IContextRoot> {
 
 		public ConstantTypingTheoremMaker(IContextRoot root) {
 			super(root);
@@ -561,8 +566,9 @@ public final class EventBUtils {
 			return ctxSC.getSCConstants();
 		}
 	}
-	
-	private static class VariableTypingTheoremMaker extends TypingTheoremMaker<IMachineRoot> {
+
+	private static class VariableTypingTheoremMaker extends
+			TypingTheoremMaker<IMachineRoot> {
 
 		public VariableTypingTheoremMaker(IMachineRoot root) {
 			super(root);
@@ -665,6 +671,37 @@ public final class EventBUtils {
 	// =========================================================================
 	// Events
 	// =========================================================================
+	/**
+	 * Utility method to get the set of assigned identifiers of an input event.
+	 * 
+	 * @param evt
+	 *            an event.
+	 * @return the set of assigned identifiers.
+	 * @throws RodinDBException
+	 *             if there are problems accessing the database
+	 */
+	public static List<String> getAssignedIdentifiers(IEvent evt)
+			throws RodinDBException {
+		// First flatten the event.
+		evt = flatten(evt);
+
+		// Initialize the list of assigned identifiers.
+		List<String> idents = new ArrayList<String>();
+
+		// Copy the assigned identifiers from all actions.
+		IAction[] acts = evt.getActions();
+		for (IAction act : acts) {
+			List<String> actIdents = getAssignedIdentifiers(act);
+			for (String actIdent : actIdents) {
+				if (!idents.contains(actIdent)) {
+					idents.add(actIdent);
+				}
+			}
+		}
+
+		return idents;
+	}
+
 	/**
 	 * Utility method to get the set of free identifiers of an input event. The
 	 * order of the free identifiers is determined syntactically.
@@ -1004,6 +1041,23 @@ public final class EventBUtils {
 	// =========================================================================
 	// Actions
 	// =========================================================================
+	/**
+	 * Utility method to get assigned identifiers of an action. The order of the
+	 * free identifiers is determined syntactically.
+	 * 
+	 * @param act
+	 *            an action.
+	 * @return the set of free identifiers appearing in an action.
+	 * @throws RodinDBException
+	 *             if there are problems accessing the database
+	 */
+	public static List<String> getAssignedIdentifiers(final IAction act)
+			throws RodinDBException {
+		Assignment parseAssignment = Lib.parseAssignment(act
+				.getAssignmentString());
+		return toStringList(parseAssignment.getAssignedIdentifiers());
+	}
+
 	/**
 	 * Utility method to get free identifiers of an action. The order of the
 	 * free identifiers is determined syntactically.
