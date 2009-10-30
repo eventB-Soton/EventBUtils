@@ -17,8 +17,8 @@ import org.rodinp.core.RodinCore;
 import ch.ethz.eventb.decomposition.DecompositionPlugin;
 
 /**
- * This interface lists all attribute names used by the A-style decomposition
- * plug-in.
+ * This interface lists all attribute names used by the shared variables
+ * (A-style) decomposition plug-in.
  */
 public interface DecompositionAttributes {
 

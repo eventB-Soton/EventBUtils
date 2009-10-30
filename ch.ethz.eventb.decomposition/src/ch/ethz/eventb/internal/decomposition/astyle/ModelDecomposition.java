@@ -23,8 +23,8 @@ import ch.ethz.eventb.internal.decomposition.DefaultSubModel;
 /**
  * @author htson
  *         <p>
- *         An implementation of {@link IModelDecomposition} for A-style
- *         decomposition.
+ *         An implementation of {@link IModelDecomposition} for shared variables
+ *         (A-style) decomposition.
  *         </p>
  */
 public class ModelDecomposition extends DefaultModelDecomposition {

@@ -448,13 +448,11 @@ public final class AStyleUtils extends DecompositionUtils {
 		newEvt.setLabel(flattened.getLabel(), monitor);
 		if (!evt.isInitialisation()) {
 			newEvt.setComment(Messages.decomposition_external_comment, monitor);
-		}
-
-		// Set the external attribute.
-		if (!evt.isInitialisation()) {
-			IExternalElement elt = (IExternalElement) newEvt
-					.getAdapter(IExternalElement.class);
-			elt.setExternal(true, monitor);
+			
+			// Set the external attribute.
+				IExternalElement elt = (IExternalElement) newEvt
+						.getAdapter(IExternalElement.class);
+				elt.setExternal(true, monitor);		
 		}
 
 		// Set the status.
