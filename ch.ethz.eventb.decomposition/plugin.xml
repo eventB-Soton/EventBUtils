@@ -7,7 +7,7 @@
             category="org.eventb.ui.wizards"
             class="ch.ethz.eventb.internal.decomposition.ui.wizards.DecompositionWizard"
             finalPerspective="org.eventb.ui.perspective.eventb"
-            icon="icons/sample.gif"
+            icon="icons/decomposition_icon.png"
             id="ch.ethz.eventb.decomposition.wizard"
             name="%wizardName">
       </wizard>
@@ -20,7 +20,7 @@
          <action
                class="ch.ethz.eventb.internal.decomposition.ui.actions.Decompose"
                enablesFor="1"
-               icon="icons/sample.gif"
+               icon="icons/decomposition_icon.png"
                id="org.eventb.ui.decompose"
                label="%popupMenu.decompose.label"
                menubarPath="modelling"
@@ -36,7 +36,7 @@
             targetID="fr.systerel.explorer.navigator.view">
          <action
                class="ch.ethz.eventb.internal.decomposition.ui.actions.Decompose"
-               icon="icons/sample.gif"
+               icon="icons/decomposition_icon.png"
                id="fr.systerel.explorer.navigator.actions.decompose"
                label="%viewActions.decompose.label"
                style="push"
