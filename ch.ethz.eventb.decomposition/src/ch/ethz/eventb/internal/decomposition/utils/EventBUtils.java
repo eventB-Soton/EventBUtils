@@ -52,7 +52,6 @@ import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.ast.FreeIdentifier;
 import org.eventb.core.ast.ITypeEnvironment;
 import org.eventb.core.ast.Predicate;
-import org.eventb.core.ast.SourceLocation;
 import org.eventb.core.ast.Type;
 import org.eventb.core.seqprover.eventbExtensions.Lib;
 import org.rodinp.core.IInternalElement;
@@ -76,6 +75,12 @@ import ch.ethz.eventb.internal.decomposition.utils.symbols.SymbolTable;
  *         </p>
  */
 public final class EventBUtils {
+
+	private static final String COMMA_SPACE = ", "; //$NON-NLS-1$
+
+	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+
+	private static final String UNDERSCORE = "_"; //$NON-NLS-1$
 
 	private static final FormulaFactory FORMULA_FACTORY = FormulaFactory
 			.getDefault();
@@ -428,13 +433,14 @@ public final class EventBUtils {
 	public static void cleanUp(final IMachineRoot machine,
 			final IProgressMonitor monitor) {
 		// Make the machine consistent.
+		final String whileCleaningUp = "Decomposition: while cleaning up "; //$NON-NLS-1$
 		try {
 			IRodinFile rodinFile = machine.getRodinFile();
 			if (rodinFile.hasUnsavedChanges()) {
 				rodinFile.makeConsistent(monitor);
 			}
 		} catch (RodinDBException e) {
-			e.printStackTrace();
+			log(e, whileCleaningUp + machine);
 		}
 
 		// Make all the contexts consistent.
@@ -449,7 +455,7 @@ public final class EventBUtils {
 				}
 			}
 		} catch (RodinDBException e) {
-			e.printStackTrace();
+			log(e, whileCleaningUp + prj);
 		}
 	}
 
@@ -635,7 +641,9 @@ public final class EventBUtils {
 			if (isRelevant(inv, vars, seenCarrierSetsAndConstants)) {
 				final IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE,
 						null, new NullProgressMonitor());
-				newInv.setLabel(src.getComponentName() + "_" + inv.getLabel(), //$NON-NLS-1$
+				final String newLabel = makeLabel(src.getComponentName(), inv
+						.getLabel());
+				newInv.setLabel(newLabel, //$NON-NLS-1$
 						new NullProgressMonitor());
 				newInv.setPredicateString(inv.getPredicateString(),
 						new NullProgressMonitor());
@@ -655,7 +663,7 @@ public final class EventBUtils {
 		final Predicate invWDPred = getWDPredicate(srcInv);
 		if (invWDPred == null) {
 			throw new IllegalArgumentException(
-					"Invariant decomposition: unable to compute WD predicate");
+					"Invariant decomposition: unable to compute WD predicate"); //$NON-NLS-1$
 		}
 		final IMachineRoot src = (IMachineRoot) srcInv.getRoot();
 		final Set<Predicate> invWDPreds = Lib.breakPossibleConjunct(invWDPred);
@@ -668,8 +676,9 @@ public final class EventBUtils {
 				final IInvariant newInv = mch.createChild(
 						IInvariant.ELEMENT_TYPE, null,
 						new NullProgressMonitor());
-				newInv.setLabel("WD" + "_" + src.getComponentName() + "_"
-						+ srcInv.getLabel(), new NullProgressMonitor());
+				final String newLabel = makeLabel("WD", src.getComponentName(),
+						srcInv.getLabel());
+				newInv.setLabel(newLabel, new NullProgressMonitor());
 				newInv.setPredicateString(pred.toString(),
 						new NullProgressMonitor());
 				newInv.setTheorem(true, new NullProgressMonitor());
@@ -719,7 +728,7 @@ public final class EventBUtils {
 	}
 	
 	private static boolean isRelevant(Predicate predicate, Set<String> vars,
-			Set<String> seenCarrierSetsAndConstants) throws RodinDBException {
+			Set<String> seenCarrierSetsAndConstants) {
 		final List<String> idents = toStringList(predicate
 				.getSyntacticallyFreeIdentifiers());
 
@@ -1165,57 +1174,41 @@ public final class EventBUtils {
 	 * @return the displayed text corresponding to the input element.
 	 */
 	public static String getDisplayedText(final IRodinElement element) {
-
-		// If the element is a guard element then return the predicate of the
-		// element.
-		if (element instanceof IGuard) {
-			try {
+		try {
+			// If the element is a guard element then return the predicate of
+			// the element.
+			if (element instanceof IGuard) {
 				return ((IGuard) element).getPredicateString();
-			} catch (RodinDBException e) {
-				return ""; //$NON-NLS-1$
 			}
-		}
 
-		// If the element is an action element then return the assignment of the
-		// element.
-		if (element instanceof IAction) {
-			try {
+			// If the element is an action element then return the assignment of
+			// the element.
+			if (element instanceof IAction) {
 				return ((IAction) element).getAssignmentString();
-			} catch (RodinDBException e) {
-				return ""; //$NON-NLS-1$
 			}
-		}
 
-		// If the element is an invariant element then return the predicate of
-		// the element.
-		if (element instanceof IInvariant) {
-			try {
+			// If the element is an invariant element then return the predicate
+			// of the element.
+			if (element instanceof IInvariant) {
 				return ((IInvariant) element).getPredicateString();
-			} catch (RodinDBException e) {
-				return ""; //$NON-NLS-1$
 			}
-		}
 
-		// If the element has label then return the label.
-		if (element instanceof ILabeledElement) {
-			try {
+			// If the element has label then return the label.
+			if (element instanceof ILabeledElement) {
 				return ((ILabeledElement) element).getLabel();
-			} catch (RodinDBException e) {
-				return ""; //$NON-NLS-1$
 			}
-		}
 
-		// If the element has identifier string then return it.
-		if (element instanceof IIdentifierElement) {
-			try {
+			// If the element has identifier string then return it.
+			if (element instanceof IIdentifierElement) {
 				return ((IIdentifierElement) element).getIdentifierString();
-			} catch (RodinDBException e) {
-				return ""; //$NON-NLS-1$
 			}
-		}
 
-		// Otherwise return the element name of the element.
-		return element.getElementName();
+			// Otherwise return the element name of the element.
+			return element.getElementName();
+		} catch (RodinDBException e) {
+			log(e, "While getting display text of " + element); //$NON-NLS-1$
+			return EMPTY_STRING;
+		}
 	}
 
 	/**
@@ -1256,11 +1249,23 @@ public final class EventBUtils {
 	 *            an array of free identifiers.
 	 * @return a set of strings corresponding to the input array.
 	 */
-	public static List<String> toStringList(final FreeIdentifier[] freeIdents) {
-		List<String> result = new ArrayList<String>();
+	public static List<String> toStringList(FreeIdentifier[] freeIdents) {
+		return toStringList(freeIdents, false);
+	}
+
+	// if withPrime is true, then non primed identifiers are listed primed
+	// a given name only appears once in the resulting list
+	private static List<String> toStringList(FreeIdentifier[] freeIdents,
+			boolean withPrime) {
+		final List<String> result = new ArrayList<String>();
 
 		for (FreeIdentifier freeIdentifier : freeIdents) {
-			String name = freeIdentifier.getName();
+			final String name;
+			if (withPrime && !freeIdentifier.isPrimed()) {
+				name = freeIdentifier.withPrime(FORMULA_FACTORY).getName();
+			} else {
+				name = freeIdentifier.getName();
+			}
 			if (!result.contains(name)) {
 				result.add(name);
 			}
@@ -1271,50 +1276,37 @@ public final class EventBUtils {
 	/**
 	 * Utility method to convert an array of free identifiers to comma separated
 	 * values.
-	 * 
-	 * @param srcStr
-	 *            a source string of the free identifiers.
 	 * @param idents
 	 *            an array of free identifiers.
+	 * 
 	 * @return a CSV string corresponding the input free identifiers.
 	 */
-	public static String identsToCSVString(final String srcStr,
-			final FreeIdentifier[] idents) {
-		String result = ""; //$NON-NLS-1$
-		for (int i = 0; i < idents.length; i++) {
-			if (i != 0) {
-				result += ", "; //$NON-NLS-1$
-			}
-			SourceLocation srcLoc = idents[i].getSourceLocation();
-			result += srcStr.substring(srcLoc.getStart(), srcLoc.getEnd() + 1);
-		}
-		return result;
+	public static String identsToCSVString(final FreeIdentifier[] idents) {
+		final List<String> stringList = toStringList(idents, false);
+		final String[] names = stringList.toArray(new String[stringList.size()]);
+		return concatWithSeparator(COMMA_SPACE, names);
 	}
 
 	/**
 	 * Utility method to convert an array of free identifiers to a comma
 	 * separated primed values.
-	 * 
-	 * @param srcStr
-	 *            a source string of the free identifiers.
 	 * @param idents
 	 *            an array of free identifiers.
+	 * 
 	 * @return a CSV string corresponding the input free identifiers.
 	 */
-	public static String identsToPrimedCSVString(final String srcStr,
-			final FreeIdentifier[] idents) {
-		String result = ""; //$NON-NLS-1$
-		for (int i = 0; i < idents.length; i++) {
-			if (i != 0) {
-				result += ", "; //$NON-NLS-1$
-			}
-			SourceLocation srcLoc = idents[i].getSourceLocation();
-			result += srcStr.substring(srcLoc.getStart(), srcLoc.getEnd() + 1)
-					+ "'"; //$NON-NLS-1$
-		}
-		return result;
+	public static String identsToPrimedCSVString(final FreeIdentifier[] idents) {
+		final List<String> stringList = toStringList(idents, true);
+		final String[] names = stringList.toArray(new String[stringList.size()]);
+		return concatWithSeparator(COMMA_SPACE, names);
 	}
 
+	// returns a new error status with the given exception and message
+	private static IStatus makeErrorStatus(Throwable exception, String message) {
+		return new Status(IStatus.ERROR, DecompositionPlugin.PLUGIN_ID,
+				IStatus.OK, message, exception);
+	}
+	
 	/**
 	 * Creates a new Rodin database exception with the given message and message
 	 * arguments.
@@ -1335,23 +1327,57 @@ public final class EventBUtils {
 	public static RodinDBException newRodinDBException(final String message,
 			final Object... args) {
 
-		return new RodinDBException(new CoreException(new Status(IStatus.ERROR,
-				DecompositionPlugin.PLUGIN_ID, IStatus.OK, Messages.bind(
-						message, args), null)));
+		final IStatus status = makeErrorStatus(null,
+				Messages.bind(message, args));
+		return new RodinDBException(new CoreException(status));
+	}
+	
+	/**
+	 * Logs the given exception with the given context message.
+	 * 
+	 * @param exc
+	 *            a throwable or <code>null</code> if not applicable
+	 * @param message
+	 *            a context message or <code>null</code>
+	 */
+	public static void log(Throwable exc, String message) {
+		if (exc instanceof RodinDBException) {
+			final Throwable nestedExc = ((RodinDBException) exc).getException();
+			if (nestedExc != null) {
+				exc = nestedExc;
+			}
+		}
+		if (message == null) {
+			message = "Unknown context"; //$NON-NLS-1$
+		}
+		final IStatus status = makeErrorStatus(exc, message);
+		DecompositionPlugin.getDefault().getLog().log(status);
 	}
 
 	/**
-	 * Returns a label with given prefix and postfix and an underline character
-	 * in-between.
+	 * Returns a label composed of the given strings separated from each other
+	 * by an underscore character.
 	 * 
-	 * @param prefix
-	 *            a string
-	 * @param postfix
-	 *            a string
+	 * @param strings
+	 *            strings to put in the label
 	 * @return a string
 	 */
-	public static String makeLabel(String prefix, String postfix) {
-		return prefix + "_" + postfix; //$NON-NLS-1$
+	public static String makeLabel(String... strings) {
+		return concatWithSeparator(UNDERSCORE, strings);
+	}
+
+	// concatenates the given strings using the given separator between each one
+	private static String concatWithSeparator(String separator,
+			String... strings) {
+		if (strings.length == 0) {
+			return EMPTY_STRING;
+		}
+		final StringBuilder sb = new StringBuilder(strings[0]);
+		for (int i=1;i<strings.length;i++) {
+			sb.append(separator);
+			sb.append(strings[i]);
+		}
+		return sb.toString();
 	}
 
 	/**

@@ -879,7 +879,7 @@ public class EventBUtilsTests extends EventBTests {
 
 	/**
 	 * Test method for
-	 * {@link EventBUtils#identsToCSVString(String, FreeIdentifier[])}.
+	 * {@link EventBUtils#identsToCSVString(FreeIdentifier[])}.
 	 */
 	@Test
 	public void testIdentsToCSVString() {
@@ -887,18 +887,18 @@ public class EventBUtilsTests extends EventBTests {
 		try {
 			srcStr = act1_1_1_1.getAssignmentString();
 			Assignment parseAssignment = Lib.parseAssignment(srcStr);
-			testIdentsToCSVString("Idents to CSV string 1", srcStr,
-					parseAssignment, "a, b, x");
+			testIdentsToCSVString("Idents to CSV string 1", parseAssignment,
+					"a, b, x");
 
 			srcStr = grd1_1_2_1.getPredicateString();
 			Predicate parsePredicate = Lib.parsePredicate(srcStr);
-			testIdentsToCSVString("Idents to CSV string 2", srcStr,
-					parsePredicate, "y");
+			testIdentsToCSVString("Idents to CSV string 2", parsePredicate,
+					"y");
 
 			srcStr = act1_1_2_1.getAssignmentString();
 			parseAssignment = Lib.parseAssignment(srcStr);
-			testIdentsToCSVString("Idents to CSV string 3", srcStr,
-					parseAssignment, "b, x, y");
+			testIdentsToCSVString("Idents to CSV string 3", parseAssignment,
+					"b, x, y");
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -908,27 +908,25 @@ public class EventBUtilsTests extends EventBTests {
 
 	/**
 	 * Utility method to test
-	 * {@link EventBUtils#identsToCSVString(String, FreeIdentifier[])}.
+	 * {@link EventBUtils#identsToCSVString(FreeIdentifier[])}.
 	 * 
 	 * @param message
 	 *            a message.
-	 * @param srcStr
-	 *            the source string.
 	 * @param formula
 	 *            a formula corresponding to the source string.
 	 * @param expected
 	 *            expected CSV string.
 	 */
-	private static void testIdentsToCSVString(String message, String srcStr,
-			Formula<? extends Formula<?>> formula, String expected) {
+	private static void testIdentsToCSVString(String message, Formula<? extends Formula<?>> formula,
+			String expected) {
 		FreeIdentifier[] idents = formula.getFreeIdentifiers();
 		assertEquals(message + ": Incorrect CSV string", expected, EventBUtils
-				.identsToCSVString(srcStr, idents));
+				.identsToCSVString(idents));
 	}
 
 	/**
 	 * Test method for
-	 * {@link EventBUtils#identsToPrimedCSVString(String, FreeIdentifier[])}.
+	 * {@link EventBUtils#identsToPrimedCSVString(FreeIdentifier[])}.
 	 */
 	@Test
 	public void testIdentsToPrimedCSVString() {
@@ -936,18 +934,18 @@ public class EventBUtilsTests extends EventBTests {
 		try {
 			srcStr = act1_1_1_1.getAssignmentString();
 			Assignment parseAssignment = Lib.parseAssignment(srcStr);
-			testIdentsToPrimedCSVString("Idents to CSV string 1", srcStr,
-					parseAssignment, "a', b', x'");
+			testIdentsToPrimedCSVString("Idents to CSV string 1", parseAssignment,
+					"a', b', x'");
 
 			srcStr = grd1_1_2_1.getPredicateString();
 			Predicate parsePredicate = Lib.parsePredicate(srcStr);
-			testIdentsToPrimedCSVString("Idents to CSV string 2", srcStr,
-					parsePredicate, "y'");
+			testIdentsToPrimedCSVString("Idents to CSV string 2", parsePredicate,
+					"y'");
 
 			srcStr = act1_1_2_1.getAssignmentString();
 			parseAssignment = Lib.parseAssignment(srcStr);
-			testIdentsToPrimedCSVString("Idents to CSV string 3", srcStr,
-					parseAssignment, "b', x', y'");
+			testIdentsToPrimedCSVString("Idents to CSV string 3", parseAssignment,
+					"b', x', y'");
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -957,22 +955,21 @@ public class EventBUtilsTests extends EventBTests {
 
 	/**
 	 * Utility method to test
-	 * {@link EventBUtils#identsToPrimedCSVString(String, FreeIdentifier[])}.
+	 * {@link EventBUtils#identsToPrimedCSVString(FreeIdentifier[])}.
 	 * 
 	 * @param message
 	 *            a message.
-	 * @param srcStr
-	 *            the source string.
 	 * @param formula
 	 *            a formula corresponding to the source string.
 	 * @param expected
 	 *            expected CSV string.
 	 */
-	private static void testIdentsToPrimedCSVString(String message, String srcStr,
-			Formula<? extends Formula<?>> formula, String expected) {
+	private static void testIdentsToPrimedCSVString(String message,
+			Formula<? extends Formula<?>> formula,
+			String expected) {
 		FreeIdentifier[] idents = formula.getFreeIdentifiers();
 		assertEquals(message + ": Incorrect CSV string", expected, EventBUtils
-				.identsToPrimedCSVString(srcStr, idents));
+				.identsToPrimedCSVString(idents));
 	}
 
 	/**

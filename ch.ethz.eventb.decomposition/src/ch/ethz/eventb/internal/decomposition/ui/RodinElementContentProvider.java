@@ -10,6 +10,8 @@
  ****************************************************************************/
 package ch.ethz.eventb.internal.decomposition.ui;
 
+import static ch.ethz.eventb.internal.decomposition.utils.EventBUtils.log;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -35,6 +37,8 @@ import org.rodinp.core.RodinDBException;
 public class RodinElementContentProvider<T extends IRodinElement> implements
 		IStructuredContentProvider {
 
+	private static final Object[] NO_OBJECT = new Object[0];
+	
 	/** The element type of the children. */
 	private IElementType<T> type;
 
@@ -49,25 +53,21 @@ public class RodinElementContentProvider<T extends IRodinElement> implements
 	}
 
 	public final Object[] getElements(final Object inputElement) {
-		// If the input element is a Rodin project
-		if (inputElement instanceof IRodinProject) {
-			IRodinProject project = (IRodinProject) inputElement;
-			// If the type is IMachineRoot then return the list of
-			// IMachineRoot.
-			if (type == IMachineRoot.ELEMENT_TYPE) {
-				try {
+		try {
+			// If the input element is a Rodin project
+			if (inputElement instanceof IRodinProject) {
+				IRodinProject project = (IRodinProject) inputElement;
+				// If the type is IMachineRoot then return the list of
+				// IMachineRoot.
+				if (type == IMachineRoot.ELEMENT_TYPE) {
 					return project
 							.getRootElementsOfType((IInternalElementType<?>) type);
-				} catch (RodinDBException e) {
-					e.printStackTrace();
-					return new Object[0];
 				}
 			}
-		}
 
-		// If the input element is a machine
-		if (inputElement instanceof IMachineRoot && type == IEvent.ELEMENT_TYPE) {
-			try {
+			// If the input element is a machine
+			if (inputElement instanceof IMachineRoot
+					&& type == IEvent.ELEMENT_TYPE) {
 				Collection<IEvent> result = new ArrayList<IEvent>();
 				for (IEvent evt : ((IMachineRoot) inputElement).getEvents()) {
 					if (!evt.isInitialisation()) {
@@ -75,23 +75,18 @@ public class RodinElementContentProvider<T extends IRodinElement> implements
 					}
 				}
 				return result.toArray(new IEvent[result.size()]);
-			} catch (RodinDBException e) {
-				return new Object[0];
 			}
-		}
 
-		// If the input element is a parent, then return the list of children of
-		// the given type.
-		if (inputElement instanceof IParent) {
-			try {
+			// If the input element is a parent, then return the list of
+			// children of the given type.
+			if (inputElement instanceof IParent) {
 				return ((IParent) inputElement).getChildrenOfType(type);
-			} catch (RodinDBException e) {
-				e.printStackTrace();
-				return new Object[0];
 			}
-		}
 
-		return new Object[0];
+		} catch (RodinDBException e) {
+			log(e, "While querying elements of " + inputElement);
+		}
+		return NO_OBJECT;
 	}
 
 	public void dispose() {

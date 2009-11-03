@@ -577,7 +577,7 @@ public final class AStyleUtils extends DecompositionUtils {
 			Expression[] exps = bcmeq.getExpressions();
 			assert exps.length == assignedVars.length;
 			String newAssignmentStr = EventBUtils.identsToCSVString(
-					assignmentStr, v.toArray(new FreeIdentifier[v.size()]));
+					v.toArray(new FreeIdentifier[v.size()]));
 			newAssignmentStr += " ≔ "; //$NON-NLS-1$
 			boolean fst = true;
 			for (int i = 0; i < exps.length; i++) {
@@ -601,10 +601,10 @@ public final class AStyleUtils extends DecompositionUtils {
 			assert parseAssignment instanceof BecomesSuchThat;
 			BecomesSuchThat bcmsuch = (BecomesSuchThat) parseAssignment;
 			Predicate P = bcmsuch.getCondition();
-			String vList = EventBUtils.identsToCSVString(assignmentStr, v
+			String vList = EventBUtils.identsToCSVString(v
 					.toArray(new FreeIdentifier[v.size()]));
 			String wPrimedList = EventBUtils.identsToPrimedCSVString(
-					assignmentStr, w.toArray(new FreeIdentifier[w.size()]));
+					w.toArray(new FreeIdentifier[w.size()]));
 
 			SourceLocation srcLoc = P.getSourceLocation();
 			String strP = assignmentStr.substring(srcLoc.getStart(), srcLoc
