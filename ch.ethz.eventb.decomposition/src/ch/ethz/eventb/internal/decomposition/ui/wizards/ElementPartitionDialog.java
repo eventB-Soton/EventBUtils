@@ -11,7 +11,6 @@
 
 package ch.ethz.eventb.internal.decomposition.ui.wizards;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -24,7 +23,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.rodinp.core.IElementType;
-import org.rodinp.core.IInternalElement;
 import org.rodinp.core.IRodinElement;
 
 import ch.ethz.eventb.decomposition.ISubModel;
@@ -40,7 +38,7 @@ import ch.ethz.eventb.internal.decomposition.utils.Messages;
 public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 
 	/** The input sub-model. */
-	private ISubModel subModel;
+	private final ISubModel subModel;
 
 	/** The text widget for the project name. */
 	private Text prjText;
@@ -52,7 +50,7 @@ public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 	private IRodinElement[] elements;
 
 	/** The type of the Rodin elements. */
-	private IElementType<T> type;
+	private final IElementType<T> type;
 
 	/** A viewer to choose the list of events. */
 	private RodinElementSelectionViewer<T> viewer;
@@ -97,7 +95,7 @@ public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 		// Create the viewer to choose the list of events.
 		viewer = new RodinElementSelectionViewer<T>(prjNameComp, type,
 				Messages.wizard_elements);
-		viewer.setInput(subModel.getMachineRoot());
+		viewer.setInput(subModel);
 
 		return control;
 	}
@@ -108,14 +106,8 @@ public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 		prjName = prjText.getText();
 
 		// Set the list of event to be returned.
-		Collection<T> selected = viewer.getSelected();
-		int size = selected.size();
-		Collection<IInternalElement> result = new ArrayList<IInternalElement>(
-				size);
-		for (IRodinElement element : selected) {
-			result.add((IInternalElement) element);
-		}
-		elements = result.toArray(new IInternalElement[size]);
+		final Collection<T> selected = viewer.getSelected();
+		elements = selected.toArray(new IRodinElement[selected.size()]);
 		super.okPressed();
 	}
 

@@ -29,10 +29,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eventb.core.IMachineRoot;
 import org.rodinp.core.IElementType;
 import org.rodinp.core.IParent;
 import org.rodinp.core.IRodinElement;
 
+import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
@@ -54,7 +56,7 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	private ListViewer selectedViewer;
 
 	/** The list of selected elements. */
-	List<T> selectedElement;
+	private final List<T> selectedElement;
 
 	/** The element type of the chosen elements. */
 	private IElementType<T> type;
@@ -78,10 +80,10 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	 * @param title
 	 *            the title of the chooser.
 	 */
-	public RodinElementSelectionViewer(final Composite parent,
-			final IElementType<T> type, final String title) {
+	public RodinElementSelectionViewer(Composite parent, IElementType<T> type,
+			String title) {
 		this.type = type;
-		selectedElement = new ArrayList<T>();
+		this.selectedElement = new ArrayList<T>();
 		this.title = title;
 
 		// Create the main control of the dialog.
@@ -266,13 +268,24 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	/**
 	 * Sets the input element of the viewer.
 	 * 
-	 * @param input
-	 *            a parent input element.
+	 * @param subModel
+	 *            a sub model
 	 */
-	public final void setInput(final IParent input) {
-		availableViewer.setInput(input);
-		selectedViewer.setInput(input);
-		selectedElement = new ArrayList<T>();
+	public void setInput(ISubModel subModel) {
+		initSelectedElements(subModel);
+		final IMachineRoot machineRoot = subModel.getMachineRoot();
+		availableViewer.setInput(machineRoot);
+		selectedViewer.setInput(machineRoot);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void initSelectedElements(ISubModel subModel) {
+		selectedElement.clear();
+		for (IRodinElement element : subModel.getElements()) {
+			if (element.getElementType() == type) {
+				selectedElement.add((T) element);
+			}
+		}
 	}
 
 	/**
