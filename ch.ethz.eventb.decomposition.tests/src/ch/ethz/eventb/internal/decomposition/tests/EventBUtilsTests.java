@@ -13,7 +13,6 @@ package ch.ethz.eventb.internal.decomposition.tests;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.EventBPlugin;
 import org.eventb.core.IAction;
 import org.eventb.core.IContextRoot;
@@ -57,8 +56,7 @@ public class EventBUtilsTests extends EventBTests {
 
 		// Test create project when the project already exists.
 		try {
-			project = EventBUtils
-					.createProject("P1", new NullProgressMonitor());
+			project = EventBUtils.createProject("P1", null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception throws");
@@ -74,8 +72,7 @@ public class EventBUtilsTests extends EventBTests {
 
 		// Test create project successfully.
 		try {
-			project = EventBUtils.createProject("P100",
-					new NullProgressMonitor());
+			project = EventBUtils.createProject("P100", null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception throws");
@@ -95,7 +92,7 @@ public class EventBUtilsTests extends EventBTests {
 	@Test
 	public void testCopyContexts() {
 		try {
-			EventBUtils.copyContexts(P1, P2, new NullProgressMonitor());
+			EventBUtils.copyContexts(P1, P2, null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -145,7 +142,7 @@ public class EventBUtilsTests extends EventBTests {
 		boolean decomposed = false;
 		try {
 			machine = EventBUtils.createMachine(P1, EventBPlugin
-					.getMachineFileName(bareName), new NullProgressMonitor());
+					.getMachineFileName(bareName), null);
 			IDecomposedElement elt = (IDecomposedElement) machine
 					.getAdapter(IDecomposedElement.class);
 			decomposed = elt.isDecomposed();
@@ -189,7 +186,7 @@ public class EventBUtilsTests extends EventBTests {
 	 */
 	private static void testCopySeesClause(IMachineRoot src, IMachineRoot des) {
 		try {
-			EventBUtils.copySeesClauses(src, des, new NullProgressMonitor());
+			EventBUtils.copySeesClauses(src, des, null);
 			ISeesContext[] original = src.getSeesClauses();
 			ISeesContext[] copy = des.getSeesClauses();
 			for (ISeesContext originalSeesContext : original) {
@@ -382,7 +379,7 @@ public class EventBUtilsTests extends EventBTests {
 	private static void testGetEventFreeIdentifiers(String message, IEvent evt,
 			String... expected) {
 		try {
-			List<String> freeIdents = EventBUtils.getFreeIdentifiers(evt);
+			List<String> freeIdents = EventBUtils.getFreeIdentifiers(evt, null);
 			testFreeIdentifiers(message, freeIdents, expected);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -419,7 +416,7 @@ public class EventBUtilsTests extends EventBTests {
 		try {
 			IEvent evt;
 
-			evt = EventBUtils.flatten(evt1_1_1);
+			evt = EventBUtils.flatten(evt1_1_1, null);
 			testEventSignature("Flatten event signature 1", evt, "evt1_1_1",
 					false, Convergence.ORDINARY);
 			testEventParameters("Flatten event parameters 1", evt);
@@ -428,7 +425,7 @@ public class EventBUtilsTests extends EventBTests {
 			testEventActions("Flatten event actions 1", evt,
 					"act1_1_1_1: x :∈ {a, b}", "act1_1_1_2: y ≔ 0");
 
-			evt = EventBUtils.flatten(evt1_1_2);
+			evt = EventBUtils.flatten(evt1_1_2, null);
 			testEventSignature("Flatten event signature 2", evt, "evt1_1_2",
 					false, Convergence.ORDINARY);
 			testEventParameters("Flatten event parameters 2", evt);
@@ -438,7 +435,7 @@ public class EventBUtilsTests extends EventBTests {
 			testEventActions("Flatten event actions 2", evt,
 					"act1_1_2_1: x, y :∣ x' = b ∧ y' = y + 2");
 
-			evt = EventBUtils.flatten(evt1_1_3);
+			evt = EventBUtils.flatten(evt1_1_3, null);
 			testEventSignature("Flatten event signature 3", evt, "evt1_1_3",
 					false, Convergence.ORDINARY);
 			testEventParameters("Flatten event parameters 3", evt, "s");
@@ -448,7 +445,7 @@ public class EventBUtilsTests extends EventBTests {
 			testEventActions("Flatten event actions 3", evt,
 					"act1_1_3_1: x :∈ S ∖ {s}", "act1_1_3_2: y :∣ y' = y − 4");
 
-			evt = EventBUtils.flatten(evt1_2_1);
+			evt = EventBUtils.flatten(evt1_2_1, null);
 			testEventSignature("Flatten event signature 4", evt, "evt1_2_1",
 					false, Convergence.ORDINARY, "evt1_1_1");
 			testEventParameters("Flatten event parameters 4", evt);
@@ -458,7 +455,7 @@ public class EventBUtilsTests extends EventBTests {
 			testEventActions("Flatten event actions 4", evt,
 					"act1_2_1_1: x :∈ {a, b}", "act1_2_1_2: v ≔ y + 2");
 
-			evt = EventBUtils.flatten(evt1_2_2);
+			evt = EventBUtils.flatten(evt1_2_2, null);
 			testEventSignature("Flatten event signature 5", evt, "evt1_2_2",
 					false, Convergence.ORDINARY, "evt1_1_2");
 			testEventParameters("Flatten event parameters 5", evt);
@@ -469,7 +466,7 @@ public class EventBUtilsTests extends EventBTests {
 					"act1_1_2_1: x, y :∣ x' = b ∧ y' = y + 2",
 					"act1_2_2_1: u ≔ e", "act1_2_2_2: v ≔ v + 1");
 
-			evt = EventBUtils.flatten(evt1_2_3);
+			evt = EventBUtils.flatten(evt1_2_3, null);
 			testEventSignature("Flatten event signature 6", evt, "evt1_2_3",
 					false, Convergence.ORDINARY, "evt1_1_3");
 			testEventParameters("Flatten event parameters 6", evt, "s");
@@ -481,7 +478,7 @@ public class EventBUtilsTests extends EventBTests {
 					"act1_1_3_1: x :∈ S ∖ {s}", "act1_1_3_2: y :∣ y' = y − 4",
 					"act1_2_3_1: v ≔ v + 1");
 
-			evt = EventBUtils.flatten(evt1_2_4);
+			evt = EventBUtils.flatten(evt1_2_4, null);
 			testEventSignature("Flatten event signature 7", evt, "evt1_2_4",
 					false, Convergence.ORDINARY);
 			testEventParameters("Flatten event parameters 7", evt);
@@ -491,7 +488,7 @@ public class EventBUtilsTests extends EventBTests {
 			testEventActions("Flatten event actions 7", evt,
 					"act1_2_4_1: v, u ≔ v − 1, e");
 
-			evt = EventBUtils.flatten(evt1_3_1);
+			evt = EventBUtils.flatten(evt1_3_1, null);
 			testEventSignature("Flatten event signature 8", evt, "evt1_3_1",
 					false, Convergence.ORDINARY, "evt1_2_1");
 			testEventParameters("Flatten event parameters 8", evt);
@@ -501,7 +498,7 @@ public class EventBUtilsTests extends EventBTests {
 			testEventActions("Flatten event actions 8", evt,
 					"act1_3_1_1: v ≔ 2");
 
-			evt = EventBUtils.flatten(evt1_3_2);
+			evt = EventBUtils.flatten(evt1_3_2, null);
 			testEventSignature("Flatten event signature 9", evt, "evt1_3_2",
 					false, Convergence.ORDINARY, "evt1_2_2");
 			testEventParameters("Flatten event parameters 9", evt);
@@ -512,7 +509,7 @@ public class EventBUtilsTests extends EventBTests {
 					"act1_3_2_1: y ≔ y + 2", "act1_3_2_2: u ≔ e",
 					"act1_3_2_3: v ≔ v + 1");
 
-			evt = EventBUtils.flatten(evt1_3_3);
+			evt = EventBUtils.flatten(evt1_3_3, null);
 			testEventSignature("Flatten event signature 10", evt, "evt1_3_3",
 					false, Convergence.ORDINARY, "evt1_2_3");
 			testEventParameters("Flatten event parameters 10", evt, "t");
@@ -524,7 +521,7 @@ public class EventBUtilsTests extends EventBTests {
 			testEventActions("Flatten event actions 10", evt,
 					"act1_3_3_1: y :∣ y' = y − 4", "act1_3_3_2: v ≔ v + 1");
 
-			evt = EventBUtils.flatten(evt1_3_4);
+			evt = EventBUtils.flatten(evt1_3_4, null);
 			testEventSignature("Flatten event signature 11", evt, "evt1_3_4",
 					false, Convergence.ORDINARY, "evt1_2_4");
 			testEventParameters("Flatten event parameters 11", evt, "r");
@@ -535,7 +532,7 @@ public class EventBUtilsTests extends EventBTests {
 			testEventActions("Flatten event actions 11", evt,
 					"act1_2_4_1: v, u ≔ v − 1, e", "act1_3_4_1: p(r) ≔ h");
 
-			evt = EventBUtils.flatten(evt1_3_5);
+			evt = EventBUtils.flatten(evt1_3_5, null);
 			testEventSignature("Flatten event signature 12", evt, "evt1_3_5",
 					false, Convergence.ORDINARY);
 			testEventParameters("Flatten event parameters 12", evt);

@@ -8,6 +8,7 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  *     Systerel - added context related methods, used symbol tables
+ *     Systerel - implemented progress reporting and cancellation support
  *******************************************************************************/
 package ch.ethz.eventb.internal.decomposition.utils;
 
@@ -25,6 +26,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eventb.core.IAction;
 import org.eventb.core.ICarrierSet;
 import org.eventb.core.IConfigurationElement;
@@ -112,31 +114,37 @@ public final class EventBUtils {
 	 * @param projectName
 	 *            The name of the project.
 	 * @param monitor
-	 *            The progress monitor.
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @return A newly created Event-B project or <code>null</code>.
 	 * @throws RodinDBException
 	 *             if some errors occurred in the RodinCore runnable to create
 	 *             the project
 	 *             {@link RodinCore#run(IWorkspaceRunnable, IProgressMonitor)}.
 	 */
-	public static IEventBProject createProject(final String projectName,
-			final IProgressMonitor monitor) throws RodinDBException {
+	public static IEventBProject createProject(String projectName,
+			IProgressMonitor monitor) throws RodinDBException {
 		final IRodinDB rodinDB = RodinCore.getRodinDB();
 		final IRodinProject rodinProject = rodinDB.getRodinProject(projectName);
 		if (!rodinProject.exists()) {
 			RodinCore.run(new IWorkspaceRunnable() {
 
-				public void run(final IProgressMonitor pMonitor)
+				public void run(IProgressMonitor pMonitor)
 						throws CoreException {
+					final SubMonitor subMonitor = SubMonitor.convert(pMonitor, 3);
 					IProject project = rodinProject.getProject();
-					Assert.isTrue(!project.exists(),
-							Messages.decomposition_error_existingproject);
-					project.create(null);
-					project.open(null);
+					Assert.isTrue(!project.exists(), Messages.bind(
+							Messages.decomposition_error_existingproject,
+							project));
+					project.create(subMonitor.newChild(1));
+					project.open(subMonitor.newChild(1));
 					IProjectDescription description = project.getDescription();
 					description
 							.setNatureIds(new String[] { RodinCore.NATURE_ID });
-					project.setDescription(description, null);
+					project.setDescription(description, subMonitor.newChild(1));
 				}
 
 			}, monitor);
@@ -158,25 +166,28 @@ public final class EventBUtils {
 	 * @param fileName
 	 *            the full name with of the new machine.
 	 * @param monitor
-	 *            the progress monitor used to create this machine.
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @return the handle to newly created machine.
 	 * @throws RodinDBException
 	 *             if there are problems accessing the database
 	 */
-	public static IMachineRoot createMachine(final IEventBProject project,
-			final String fileName, final IProgressMonitor monitor)
+	public static IMachineRoot createMachine(IEventBProject project,
+			String fileName, IProgressMonitor monitor)
 			throws RodinDBException {
-		monitor.beginTask(Messages.decomposition_machine, 1);
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.decomposition_machine, 2);
 		IRodinFile machine = project.getMachineFile(fileName);
-		Assert.isTrue(!machine.exists(),
-				Messages.decomposition_error_existingmachine);
-		machine.create(false, new NullProgressMonitor());
+		Assert.isTrue(!machine.exists(), Messages.bind(
+				Messages.decomposition_error_existingmachine, machine));
+		machine.create(false, subMonitor.newChild(1));
 		IMachineRoot root = (IMachineRoot) machine.getRoot();
 
-		setDecomposed(root, monitor);
+		setDecomposed(root, subMonitor.newChild(1));
 
-		monitor.worked(1);
-		monitor.done();
 		return (IMachineRoot) root;
 	}
 
@@ -190,38 +201,42 @@ public final class EventBUtils {
 	 * @param fileName
 	 *            the full name with of the new context
 	 * @param monitor
-	 *            the progress monitor used to create this context
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @return the handle to newly created context
 	 * @throws RodinDBException
 	 *             if there are problems accessing the database
 	 */
-	public static IContextRoot createContext(final IEventBProject project,
-			final String fileName, final IProgressMonitor monitor)
+	public static IContextRoot createContext(IEventBProject project,
+			String fileName, IProgressMonitor monitor)
 			throws RodinDBException {
-		monitor.beginTask(Messages.decomposition_contexts, 1);
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.decomposition_contextsCopy, 2);
 		IRodinFile context = project.getContextFile(fileName);
-		Assert.isTrue(!context.exists(),
-				Messages.decomposition_error_existingmachine);
-		context.create(false, new NullProgressMonitor());
+		Assert.isTrue(!context.exists(), Messages.bind(
+				Messages.decomposition_error_existingcontext, context));
+		context.create(false, subMonitor.newChild(1));
 		IContextRoot root = (IContextRoot) context.getRoot();
 
-		setDecomposed(root, monitor);
+		setDecomposed(root, subMonitor.newChild(1));
 
-		monitor.worked(1);
-		monitor.done();
 		return root;
 	}
 
 	private static void setDecomposed(IEventBRoot root,
-			final IProgressMonitor monitor) throws RodinDBException {
+			IProgressMonitor monitor) throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		// Tag the root as decomposed and generated
 		IDecomposedElement elt = (IDecomposedElement) root
 				.getAdapter(IDecomposedElement.class);
-		elt.setDecomposed(monitor);
+		elt.setDecomposed(subMonitor.newChild(1));
 
 		// Set the configuration
 		((IConfigurationElement) root).setConfiguration(
-				DECOMPOSITION_CONFIG_SC, monitor);
+				DECOMPOSITION_CONFIG_SC, subMonitor.newChild(1));
 	}
 
 	/**
@@ -234,7 +249,11 @@ public final class EventBUtils {
 	 * @param to
 	 *            the destination project
 	 * @param monitor
-	 *            the progress monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @throws RodinDBException
 	 *             when some errors occur when
 	 *             <ul>
@@ -246,28 +265,30 @@ public final class EventBUtils {
 	 *             .</li>
 	 *             </ul>
 	 */
-	public static void copyContexts(final IEventBProject from,
-			final IEventBProject to, final IProgressMonitor monitor)
-			throws RodinDBException {
-		IRodinProject fromPrj = from.getRodinProject();
-		IContextRoot[] contexts = fromPrj
+	public static void copyContexts(IEventBProject from, IEventBProject to,
+			IProgressMonitor monitor) throws RodinDBException {
+		final IRodinProject fromPrj = from.getRodinProject();
+		final IContextRoot[] contexts = fromPrj
 				.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				3 * contexts.length);
 		for (IContextRoot context : contexts) {
-			IRodinFile ctxFile = context.getRodinFile();
-			ctxFile.copy(to.getRodinProject(), null, null, true, monitor);
+			final IRodinFile ctxFile = context.getRodinFile();
+			ctxFile.copy(to.getRodinProject(), null, null, true, subMonitor
+					.newChild(1));
 		}
 
 		// Tag the contexts as decomposed and generated and set the
 		// configuration
 		for (IContextRoot context : contexts) {
-			IContextRoot copiedContext = to.getContextRoot(context
+			final IContextRoot copiedContext = to.getContextRoot(context
 					.getElementName());
-			IDecomposedElement elt = (IDecomposedElement) copiedContext
+			final IDecomposedElement elt = (IDecomposedElement) copiedContext
 					.getAdapter(IDecomposedElement.class);
-			elt.setDecomposed(monitor);
+			elt.setDecomposed(subMonitor.newChild(1));
 
 			((IConfigurationElement) copiedContext).setConfiguration(
-					DECOMPOSITION_CONFIG_SC, monitor);
+					DECOMPOSITION_CONFIG_SC, subMonitor.newChild(1));
 		}
 	}
 
@@ -280,7 +301,11 @@ public final class EventBUtils {
 	 * @param dest
 	 *            the destination machine.
 	 * @param monitor
-	 *            a progress monitor.
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @throws RodinDBException
 	 *             if some errors occurred when
 	 *             <ul>
@@ -297,17 +322,44 @@ public final class EventBUtils {
 	public static void copySeesClauses(final IMachineRoot src,
 			final IMachineRoot dest, final IProgressMonitor monitor)
 			throws RodinDBException {
-		ISeesContext[] seesClauses = src.getSeesClauses();
-		monitor.beginTask(Messages.decomposition_seesclauses,
-				seesClauses.length);
+		final ISeesContext[] seesClauses = src.getSeesClauses();
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.decomposition_seesclauses, 2 * seesClauses.length);
 		for (ISeesContext seesClause : seesClauses) {
-			ISeesContext newSeesClause = dest.createChild(
-					ISeesContext.ELEMENT_TYPE, null, new NullProgressMonitor());
+			final ISeesContext newSeesClause = dest.createChild(
+					ISeesContext.ELEMENT_TYPE, null, subMonitor.newChild(1));
 			newSeesClause.setSeenContextName(seesClause.getSeenContextName(),
-					new NullProgressMonitor());
-			monitor.worked(1);
+					subMonitor.newChild(1));
 		}
-		monitor.done();
+	}
+
+	/**
+	 * Creates a new Sees Context clause with the given context name, in the
+	 * given machine root.
+	 * 
+	 * @param dest
+	 *            a machine root
+	 * @param seenContextName
+	 *            a bare context name
+	 * @param nextSibling
+	 *            sibling before which the sees clause should be created, or
+	 *            <code>null</code> to create it at the last position
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
+	 * @throws RodinDBException
+	 *             if a problem occurs while accessing the database
+	 */
+	public static void createSeesClause(IMachineRoot dest,
+			String seenContextName, IInternalElement nextSibling,
+			IProgressMonitor monitor) throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+		final ISeesContext sees = dest.createChild(ISeesContext.ELEMENT_TYPE,
+				nextSibling, subMonitor.newChild(1));
+		sees.setSeenContextName(seenContextName, subMonitor.newChild(1));
 	}
 
 	/**
@@ -428,35 +480,41 @@ public final class EventBUtils {
 	 * @param machine
 	 *            a machine.
 	 * @param monitor
-	 *            a progress monitor.
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 */
 	public static void cleanUp(final IMachineRoot machine,
 			final IProgressMonitor monitor) {
-		// Make the machine consistent.
+		final IRodinProject prj = machine.getRodinProject();
 		final String whileCleaningUp = "Decomposition: while cleaning up "; //$NON-NLS-1$
 		try {
-			IRodinFile rodinFile = machine.getRodinFile();
-			if (rodinFile.hasUnsavedChanges()) {
-				rodinFile.makeConsistent(monitor);
-			}
-		} catch (RodinDBException e) {
-			log(e, whileCleaningUp + machine);
-		}
-
-		// Make all the contexts consistent.
-		IRodinProject prj = machine.getRodinProject();
-		IContextRoot[] ctxs;
-		try {
-			ctxs = prj.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
+			final IContextRoot[] ctxs = prj
+					.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
+			final SubMonitor subMonitor = SubMonitor.convert(monitor,
+					1 + ctxs.length);
+			subMonitor.subTask(Messages.decomposition_cleaningUp);
+			// Make the machine consistent.
+			makeConsistent(machine, subMonitor.newChild(1));
+			// Make all the contexts consistent.
 			for (IContextRoot ctx : ctxs) {
-				IRodinFile rodinFile = ctx.getRodinFile();
-				if (rodinFile.hasUnsavedChanges()) {
-					rodinFile.makeConsistent(monitor);
-				}
+				makeConsistent(ctx, subMonitor.newChild(1));
 			}
 		} catch (RodinDBException e) {
 			log(e, whileCleaningUp + prj);
 		}
+	}
+
+	private static void makeConsistent(IEventBRoot machine,
+			IProgressMonitor monitor) throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
+		final IRodinFile rodinFile = machine.getRodinFile();
+		if (rodinFile.hasUnsavedChanges()) {
+			rodinFile.makeConsistent(subMonitor.newChild(1));
+		}
+		subMonitor.setWorkRemaining(0);
 	}
 
 	// =========================================================================
@@ -620,36 +678,43 @@ public final class EventBUtils {
 	 * @param vars
 	 *            the set of variables (in {@link String})
 	 * @param monitor
-	 *            the progress monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database
 	 */
-	public static void copyInvariants(final IMachineRoot mch,
-			final IMachineRoot src, final Set<String> vars,
-			final IProgressMonitor monitor) throws RodinDBException {
+	public static void copyInvariants(IMachineRoot mch, IMachineRoot src,
+			Set<String> vars, IProgressMonitor monitor) throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
 		// Recursively copy from the abstract machine.
-		IRefinesMachine[] refinesClauses = src.getRefinesClauses();
+		final IRefinesMachine[] refinesClauses = src.getRefinesClauses();
 		if (refinesClauses.length != 0) {
 			copyInvariants(mch, (IMachineRoot) refinesClauses[0]
-					.getAbstractMachine().getRoot(), vars, monitor);
+					.getAbstractMachine().getRoot(), vars, subMonitor
+					.newChild(1));
 		}
 
 		final Set<String> seenCarrierSetsAndConstants = getSeenCarrierSetsAndConstants(src);
+		subMonitor.worked(1);
 		// Check local invariants
-		IInvariant[] invs = src.getInvariants();
+		final IInvariant[] invs = src.getInvariants();
+		subMonitor.setWorkRemaining(4 * invs.length);
 		for (IInvariant inv : invs) {
 			if (isRelevant(inv, vars, seenCarrierSetsAndConstants)) {
-				final IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE,
-						null, new NullProgressMonitor());
+				final IInvariant newInv = mch.createChild(
+						IInvariant.ELEMENT_TYPE, null, subMonitor.newChild(1));
 				final String newLabel = makeLabel(src.getComponentName(), inv
 						.getLabel());
-				newInv.setLabel(newLabel, //$NON-NLS-1$
-						new NullProgressMonitor());
-				newInv.setPredicateString(inv.getPredicateString(),
-						new NullProgressMonitor());
-				newInv.setTheorem(inv.isTheorem(), new NullProgressMonitor());
+				newInv.setLabel(newLabel, subMonitor.newChild(1));
+				newInv.setPredicateString(inv.getPredicateString(), subMonitor
+						.newChild(1));
+				newInv.setTheorem(inv.isTheorem(), subMonitor.newChild(1));
 			} else {
-				addWDTheorems(mch, inv, vars, seenCarrierSetsAndConstants);
+				addWDTheorems(mch, inv, vars, seenCarrierSetsAndConstants,
+						subMonitor.newChild(4));
 			}
 		}
 
@@ -658,7 +723,8 @@ public final class EventBUtils {
 	// adds WD theorems into mch, deduced from srcInv, which are relevant with
 	// the given set of variables
 	private static void addWDTheorems(IMachineRoot mch, IInvariant srcInv,
-			Set<String> vars, Set<String> seenCarrierSetsAndConstants)
+			Set<String> vars, Set<String> seenCarrierSetsAndConstants,
+			IProgressMonitor monitor)
 			throws RodinDBException {
 		final Predicate invWDPred = getWDPredicate(srcInv);
 		if (invWDPred == null) {
@@ -667,21 +733,24 @@ public final class EventBUtils {
 		}
 		final IMachineRoot src = (IMachineRoot) srcInv.getRoot();
 		final Set<Predicate> invWDPreds = Lib.breakPossibleConjunct(invWDPred);
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				4 * invWDPreds.size());
 		for (Predicate pred : invWDPreds) {
 			if (Lib.isTrue(pred)) {
+				subMonitor.worked(4);
 				continue;
 			}
 			if (isRelevant(pred, vars, seenCarrierSetsAndConstants)) {
 				// add WD predicate
 				final IInvariant newInv = mch.createChild(
 						IInvariant.ELEMENT_TYPE, null,
-						new NullProgressMonitor());
-				final String newLabel = makeLabel("WD", src.getComponentName(),
+						subMonitor.newChild(1));
+				final String newLabel = makeLabel("WD", src.getComponentName(), //$NON-NLS-1$
 						srcInv.getLabel());
-				newInv.setLabel(newLabel, new NullProgressMonitor());
+				newInv.setLabel(newLabel, subMonitor.newChild(1));
 				newInv.setPredicateString(pred.toString(),
-						new NullProgressMonitor());
-				newInv.setTheorem(true, new NullProgressMonitor());
+						subMonitor.newChild(1));
+				newInv.setTheorem(true, subMonitor.newChild(1));
 			}
 		}
 	}
@@ -745,20 +814,28 @@ public final class EventBUtils {
 	 * 
 	 * @param evt
 	 *            an event.
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @return the set of assigned identifiers.
 	 * @throws RodinDBException
 	 *             if there are problems accessing the database
 	 */
-	public static List<String> getAssignedIdentifiers(IEvent evt)
-			throws RodinDBException {
+	public static List<String> getAssignedIdentifiers(IEvent evt,
+			IProgressMonitor monitor) throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		// First flatten the event.
-		evt = flatten(evt);
+		evt = flatten(evt, subMonitor.newChild(1));
 
 		// Initialize the list of assigned identifiers.
-		List<String> idents = new ArrayList<String>();
+		final List<String> idents = new ArrayList<String>();
 
 		// Copy the assigned identifiers from all actions.
-		IAction[] acts = evt.getActions();
+		final IAction[] acts = evt.getActions();
+		subMonitor.setWorkRemaining(acts.length);
 		for (IAction act : acts) {
 			List<String> actIdents = getAssignedIdentifiers(act);
 			for (String actIdent : actIdents) {
@@ -766,6 +843,7 @@ public final class EventBUtils {
 					idents.add(actIdent);
 				}
 			}
+			subMonitor.worked(1);
 		}
 
 		return idents;
@@ -777,21 +855,27 @@ public final class EventBUtils {
 	 * 
 	 * @param evt
 	 *            an event.
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @return the set of free identifiers.
 	 * @throws RodinDBException
 	 *             if there are problems accessing the database
 	 */
-	public static List<String> getFreeIdentifiers(IEvent evt)
-			throws RodinDBException {
+	public static List<String> getFreeIdentifiers(IEvent evt,
+			IProgressMonitor monitor) throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
+		
 		// First flatten the event.
-		evt = flatten(evt);
+		evt = flatten(evt, subMonitor.newChild(3));
 
 		// Initialize the list of free identifiers.
 		List<String> idents = new ArrayList<String>();
 
-		// Copy the free identifiers from all guards.
-		IGuard[] grds = evt.getGuards();
-		for (IGuard grd : grds) {
+		for (IGuard grd : evt.getGuards()) {
 			List<String> grdIdents = getFreeIdentifiers(grd);
 			for (String grdIdent : grdIdents) {
 				if (!idents.contains(grdIdent)) {
@@ -799,10 +883,9 @@ public final class EventBUtils {
 				}
 			}
 		}
-
-		// Copy the free identifiers from all actions.
-		IAction[] acts = evt.getActions();
-		for (IAction act : acts) {
+		subMonitor.worked(1);
+		
+		for (IAction act : evt.getActions()) {
 			List<String> actIdents = getFreeIdentifiers(act);
 			for (String actIdent : actIdents) {
 				if (!idents.contains(actIdent)) {
@@ -810,12 +893,12 @@ public final class EventBUtils {
 				}
 			}
 		}
+		subMonitor.worked(1);
 
-		// Remove the parameters.
-		IParameter[] params = evt.getParameters();
-		for (IParameter param : params) {
+		for (IParameter param : evt.getParameters()) {
 			idents.remove(param.getIdentifierString());
 		}
+		subMonitor.worked(1);
 
 		return idents;
 	}
@@ -830,14 +913,21 @@ public final class EventBUtils {
 	 * 
 	 * @param evt
 	 *            an event.
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @return the flatten event.
 	 * @throws RodinDBException
 	 *             if there are problems accessing the database
 	 */
-	public static IEvent flatten(final IEvent evt) throws RodinDBException {
+	public static IEvent flatten(IEvent evt, IProgressMonitor monitor) throws RodinDBException {
+		// FIXME side effects
 		if (evt.isExtended()) {
 			IEvent absEvt = getAbstract(evt);
-			return merge(evt, flatten(absEvt));
+			return merge(evt, flatten(absEvt, monitor), monitor);
 		}
 		return evt;
 	}
@@ -900,41 +990,33 @@ public final class EventBUtils {
 	 * @throws RodinDBException
 	 *             if there are problems accessing the database
 	 */
-	public static IEvent merge(final IEvent dest, final IEvent src)
+	public static IEvent merge(IEvent dest, IEvent src, IProgressMonitor monitor)
 			throws RodinDBException {
-
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
+		
 		// Get the current first parameter.
-		IParameter[] currParams = dest.getParameters();
-		IParameter fstParam = null;
+		final IParameter[] currParams = dest.getParameters();
+		final IParameter fstParam;
 		if (currParams.length != 0) {
 			fstParam = currParams[0];
+		} else {
+			fstParam = null;
 		}
 
 		// Copy the parameters from abstract event to the beginning of the list.
-		IParameter[] params = src.getParameters();
-		for (IParameter param : params) {
-			IParameter newParam = dest.createChild(IParameter.ELEMENT_TYPE,
-					fstParam, new NullProgressMonitor());
-			newParam.setIdentifierString(param.getIdentifierString(),
-					new NullProgressMonitor());
-		}
+		copyParameters(dest, src, fstParam, subMonitor.newChild(1));
 
 		// Get the current first guard.
-		IGuard[] currGuards = dest.getGuards();
-		IGuard fstGrd = null;
+		final IGuard[] currGuards = dest.getGuards();
+		final IGuard fstGrd;
 		if (currGuards.length != 0) {
 			fstGrd = currGuards[0];
+		} else {
+			fstGrd = null;
 		}
 
 		// Copy the guards from the abstract event to the beginning of the list.
-		IGuard[] grds = src.getGuards();
-		for (IGuard grd : grds) {
-			IGuard newGrd = dest.createChild(IGuard.ELEMENT_TYPE, fstGrd,
-					new NullProgressMonitor());
-			newGrd.setLabel(grd.getLabel(), new NullProgressMonitor());
-			newGrd.setPredicateString(grd.getPredicateString(),
-					new NullProgressMonitor());
-		}
+		copyGuards(dest, src, fstGrd, subMonitor.newChild(1));
 
 		// Get the current first action.
 		IAction[] currActs = dest.getActions();
@@ -1007,16 +1089,30 @@ public final class EventBUtils {
 	 *            the destination event.
 	 * @param src
 	 *            the source event.
+	 * @param nextSibling
+	 *            sibling before which the sees clause should be created, or
+	 *            <code>null</code> to create it at the last position
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void copyParameters(final IEvent dest, final IEvent src)
+	public static void copyParameters(IEvent dest, IEvent src,
+			IInternalElement nextSibling, IProgressMonitor monitor)
 			throws RodinDBException {
-		for (IParameter param : src.getParameters()) {
-			IParameter newParam = dest.createChild(IParameter.ELEMENT_TYPE,
-					null, new NullProgressMonitor());
+		final IParameter[] params = src.getParameters();
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				2 * params.length);
+		for (IParameter param : params) {
+			final IParameter newParam = dest.createChild(
+					IParameter.ELEMENT_TYPE, nextSibling, subMonitor
+							.newChild(1));
 			newParam.setIdentifierString(param.getIdentifierString(),
-					new NullProgressMonitor());
+					subMonitor.newChild(1));
 		}
 	}
 
@@ -1045,19 +1141,32 @@ public final class EventBUtils {
 	 *            the destination event.
 	 * @param src
 	 *            the source event.
+	 * @param nextSibling
+	 *            sibling before which the sees clause should be created, or
+	 *            <code>null</code> to create it at the last position
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void copyGuards(final IEvent dest, final IEvent src)
+	public static void copyGuards(IEvent dest, IEvent src,
+			IInternalElement nextSibling, IProgressMonitor monitor)
 			throws RodinDBException {
+		final IGuard[] guards = src.getGuards();
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				4 * guards.length);
 		// Copy guards from the source event.
-		for (IGuard grd : src.getGuards()) {
-			IGuard newGrd = dest.createChild(IGuard.ELEMENT_TYPE, null,
-					new NullProgressMonitor());
-			newGrd.setLabel(grd.getLabel(), new NullProgressMonitor());
-			newGrd.setPredicateString(grd.getPredicateString(),
-					new NullProgressMonitor());
-			newGrd.setTheorem(grd.isTheorem(), new NullProgressMonitor());
+		for (IGuard grd : guards) {
+			IGuard newGrd = dest.createChild(IGuard.ELEMENT_TYPE, nextSibling,
+					subMonitor.newChild(1));
+			newGrd.setLabel(grd.getLabel(), subMonitor.newChild(1));
+			newGrd.setPredicateString(grd.getPredicateString(), subMonitor
+					.newChild(1));
+			newGrd.setTheorem(grd.isTheorem(), subMonitor.newChild(1));
 		}
 	}
 
@@ -1073,37 +1182,45 @@ public final class EventBUtils {
 	 *            the current decomposed event.
 	 * @param vars
 	 *            the set of accessed variables.
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void createExtraParametersAndGuards(final IMachineRoot src,
-			final IEvent evt, final Set<String> vars) throws RodinDBException {
-		List<String> idents = getFreeIdentifiers(evt);
+	public static void createExtraParametersAndGuards(IMachineRoot src,
+			IEvent evt, Set<String> vars, IProgressMonitor monitor)
+			throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
+		final List<String> idents = getFreeIdentifiers(evt, subMonitor.newChild(1));
 		idents.removeAll(getSeenCarrierSetsAndConstants(src));
 		idents.removeAll(vars);
 		for (IParameter param : evt.getParameters()) {
 			idents.remove(param.getIdentifierString());
 		}
-
+		subMonitor.setWorkRemaining(8 * idents.size());
 		for (String ident : idents) {
-			IParameter newParam = evt.createChild(IParameter.ELEMENT_TYPE,
-					null, new NullProgressMonitor());
-			newParam.setIdentifierString(ident, new NullProgressMonitor());
+			final IParameter newParam = evt.createChild(IParameter.ELEMENT_TYPE,
+					null, subMonitor.newChild(2));
+			newParam.setIdentifierString(ident, subMonitor.newChild(2));
 		}
 
 		IGuard fstGrd = null;
-		IGuard[] grds = evt.getGuards();
+		final IGuard[] grds = evt.getGuards();
 		if (grds.length != 0) {
 			fstGrd = grds[0];
 		}
 
 		for (String ident : idents) {
-			String typThm = getTypingTheorem(src, ident);
-			IGuard newGrd = evt.createChild(IGuard.ELEMENT_TYPE, fstGrd,
-					new NullProgressMonitor());
-			newGrd.setLabel(makeTypingLabel(ident), new NullProgressMonitor());
-			newGrd.setPredicateString(typThm, new NullProgressMonitor());
-			newGrd.setTheorem(true, new NullProgressMonitor());
+			final String typThm = getTypingTheorem(src, ident);
+			final IGuard newGrd = evt.createChild(IGuard.ELEMENT_TYPE, fstGrd,
+					subMonitor.newChild(1));
+			newGrd.setLabel(makeTypingLabel(ident), subMonitor.newChild(1));
+			newGrd.setPredicateString(typThm, subMonitor.newChild(1));
+			newGrd.setTheorem(true, subMonitor.newChild(1));
 		}
 	}
 
@@ -1140,6 +1257,38 @@ public final class EventBUtils {
 	public static List<String> getFreeIdentifiers(final IAction act)
 			throws RodinDBException {
 		return getAssignmentFreeIdentifiers(act.getAssignmentString());
+	}
+
+	/**
+	 * Copies all actions from a source event to a destination event.
+	 * 
+	 * @param dest
+	 *            the destination event.
+	 * @param nextSibling
+	 *            sibling before which the sees clause should be created, or
+	 *            <code>null</code> to create it at the last position
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
+	 * @param src
+	 *            the source event.
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database.
+	 */
+	public static void copyActions(IEvent dest, IEvent source,
+			IInternalElement nextSibling, SubMonitor monitor) throws RodinDBException {
+		final IAction[] actions = source.getActions();
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				3 * actions.length);
+		for (IAction act : actions) {
+			IAction newAct = dest.createChild(IAction.ELEMENT_TYPE, nextSibling,
+					subMonitor.newChild(1));
+			newAct.setLabel(act.getLabel(), subMonitor.newChild(1));
+			newAct.setAssignmentString(act.getAssignmentString(), subMonitor.newChild(1));
+		}
 	}
 
 	// =========================================================================

@@ -8,6 +8,7 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  *     Systerel - implemented context decomposition
+ *     Systerel - implemented progress reporting and cancellation support
  ****************************************************************************/
 
 package ch.ethz.eventb.internal.decomposition;
@@ -26,8 +27,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eventb.core.IAxiom;
 import org.eventb.core.IConstant;
 import org.eventb.core.IContextRoot;
@@ -68,44 +69,55 @@ public class DecompositionUtils {
 	 * 
 	 * @param subModel
 	 *            the sub-model to be considered
+	 *            @param monitor
 	 * @return the labels of the accessed variables.
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static Set<String> getAccessedVariables(final ISubModel subModel)
-			throws RodinDBException {
-		final Set<String> vars = getFreeIdentifiersFromEvents(subModel);
+	public static Set<String> getAccessedVariables(final ISubModel subModel,
+			IProgressMonitor monitor) throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+		final Set<String> vars = getFreeIdentifiersFromEvents(subModel, subMonitor.newChild(1));
 		// Removes the constants and sets.
 		final IMachineRoot mch = subModel.getMachineRoot();
 		vars.removeAll(EventBUtils.getSeenCarrierSetsAndConstants(mch));
+		checkCancellation(subMonitor);
+		subMonitor.worked(1);
 		return vars;
 	}
 	
-	private static Set<String> getFreeIdentifiersFromEvents(
-			final ISubModel subModel) throws RodinDBException {
+	private static Set<String> getFreeIdentifiersFromEvents(ISubModel subModel,
+			IProgressMonitor monitor)
+			throws RodinDBException {
 		final IMachineRoot mch = subModel.getMachineRoot();
 		final Set<String> identifiers = new HashSet<String>();
 		// Adds the free identifiers from the events.
-		for (IRodinElement element : subModel.getElements()) {
+		final IRodinElement[] elements = subModel.getElements();
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, elements.length);
+		for (IRodinElement element : elements) {
 			if (! (element instanceof IEvent)) {
 				throw new IllegalArgumentException("Event Decomposition: event expected as sub-model element"); //$NON-NLS-1$
 			}
 			for (IEvent event : mch.getEvents()) {
 				if (event.getLabel().equals(((IEvent) element).getLabel())) {
-					identifiers.addAll(EventBUtils.getFreeIdentifiers(event));
+					identifiers.addAll(EventBUtils.getFreeIdentifiers(event, subMonitor.newChild(0)));
 				}
 			}
+			subMonitor.worked(1);
+			checkCancellation(subMonitor);
 		}
 		return identifiers;
 	}
 
-	public static Set<String> getAccessedIdentifiers(ISubModel subModel)
-			throws RodinDBException {
+	public static Set<String> getAccessedIdentifiers(ISubModel subModel,
+			IProgressMonitor monitor) throws RodinDBException {
 		final IMachineRoot mch = subModel.getMachineRoot();
-		final Set<String> identifiers = getFreeIdentifiersFromEvents(subModel);
+		final Set<String> identifiers = getFreeIdentifiersFromEvents(subModel,
+				monitor);
 		for(IInvariant inv: mch.getInvariants()) {
 			final List<String> freeIdents = getFreeIdentifiers(inv);
 			identifiers.addAll(freeIdents);
+			checkCancellation(monitor);
 		}
 		return identifiers;
 	}
@@ -121,24 +133,28 @@ public class DecompositionUtils {
 	 * @param subModel
 	 *            a sub-model.
 	 * @param monitor
-	 *            a progress monitor.
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	public static void decomposeInvariants(final IMachineRoot mch,
-			final ISubModel subModel, final IProgressMonitor monitor)
+	public static void decomposeInvariants(IMachineRoot mch,
+			ISubModel subModel, IProgressMonitor monitor)
 			throws RodinDBException {
-		IMachineRoot src = subModel.getMachineRoot();
-		Set<String> vars = getAccessedVariables(subModel);
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
+		final IMachineRoot src = subModel.getMachineRoot();
+		final Set<String> vars = getAccessedVariables(subModel, subMonitor.newChild(1));
 		
 		// Create the typing theorems.
-		createTypingTheorems(mch, src, vars, new SubProgressMonitor(monitor, 1));
-
+		createTypingTheorems(mch, src, vars, subMonitor.newChild(1));
+		checkCancellation(subMonitor);
+		
 		// Copy relevant invariants.
-		EventBUtils.copyInvariants(mch, src, vars, new SubProgressMonitor(
-				monitor, 1));
-
-		monitor.done();
+		EventBUtils.copyInvariants(mch, src, vars, subMonitor.newChild(1));
+		checkCancellation(subMonitor);
 	}
 
 	/**
@@ -152,27 +168,31 @@ public class DecompositionUtils {
 	 * @param vars
 	 *            the set of variables (in {@link String}).
 	 * @param monitor
-	 *            the progress monitor.
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static void createTypingTheorems(final IMachineRoot mch,
-			final IMachineRoot src, final Set<String> vars,
-			final IProgressMonitor monitor) throws RodinDBException {
-		monitor.beginTask(Messages.decomposition_typingtheorems, vars.size());
+	private static void createTypingTheorems(IMachineRoot mch,
+			IMachineRoot src, Set<String> vars, IProgressMonitor monitor)
+			throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.decomposition_typingtheorems, 4 * vars.size());
 		for (String var : vars) {
 			final String typingTheorem = EventBUtils.getTypingTheorem(src, var);
 			if (typingTheorem == null) {
 				continue;
 			}
 			final IInvariant newInv = mch.createChild(IInvariant.ELEMENT_TYPE,
-					null, monitor);
-			newInv.setLabel(EventBUtils.makeTypingLabel(var), monitor);
-			newInv.setTheorem(true, monitor);
-			newInv.setPredicateString(typingTheorem, monitor);
-			monitor.worked(1);
+					null, subMonitor.newChild(1));
+			newInv.setLabel(EventBUtils.makeTypingLabel(var), subMonitor
+					.newChild(1));
+			newInv.setTheorem(true, subMonitor.newChild(1));
+			newInv.setPredicateString(typingTheorem, subMonitor.newChild(1));
 		}
-		monitor.done();
 	}
 
 	/**
@@ -201,13 +221,17 @@ public class DecompositionUtils {
 	 * @param destEvt
 	 *            the destination event in a sub-machine
 	 * @param monitor
-	 *            the progress monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database
 	 */
-	public static void setEventStatus(final IEvent srcEvt,
-			final IEvent destEvt, final IProgressMonitor monitor)
-			throws RodinDBException {
+	public static void setEventStatus(IEvent srcEvt, IEvent destEvt,
+			IProgressMonitor monitor) throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
 		// Gets the external status of the source event
 		IExternalElement srcElt = (IExternalElement) srcEvt
 				.getAdapter(IExternalElement.class);
@@ -217,94 +241,113 @@ public class DecompositionUtils {
 
 		// Sets the convergence
 		if (destElt.isExternal()) {
-			destEvt.setConvergence(Convergence.ORDINARY, monitor);
+			destEvt.setConvergence(Convergence.ORDINARY, subMonitor.newChild(1));
 		} else {
-			Convergence convergence = srcEvt.getConvergence();
+			final Convergence convergence = srcEvt.getConvergence();
 			if (convergence.equals(Convergence.ORDINARY)
 					|| convergence.equals(Convergence.CONVERGENT)) {
-				destEvt.setConvergence(Convergence.ORDINARY, monitor);
+				destEvt.setConvergence(Convergence.ORDINARY, subMonitor
+						.newChild(1));
 			} else if (convergence.equals(Convergence.ANTICIPATED)) {
-				destEvt.setConvergence(Convergence.ANTICIPATED, monitor);
+				destEvt.setConvergence(Convergence.ANTICIPATED, subMonitor
+						.newChild(1));
 			}
 		}
+		subMonitor.setWorkRemaining(2);
 
 		// Sets the extended status
-		destEvt.setExtended(false, monitor);
+		destEvt.setExtended(false, subMonitor.newChild(1));
 
 		// Sets the external status
 		if (srcElt.isExternal()) {
-			destElt.setExternal(true, monitor);
+			destElt.setExternal(true, subMonitor.newChild(1));
 		}
+		subMonitor.setWorkRemaining(0);
 	}
-	
+
 	/**
+	 * Populates the given context with elements required by a decomposed
+	 * machine for a given sub model.
+	 * 
 	 * @param dest
+	 *            the target context
 	 * @param mchRoot
+	 *            the decomposed machine
+	 * 
 	 * @param subModel
+	 *            the sub model corresponding to the decomposed machine
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
 	 *            user. It is the caller's responsibility to call done() on the
 	 *            given monitor. Accepts <code>null</code>, indicating that no
 	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            cancelled
 	 * @throws RodinDBException
+	 *             if a problem occurs while accessing the database
 	 */
 	public static void decomposeContext(IContextRoot dest,
-			IMachineRoot mchRoot, ISubModel subModel, IProgressMonitor monitor) throws RodinDBException {
-		final SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.decomposition_decomposeContexts, 10);
-		
-		final Set<IContextRoot> seenContexts = getSeenContexts(subModel.getMachineRoot());
+			IMachineRoot mchRoot, ISubModel subModel, IProgressMonitor monitor)
+			throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.decomposition_decomposeContexts, 10);
+
+		final Set<IContextRoot> seenContexts = getSeenContexts(subModel
+				.getMachineRoot());
 		if (seenContexts.isEmpty()) {
 			return;
 		}
-		if (subMonitor.isCanceled()) return;
+		checkCancellation(subMonitor);
 		subMonitor.worked(1);
-		
+
 		// get all seen constants and carrier sets
 		final SymbolTable cstSetNonDecompSymbols = getConstantAndSetSymbols(seenContexts);
-		if (subMonitor.isCanceled()) return;
+		checkCancellation(subMonitor);
 		subMonitor.worked(1);
-		
+
 		// get per axiom references of all seen constants and carrier sets
 		final ReferenceTable cstSetNonDecompCtxReferences = populateReferenceTable(
 				seenContexts, cstSetNonDecompSymbols);
-		if (subMonitor.isCanceled()) return;
+		checkCancellation(subMonitor);
 		subMonitor.worked(1);
-		
+
 		// get references of constants and carrier sets in decomposed machine
 		final ReferenceTable cstSetDecompMchReferences = new ReferenceTable();
-		final MachineSymbolGatherer mchSymbGth = new MachineSymbolGatherer(mchRoot);
-		mchSymbGth.addReferencedSymbols(cstSetNonDecompSymbols, cstSetDecompMchReferences);
-		if (subMonitor.isCanceled()) return;
+		final MachineSymbolGatherer mchSymbGth = new MachineSymbolGatherer(
+				mchRoot);
+		mchSymbGth.addReferencedSymbols(cstSetNonDecompSymbols,
+				cstSetDecompMchReferences);
+		checkCancellation(subMonitor);
 		subMonitor.worked(1);
-		
+
 		// get referenced symbols
-		final Set<Symbol> neededSymbols = cstSetDecompMchReferences.getSymbols();
-		if (subMonitor.isCanceled()) return;
+		final Set<Symbol> neededSymbols = cstSetDecompMchReferences
+				.getSymbols();
+		checkCancellation(subMonitor);
 		subMonitor.worked(1);
 
 		// get typing theorems
 		final Map<String, String> typingTheorems = getTypingTheorems(neededSymbols);
-		if (subMonitor.isCanceled()) return;
+		checkCancellation(subMonitor);
 		subMonitor.worked(1);
-		
+
 		// get axioms corresponding to referenced symbols
-		final List<IAxiom> neededAxioms = getNeededAxioms(cstSetNonDecompCtxReferences, neededSymbols);
-		if (subMonitor.isCanceled()) return;
+		final List<IAxiom> neededAxioms = getNeededAxioms(
+				cstSetNonDecompCtxReferences, neededSymbols);
+		checkCancellation(subMonitor);
 		subMonitor.worked(1);
-		
+
 		// populate decomposed context
 		createIdentifierElements(dest, neededSymbols, subMonitor.newChild(1));
-		if (subMonitor.isCanceled()) return;
+		checkCancellation(subMonitor);
 
 		createTypingTheorems(dest, typingTheorems, subMonitor.newChild(1));
-		if (subMonitor.isCanceled()) return;
+		checkCancellation(subMonitor);
 
 		createNeededAxioms(dest, neededAxioms, subMonitor.newChild(1));
 	}
 
 	private static ReferenceTable populateReferenceTable(
-			final Set<IContextRoot> contexts, final SymbolTable symbolTable)
+			Set<IContextRoot> contexts, SymbolTable symbolTable)
 			throws RodinDBException {
 		final ReferenceTable constantSetCtxReferences = new ReferenceTable();
 		for (IContextRoot ctx : contexts) {
@@ -385,7 +428,7 @@ public class DecompositionUtils {
 	}
 
 	private static void createNeededAxioms(IContextRoot dest,
-			final List<IAxiom> neededAxioms, IProgressMonitor monitor)
+			List<IAxiom> neededAxioms, IProgressMonitor monitor)
 			throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				4 * neededAxioms.size());
@@ -403,5 +446,12 @@ public class DecompositionUtils {
 	private static String makePredicateLabel(ILabeledElement element) throws RodinDBException {
 		final IEventBRoot root = (IEventBRoot) element.getRoot();
 		return makeLabel(root.getComponentName(), element.getLabel());
+	}
+
+	public static void checkCancellation(IProgressMonitor monitor) {
+		if (monitor != null && monitor.isCanceled()) {
+			monitor.done();
+			throw new OperationCanceledException();
+		}
 	}
 }

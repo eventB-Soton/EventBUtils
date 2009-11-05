@@ -14,7 +14,6 @@ package ch.ethz.eventb.internal.decomposition.tests;
 
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Before;
 
@@ -32,8 +31,6 @@ import ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition;
  */
 public abstract class AbstractDecompositionTests extends EventBTests {
 	
-	protected final static IProgressMonitor monitor = new NullProgressMonitor();
-
 	// Some model distributions.
 	protected IModelDecomposition modelDecomp1;
 

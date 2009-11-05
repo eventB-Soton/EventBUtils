@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.EventBPlugin;
 import org.eventb.core.IAxiom;
 import org.eventb.core.ICarrierSet;
@@ -53,7 +52,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 	 * Test method for {@link DecompositionUtils#getAccessedVariables()}.
 	 */
 	@Test
-	public void testGetAccessedVariables() {
+	public void testGetAccessedVariables() throws Exception {
 		ISubModel subModel;
 
 		subModel = modelDecomp1.addSubModel();
@@ -124,10 +123,10 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 	 *            expected set of accessed variables (in {@link String}).
 	 */
 	private void testGetAccessedVariables(String message, ISubModel subModel,
-			String... expected) {
+			String... expected) throws Exception {
 		Set<String> vars;
 		try {
-			vars = DecompositionUtils.getAccessedVariables(subModel);
+			vars = DecompositionUtils.getAccessedVariables(subModel, null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Get accessed variables: There should be no exception");
@@ -142,10 +141,9 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 	 * .
 	 */
 	@Test
-	public void testCreateInvariants() {
+	public void testCreateInvariants() throws Exception {
 		try {
-			DecompositionUtils.decomposeInvariants(mch2_1, subModel1,
-					new NullProgressMonitor());
+			DecompositionUtils.decomposeInvariants(mch2_1, subModel1, null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create invariants 1: There should be no exception");
@@ -158,8 +156,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				"mch1_2_inv1_2_2: v ∈ ℕ: false", "mch1_2_thm1_2_3: v ≥ 0: true");
 
 		try {
-			DecompositionUtils.decomposeInvariants(mch3_1, subModel2,
-					new NullProgressMonitor());
+			DecompositionUtils.decomposeInvariants(mch3_1, subModel2, null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create invariants 2: There should be no exception");
@@ -176,8 +173,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				"mch1_2_inv1_2_2: v ∈ ℕ: false", "mch1_2_thm1_2_3: v ≥ 0: true");
 
 		try {
-			DecompositionUtils.decomposeInvariants(mch4_1, subModel3,
-					new NullProgressMonitor());
+			DecompositionUtils.decomposeInvariants(mch4_1, subModel3, null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create invariants 3: There should be no exception");
@@ -222,7 +218,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 		subModel.setElements(event);
 		
 		DecompositionUtils.decomposeInvariants(mch2_1, subModel,
-				new NullProgressMonitor());
+				null);
 		testInvariants("WD invariants", mch2_1,
 				Messages.decomposition_typing + "_x: x ∈ ℤ: true",
 				"WD_" + mchName + "_" + inv2Label + ": x≠0: true");
@@ -278,22 +274,22 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 		IEvent destEvt = createEvent(m1, "evt");
 
 		// If the source event is ordinary, the destination event is ordinary
-		srcEvt.setConvergence(Convergence.ORDINARY, monitor);
-		destEvt.setConvergence(Convergence.CONVERGENT, monitor);
-		DecompositionUtils.setEventStatus(srcEvt, destEvt, monitor);
+		srcEvt.setConvergence(Convergence.ORDINARY, null);
+		destEvt.setConvergence(Convergence.CONVERGENT, null);
+		DecompositionUtils.setEventStatus(srcEvt, destEvt, null);
 		assertTrue("The destination event should be ordinary", destEvt
 				.getConvergence().equals(Convergence.ORDINARY));
 		// If the source event is convergent, the destination event is ordinary
-		srcEvt.setConvergence(Convergence.CONVERGENT, monitor);
-		destEvt.setConvergence(Convergence.CONVERGENT, monitor);
-		DecompositionUtils.setEventStatus(srcEvt, destEvt, monitor);
+		srcEvt.setConvergence(Convergence.CONVERGENT, null);
+		destEvt.setConvergence(Convergence.CONVERGENT, null);
+		DecompositionUtils.setEventStatus(srcEvt, destEvt, null);
 		assertTrue("The destination event should be ordinary", destEvt
 				.getConvergence().equals(Convergence.ORDINARY));
 		// If the source event is anticipated, the destination event is
 		// anticipated
-		srcEvt.setConvergence(Convergence.ANTICIPATED, monitor);
-		destEvt.setConvergence(Convergence.CONVERGENT, monitor);
-		DecompositionUtils.setEventStatus(srcEvt, destEvt, monitor);
+		srcEvt.setConvergence(Convergence.ANTICIPATED, null);
+		destEvt.setConvergence(Convergence.CONVERGENT, null);
+		DecompositionUtils.setEventStatus(srcEvt, destEvt, null);
 		assertTrue("The destination event should be anticipated", destEvt
 				.getConvergence().equals(Convergence.ANTICIPATED));
 	}
@@ -315,24 +311,24 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 		IEvent destEvt = createEvent(m1, "evt");
 		IExternalElement destElt = (IExternalElement) destEvt
 				.getAdapter(IExternalElement.class);
-		destElt.setExternal(true, monitor);
+		destElt.setExternal(true, null);
 
 		// If the source event is ordinary, the destination event is ordinary
-		srcEvt.setConvergence(Convergence.ORDINARY, monitor);
-		destEvt.setConvergence(Convergence.CONVERGENT, monitor);
-		DecompositionUtils.setEventStatus(srcEvt, destEvt, monitor);
+		srcEvt.setConvergence(Convergence.ORDINARY, null);
+		destEvt.setConvergence(Convergence.CONVERGENT, null);
+		DecompositionUtils.setEventStatus(srcEvt, destEvt, null);
 		assertTrue("The destination event should be ordinary", destEvt
 				.getConvergence().equals(Convergence.ORDINARY));
 		// If the source event is convergent, the destination event is ordinary
-		srcEvt.setConvergence(Convergence.CONVERGENT, monitor);
-		destEvt.setConvergence(Convergence.CONVERGENT, monitor);
-		DecompositionUtils.setEventStatus(srcEvt, destEvt, monitor);
+		srcEvt.setConvergence(Convergence.CONVERGENT, null);
+		destEvt.setConvergence(Convergence.CONVERGENT, null);
+		DecompositionUtils.setEventStatus(srcEvt, destEvt, null);
 		assertTrue("The destination event should be ordinary", destEvt
 				.getConvergence().equals(Convergence.ORDINARY));
 		// If the source event is anticipated, the destination event is ordinary
-		srcEvt.setConvergence(Convergence.ANTICIPATED, monitor);
-		destEvt.setConvergence(Convergence.CONVERGENT, monitor);
-		DecompositionUtils.setEventStatus(srcEvt, destEvt, monitor);
+		srcEvt.setConvergence(Convergence.ANTICIPATED, null);
+		destEvt.setConvergence(Convergence.CONVERGENT, null);
+		DecompositionUtils.setEventStatus(srcEvt, destEvt, null);
 		assertTrue("The destination event should be ordinary", destEvt
 				.getConvergence().equals(Convergence.ORDINARY));
 	}
@@ -355,17 +351,17 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 
 		// If the source event is non-extended, the destination event is
 		// non-extended
-		srcEvt.setExtended(false, monitor);
-		destEvt.setExtended(true, monitor);
-		DecompositionUtils.setEventStatus(srcEvt, destEvt, monitor);
+		srcEvt.setExtended(false, null);
+		destEvt.setExtended(true, null);
+		DecompositionUtils.setEventStatus(srcEvt, destEvt, null);
 		assertFalse("The destination event should not be extended", destEvt
 				.isExtended());
 
 		// If the source event is extended, the destination event is
 		// non-extended
-		srcEvt.setExtended(true, monitor);
-		destEvt.setExtended(true, monitor);
-		DecompositionUtils.setEventStatus(srcEvt, destEvt, monitor);
+		srcEvt.setExtended(true, null);
+		destEvt.setExtended(true, null);
+		DecompositionUtils.setEventStatus(srcEvt, destEvt, null);
 		assertFalse("The destination event should not be extended", destEvt
 				.isExtended());
 	}
@@ -391,9 +387,9 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 				.getAdapter(IExternalElement.class);
 		
 		// If the source event is external, the destination event is external
-		srcElt.setExternal(true, monitor);
-		destElt.setExternal(false, monitor);
-		DecompositionUtils.setEventStatus(srcEvt, destEvt, monitor);
+		srcElt.setExternal(true, null);
+		destElt.setExternal(false, null);
+		DecompositionUtils.setEventStatus(srcEvt, destEvt, null);
 		assertTrue("The destination event should be external", destElt
 				.isExternal());
 	}
@@ -473,8 +469,7 @@ public class DecompositionUtilsTests extends AbstractDecompositionTests {
 			String[] expectedAxioms) {
 		try {
 			ctx2_1.clear(true, null);
-			AStyleUtils.decomposeContext(ctx2_1, decomposedMch, subModel,
-					new NullProgressMonitor());
+			AStyleUtils.decomposeContext(ctx2_1, decomposedMch, subModel, null);
 
 			// Test constants
 			IConstant[] constants = ctx2_1.getConstants();

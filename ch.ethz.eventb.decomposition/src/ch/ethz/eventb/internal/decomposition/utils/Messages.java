@@ -44,8 +44,10 @@ public final class Messages extends NLS {
 	public static String decomposition_defaultproject;
 	public static String decomposition_description;
 	public static String decomposition_cleanup;
-	public static String decomposition_contexts;
+	public static String decomposition_contextsCopy;
+	public static String decomposition_contextsDecompose;
 	public static String decomposition_seesclauses;
+	public static String decomposition_saving;
 	public static String decomposition_external;
 	public static String decomposition_external_comment;
 	public static String decomposition_internal_comment;
@@ -59,11 +61,14 @@ public final class Messages extends NLS {
 	public static String decomposition_typingtheorems;
 	public static String decomposition_variable;
 	public static String decomposition_variables;
+	public static String decomposition_error_contextDecompositionKind;
+	public static String decomposition_error_duplicateSubModelNames;
 	public static String decomposition_error_existingmachine;
 	public static String decomposition_error_existingcontext;
 	public static String decomposition_error_existingproject;
 	public static String decomposition_astyle;
 	public static String decomposition_bstyle;
+	public static String decomposition_cleaningUp;
 	
 	public static String attributeManipulation_external_true;
 	public static String attributeManipulation_external_false;

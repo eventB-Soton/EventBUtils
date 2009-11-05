@@ -48,11 +48,11 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 	 * .
 	 */
 	@Test
-	public void testCreateVariables() {
+	public void testCreateVariables() throws Exception {
 
 		try {
 			AStyleUtils.decomposeVariables(mch2_1, subModel1,
-					monitor);
+					null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create variables 1: There should be no exception");
@@ -65,7 +65,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 
 		try {
 			AStyleUtils.decomposeVariables(mch3_1, subModel2,
-					monitor);
+					null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create variables 2: There should be no exception");
@@ -79,7 +79,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 
 		try {
 			AStyleUtils.decomposeVariables(mch4_1, subModel3,
-					monitor);
+					null);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("Create variables 3: There should be no exception");
@@ -152,10 +152,10 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 	 * .
 	 */
 	@Test
-	public void testDecomposeEvents() {
+	public void testDecomposeEvents() throws Exception {
 		try {
 			AStyleUtils.decomposeEvents(mch2_1, subModel1,
-					monitor);
+					null);
 
 			// Test number of events.
 			IEvent[] events = mch2_1.getEvents();
@@ -266,13 +266,13 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 		createVariable(mch, "v2");
 		final IEvent evt2 = createEvent(mch, "evt2");
 		createAction(evt2, "act2", "v2 ≔ v1");
-		mch.getRodinFile().save(monitor, false);
+		mch.getRodinFile().save(null, false);
 
 		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
 		ISubModel subModel = modelDecomp.addSubModel();
 		subModel.setElements(evt2);
 
-		assertEquals(AStyleUtils.getEventType(subModel, evt1),
+		assertEquals(AStyleUtils.getEventType(subModel, evt1, null),
 				DecomposedEventType.NONE);
 	}
 	
@@ -290,7 +290,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 		createAction(evt1, "act1", "v2 ≔ v1");
 		final IEvent evt2 = createEvent(mch, "evt2");
 		createAction(evt2, "act2", "v3 ≔ v1");
-		mch.getRodinFile().save(monitor, false);
+		mch.getRodinFile().save(null, false);
 
 		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
 		ISubModel subModel1 = modelDecomp.addSubModel();
@@ -298,7 +298,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 		ISubModel subModel2 = modelDecomp.addSubModel();
 		subModel2.setElements(evt2);
 
-		assertEquals(AStyleUtils.getEventType(subModel1, evt2),
+		assertEquals(AStyleUtils.getEventType(subModel1, evt2, null),
 				DecomposedEventType.NONE);
 	}
 	
@@ -318,7 +318,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 		createAction(evt2, "act2", "v3 ≔ v1");
 		final IEvent evt3 = createEvent(mch, "evt3");
 		createAction(evt3, "act3", "v3 ≔ v2");
-		mch.getRodinFile().save(monitor, false);
+		mch.getRodinFile().save(null, false);
 
 		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
 		ISubModel subModel1 = modelDecomp.addSubModel();
@@ -328,7 +328,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 		ISubModel subModel3 = modelDecomp.addSubModel();
 		subModel3.setElements(evt3);
 
-		assertEquals(AStyleUtils.getEventType(subModel3, evt1),
+		assertEquals(AStyleUtils.getEventType(subModel3, evt1, null),
 				DecomposedEventType.NONE);
 	}
 	
@@ -346,7 +346,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 		createAction(evt1, "act1", "v1 ≔ v2");
 		final IEvent evt2 = createEvent(mch, "evt2");
 		createAction(evt2, "act2", "v3 ≔ v1");
-		mch.getRodinFile().save(monitor, false);
+		mch.getRodinFile().save(null, false);
 
 		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
 		ISubModel subModel1 = modelDecomp.addSubModel();
@@ -354,7 +354,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 		ISubModel subModel2 = modelDecomp.addSubModel();
 		subModel2.setElements(evt2);
 
-		assertEquals(AStyleUtils.getEventType(subModel2, evt1),
+		assertEquals(AStyleUtils.getEventType(subModel2, evt1, null),
 				DecomposedEventType.EXTERNAL);
 	}
 	
@@ -368,13 +368,13 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 		createVariable(mch, "v1");
 		final IEvent evt1 = createEvent(mch, "evt1");
 		createAction(evt1, "act1", "v1 ≔ 0");
-		mch.getRodinFile().save(monitor, false);
+		mch.getRodinFile().save(null, false);
 
 		ModelDecomposition modelDecomp = new ModelDecomposition(mch);
 		ISubModel subModel = modelDecomp.addSubModel();
 		subModel.setElements(evt1);
 
-		assertEquals(AStyleUtils.getEventType(subModel, evt1),
+		assertEquals(AStyleUtils.getEventType(subModel, evt1, null),
 				DecomposedEventType.INTERNAL);
 	}
 
@@ -412,7 +412,7 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 	 * Test method for {@link AStyleUtils#decomposeAction(IAction, Set)}.
 	 */
 	@Test
-	public void testDecomposeAction() {
+	public void testDecomposeAction() throws Exception {
 		try {
 			Set<String> vars;
 			String assignmentStr;
@@ -421,52 +421,52 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 			vars.add("v");
 
 			assignmentStr = AStyleUtils.decomposeAction(act_init1_3_1,
-					vars);
+					vars, null);
 			assertNull("Incorrect decomposed action 1", assignmentStr);
 
 			assignmentStr = AStyleUtils.decomposeAction(act_init1_3_2,
-					vars);
+					vars, null);
 			assertEquals("Incorrect decomposed action 2", assignmentStr,
 					"v ≔ 0");
 
 			assignmentStr = AStyleUtils.decomposeAction(act_init1_3_3,
-					vars);
+					vars, null);
 			assertEquals("Incorrect decomposed action 3", assignmentStr,
 					"z ≔ 0");
 
 			assignmentStr = AStyleUtils
-					.decomposeAction(act1_3_1_1, vars);
+					.decomposeAction(act1_3_1_1, vars, null);
 			assertEquals("Incorrect decomposed action 4", assignmentStr,
 					"v ≔ 2");
 
 			assignmentStr = AStyleUtils
-					.decomposeAction(act1_3_2_1, vars);
+					.decomposeAction(act1_3_2_1, vars, null);
 			assertNull("Incorrect decomposed action 5", assignmentStr);
 
 			assignmentStr = AStyleUtils
-					.decomposeAction(act1_3_2_2, vars);
+					.decomposeAction(act1_3_2_2, vars, null);
 			assertNull("Incorrect decomposed action 6", assignmentStr);
 
 			assignmentStr = AStyleUtils
-					.decomposeAction(act1_3_2_3, vars);
+					.decomposeAction(act1_3_2_3, vars, null);
 			assertEquals("Incorrect decomposed action 7", assignmentStr,
 					"v ≔ v + 1");
 
 			assignmentStr = AStyleUtils
-					.decomposeAction(act1_3_3_1, vars);
+					.decomposeAction(act1_3_3_1, vars, null);
 			assertNull("Incorrect decomposed action 8", assignmentStr);
 
 			assignmentStr = AStyleUtils
-					.decomposeAction(act1_3_3_2, vars);
+					.decomposeAction(act1_3_3_2, vars, null);
 			assertEquals("Incorrect decomposed action 9", assignmentStr,
 					"v ≔ v + 1");
 
 			assignmentStr = AStyleUtils
-					.decomposeAction(act1_3_4_1, vars);
+					.decomposeAction(act1_3_4_1, vars, null);
 			assertNull("Incorrect decomposed action 10", assignmentStr);
 
 			assignmentStr = AStyleUtils
-					.decomposeAction(act1_3_5_1, vars);
+					.decomposeAction(act1_3_5_1, vars, null);
 			assertEquals("Incorrect decomposed action 11", assignmentStr,
 					"z ≔ z − 1");
 		} catch (RodinDBException e) {
@@ -480,12 +480,12 @@ public class AStyleUtilsTests extends AbstractDecompositionTests {
 	 * Test method for {@link IModelDecomposition#getSharedVariables()}.
 	 */
 	@Test
-	public void testGetSharedVariables() {
+	public void testGetSharedVariables() throws Exception {
 		Set<String> vars;
 		try {
-			vars = AStyleUtils.getSharedVariables(modelDecomp3);
+			vars = AStyleUtils.getSharedVariables(modelDecomp3, null);
 			assertSameStrings("Shared Variables", "variable", vars, "u", "v");
-			vars = AStyleUtils.getSharedVariables(modelDecomp1);
+			vars = AStyleUtils.getSharedVariables(modelDecomp1, null);
 			assertSameStrings("Shared Variables", "variable", vars);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
