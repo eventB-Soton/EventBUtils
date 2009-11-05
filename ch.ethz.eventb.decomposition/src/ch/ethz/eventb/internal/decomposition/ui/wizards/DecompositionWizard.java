@@ -12,6 +12,8 @@
 package ch.ethz.eventb.internal.decomposition.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,8 +30,12 @@ import org.eclipse.ui.IWorkbenchWizard;
 import org.eventb.core.IEvent;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IVariable;
+import org.rodinp.core.IRodinDB;
+import org.rodinp.core.IRodinProject;
+import org.rodinp.core.RodinCore;
 
 import ch.ethz.eventb.decomposition.IModelDecomposition;
+import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
@@ -98,6 +104,7 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 			public void run(final IProgressMonitor monitor)
 					throws InvocationTargetException {
 				try {
+					check(decomp);
 					decomp.perform(monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
@@ -110,7 +117,7 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 			}
 		};
 		try {
-			getContainer().run(true, false, op);
+			getContainer().run(true, true, op);
 		} catch (InterruptedException e) {
 			return false;
 		} catch (InvocationTargetException e) {
@@ -122,6 +129,27 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 		return true;
 	}
 
+	private static void check(IModelDecomposition decomp) {
+		final IRodinDB rodinDB = RodinCore.getRodinDB();
+		final Set<String> projects = new HashSet<String>();
+		for (ISubModel subModel : decomp.getSubModels()) {
+			final String projectName = subModel.getProjectName();
+			final IRodinProject rodinProject = rodinDB
+					.getRodinProject(projectName);
+			if (rodinProject.exists()) {
+				throw new IllegalArgumentException(Messages.bind(
+						Messages.decomposition_error_existingproject,
+						projectName));
+			}
+			final boolean projectsWithSameName = !projects.add(projectName);
+			if (projectsWithSameName) {
+				throw new IllegalArgumentException(Messages.bind(
+						Messages.decomposition_error_duplicateSubModelNames,
+						projectName));
+			}
+		}
+	}
+	
 	/**
 	 * Stores the current selection in the workbench. This selection will be
 	 * used for further initialization.
