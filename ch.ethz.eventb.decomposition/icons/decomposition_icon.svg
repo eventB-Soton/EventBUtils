@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="210mm"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="decomposition_icon.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="C:\Documents and Settings\pascal.SYSTEREL\Bureau\decomposition_icon.png"
+   inkscape:export-xdpi="1.9352381"
+   inkscape:export-ydpi="1.9352381">
+  <defs
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4626">
+      <stop
+         style="stop-color:#009ea7;stop-opacity:1;"
+         offset="0"
+         id="stop4628" />
+      <stop
+         style="stop-color:#009ea7;stop-opacity:0;"
+         offset="1"
+         id="stop4630" />
+    </linearGradient>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective10" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4626"
+       id="linearGradient4632"
+       x1="78.261378"
+       y1="377.61667"
+       x2="353.18414"
+       y2="377.61667"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="-123.54845"
+     inkscape:cy="447.33409"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1211"
+     inkscape:window-height="667"
+     inkscape:window-x="181"
+     inkscape:window-y="274" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:url(#linearGradient4632);fill-rule:evenodd;stroke:#000000;stroke-width:80;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+       d="M 311.38214,246.18034 L 120.06338,509.05299"
+       id="path3281"
+       inkscape:connector-type="polyline"
+       inkscape:export-filename="C:\Documents and Settings\pascal.SYSTEREL\Bureau\decomposition_icon.png"
+       inkscape:export-xdpi="1.9384615"
+       inkscape:export-ydpi="1.9384615" />
+    <rect
+       style="fill:#00bcc7;fill-opacity:1;stroke:#000000;stroke-width:50;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96265557999999996"
+       id="rect3159"
+       width="250"
+       height="250"
+       x="25"
+       y="469.09448"
+       inkscape:export-filename="C:\Documents and Settings\pascal.SYSTEREL\Bureau\decomposition_icon.png"
+       inkscape:export-xdpi="1.9384615"
+       inkscape:export-ydpi="1.9384615" />
+    <path
+       inkscape:export-ydpi="1.9384615"
+       inkscape:export-xdpi="1.9384615"
+       inkscape:export-filename="C:\Documents and Settings\pascal.SYSTEREL\Bureau\decomposition_icon.png"
+       inkscape:connector-type="polyline"
+       id="path3164"
+       d="M 468.63481,274.75177 L 659.95357,537.62442"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:80;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       style="fill:#00bdc8;fill-opacity:1;stroke:#000000;stroke-width:50;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96265557999999996"
+       id="rect3157"
+       width="250"
+       height="250"
+       x="469.03848"
+       y="469.09448"
+       inkscape:export-filename="C:\Documents and Settings\pascal.SYSTEREL\Bureau\decomposition_icon.png"
+       inkscape:export-xdpi="1.9384615"
+       inkscape:export-ydpi="1.9384615" />
+    <rect
+       style="fill:#9ca2c2;fill-opacity:1;stroke:#000000;stroke-width:50;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.96265557999999996"
+       id="rect3155"
+       width="250"
+       height="250"
+       x="255.35971"
+       y="30.579048"
+       inkscape:export-filename="C:\Documents and Settings\pascal.SYSTEREL\Bureau\decomposition_icon.png"
+       inkscape:export-xdpi="1.9384615"
+       inkscape:export-ydpi="1.9384615" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 1262.8571,-55.905518 L 1262.8571,-61.619803"
+       id="path3285"
+       inkscape:connector-type="polyline" />
+  </g>
+</svg>
