@@ -59,4 +59,12 @@ public class ModelDecomposition extends DefaultModelDecomposition {
 			throws RodinDBException {
 		AStyleUtils.decompose(this, monitor);
 	}
+
+	public final boolean check(final IProgressMonitor monitor)
+			throws RodinDBException {
+		if (!super.check(monitor))
+			return false;
+
+		return AStyleUtils.check(this, monitor);
+	}
 }

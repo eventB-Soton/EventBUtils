@@ -106,11 +106,11 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * Utility method to decompose a model.
 	 * 
 	 * @param modelDecomp
-	 *            a model decomposition.
+	 *            a model decomposition
 	 * @param monitor
-	 *            a progress monitor.
+	 *            the progress monitor
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 * @throws DecompositionCanceledException
 	 *             if the monitor is canceled
 	 */
@@ -143,11 +143,7 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * @param subModel
 	 *            a sub-model.
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
+	 *            the progress monitor
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 * @throws DecompositionCanceledException
@@ -168,8 +164,8 @@ public final class AStyleUtils extends DecompositionUtils {
 
 		// 2: Create machine.
 		subMonitor.subTask(Messages.decomposition_machine);
-		final IMachineRoot dest = EventBUtils.createMachine(prj,
-				src.getElementName(), subMonitor.newChild(1));
+		final IMachineRoot dest = EventBUtils.createMachine(prj, src
+				.getElementName(), subMonitor.newChild(1));
 		checkCancellation(subMonitor);
 
 		// 3: Create variables.
@@ -231,8 +227,7 @@ public final class AStyleUtils extends DecompositionUtils {
 			String contextName) throws RodinDBException {
 		subMonitor.setWorkRemaining(10);
 		final IContextRoot ctx = EventBUtils.createContext(dest
-				.getEventBProject(), contextName, subMonitor
-				.newChild(1));
+				.getEventBProject(), contextName, subMonitor.newChild(1));
 		decomposeContext(ctx, dest, subModel, subMonitor.newChild(8));
 		checkCancellation(subMonitor);
 		if (!ctx.hasChildren()) {
@@ -252,25 +247,22 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * variables ({@link #createPrivateVariable(IMachineRoot, String)}).
 	 * 
 	 * @param mch
-	 *            a machine.
+	 *            a machine
 	 * @param subModel
-	 *            the sub-model.
+	 *            the sub-model
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
+	 *            the progress monitor
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
 	public static void decomposeVariables(IMachineRoot mch, ISubModel subModel,
-			IProgressMonitor monitor)
-			throws RodinDBException {
+			IProgressMonitor monitor) throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 5);
-		Set<String> accessedVars = getAccessedVariables(subModel, subMonitor.newChild(1));
+		Set<String> accessedVars = getAccessedVariables(subModel, subMonitor
+				.newChild(1));
 		IModelDecomposition modelDecomp = subModel.getModelDecomposition();
-		Collection<String> sharedVars = getSharedVariables(modelDecomp, subMonitor.newChild(1));
+		Collection<String> sharedVars = getSharedVariables(modelDecomp,
+				subMonitor.newChild(1));
 		subMonitor.setWorkRemaining(accessedVars.size());
 		for (String var : accessedVars) {
 			subMonitor.subTask(Messages.decomposition_variable + var);
@@ -290,11 +282,7 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * @param modelDecomp
 	 *            the model decomposition
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
+	 *            the progress monitor
 	 * @return the labels of the shared variables
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database
@@ -312,11 +300,7 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * @param subModels
 	 *            the sub-models
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
+	 *            the progress monitor
 	 * @return the labels of the shared variables
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database
@@ -335,7 +319,8 @@ public final class AStyleUtils extends DecompositionUtils {
 			int occurrence = 0;
 			String ident = var.getIdentifierString();
 			for (ISubModel subModel : subModels) {
-				final Set<String> accessedVariables = getAccessedVariables(subModel, subMonitor.newChild(1));
+				final Set<String> accessedVariables = getAccessedVariables(
+						subModel, subMonitor.newChild(1));
 				if (accessedVariables.contains(ident)) {
 					occurrence++;
 				}
@@ -356,16 +341,15 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * in a machine.
 	 * 
 	 * @param mch
-	 *            a machine.
+	 *            a machine
 	 * @param ident
-	 *            the identifier of the variable.
-	 * @return the newly created shared variable.
+	 *            the identifier of the variable
+	 * @return the newly created shared variable
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
 	private static IVariable createSharedVariable(final IMachineRoot mch,
-			final String ident, SubMonitor subMonitor)
-			throws RodinDBException {
+			final String ident, SubMonitor subMonitor) throws RodinDBException {
 		subMonitor.setWorkRemaining(4);
 		final IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null,
 				subMonitor.newChild(1));
@@ -383,18 +367,14 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * in a machine.
 	 * 
 	 * @param mch
-	 *            a machine.
+	 *            a machine
 	 * @param ident
-	 *            the identifier of the variable.
+	 *            the identifier of the variable
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
-	 * @return the newly created private variable.
+	 *            the progress monitor
+	 * @return the newly created private variable
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
 	private static IVariable createPrivateVariable(IMachineRoot mch,
 			String ident, IProgressMonitor monitor) throws RodinDBException {
@@ -415,26 +395,23 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * sub-model.
 	 * 
 	 * @param dest
-	 *            the destination machine.
+	 *            the destination machine
 	 * @param subModel
-	 *            a sub-model.
+	 *            a sub-model
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
+	 *            the progress monitor
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
-	public static void decomposeEvents(IMachineRoot dest,
-			ISubModel subModel, IProgressMonitor monitor)
-			throws RodinDBException {
+	public static void decomposeEvents(IMachineRoot dest, ISubModel subModel,
+			IProgressMonitor monitor) throws RodinDBException {
 		final IMachineRoot src = subModel.getMachineRoot();
 		final IEvent[] events = src.getEvents();
-		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2*events.length);
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				2 * events.length);
 		for (IEvent evt : events) {
-			DecomposedEventType type = getEventType(subModel, evt, subMonitor.newChild(1));
+			DecomposedEventType type = getEventType(subModel, evt, subMonitor
+					.newChild(1));
 			if (type == DecomposedEventType.EXTERNAL) {
 				createExternalEvent(dest, subModel, evt, subMonitor.newChild(1));
 			} else if (type == DecomposedEventType.INTERNAL) {
@@ -459,13 +436,12 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * Note: The initialization event is an external event.
 	 * 
 	 * @param subModel
-	 *            a subModel.
+	 *            a subModel
 	 * @param evt
 	 *            an event
-	 * @return the type of the input event according to the element
-	 *         distribution.
+	 * @return the type of the input event according to the element distribution
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
 	public static DecomposedEventType getEventType(ISubModel subModel,
 			IEvent evt, IProgressMonitor monitor) throws RodinDBException {
@@ -516,11 +492,7 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * @param evt
 	 *            an event
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
+	 *            the progress monitor
 	 * @return the newly created event
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database
@@ -530,13 +502,16 @@ public final class AStyleUtils extends DecompositionUtils {
 			throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 20);
 		// Flatten the original event.
-		final IEvent flattened = EventBUtils.flatten(evt, subMonitor.newChild(2));
+		final IEvent flattened = EventBUtils.flatten(evt, subMonitor
+				.newChild(2));
 
 		// Create the new event.
-		final IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null, subMonitor.newChild(1));
+		final IEvent newEvt = mch.createChild(IEvent.ELEMENT_TYPE, null,
+				subMonitor.newChild(1));
 		newEvt.setLabel(flattened.getLabel(), subMonitor.newChild(1));
 		if (!evt.isInitialisation()) {
-			newEvt.setComment(Messages.decomposition_external_comment, subMonitor.newChild(1));
+			newEvt.setComment(Messages.decomposition_external_comment,
+					subMonitor.newChild(1));
 
 			// Set the external attribute.
 			IExternalElement elt = (IExternalElement) newEvt
@@ -549,17 +524,19 @@ public final class AStyleUtils extends DecompositionUtils {
 		// Set the status.
 		setEventStatus(evt, newEvt, subMonitor.newChild(1));
 		checkCancellation(subMonitor);
-		
+
 		// Copying the parameters from the source event.
-		EventBUtils.copyParameters(newEvt, flattened, null, subMonitor.newChild(1));
+		EventBUtils.copyParameters(newEvt, flattened, null, subMonitor
+				.newChild(1));
 		checkCancellation(subMonitor);
-		
+
 		// Copying the guards from the source event.
 		EventBUtils.copyGuards(newEvt, flattened, null, subMonitor.newChild(1));
 		checkCancellation(subMonitor);
-		
+
 		// Decomposing actions.
-		Set<String> vars = getAccessedVariables(subModel, subMonitor.newChild(1));
+		Set<String> vars = getAccessedVariables(subModel, subMonitor
+				.newChild(1));
 		decomposeActions(newEvt, flattened, vars, subMonitor.newChild(5));
 
 		// Creating missing parameters and guards.
@@ -575,23 +552,18 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * event and a set of accessed variables.
 	 * 
 	 * @param dest
-	 *            the destination event.
+	 *            the destination event
 	 * @param src
-	 *            the source event.
+	 *            the source event
 	 * @param vars
-	 *            the accessed variables.
+	 *            the accessed variables
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
+	 *            the progress monitor
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
 	private static void decomposeActions(IEvent dest, IEvent src,
-			Set<String> vars, IProgressMonitor monitor)
-			throws RodinDBException  {
+			Set<String> vars, IProgressMonitor monitor) throws RodinDBException {
 		final IAction[] acts = src.getActions();
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				4 * acts.length);
@@ -604,7 +576,9 @@ public final class AStyleUtils extends DecompositionUtils {
 			final IAction newAct = dest.createChild(IAction.ELEMENT_TYPE, null,
 					subMonitor.newChild(1));
 			newAct.setLabel(act.getLabel(), subMonitor.newChild(1));
-			newAct.setAssignmentString(newAssignmentStr, subMonitor.newChild(1));
+			newAct
+					.setAssignmentString(newAssignmentStr, subMonitor
+							.newChild(1));
 			checkCancellation(subMonitor);
 		}
 	}
@@ -614,18 +588,14 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * accessed variables.
 	 * 
 	 * @param act
-	 *            an input action.
+	 *            an input action
 	 * @param vars
-	 *            a set of variables (in {@link String}.
+	 *            a set of variables (in {@link String}
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
-	 * @return the created action.
+	 *            the progress monitor
+	 * @return the created action
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
 	public static String decomposeAction(final IAction act,
 			final Set<String> vars, IProgressMonitor monitor)
@@ -638,7 +608,7 @@ public final class AStyleUtils extends DecompositionUtils {
 		FreeIdentifier[] assignedVars = parseAssignment
 				.getAssignedIdentifiers();
 		checkCancellation(subMonitor);
-		
+
 		// Getting the set of assigned variables which are also accessed
 		// variables (v) and the set of assigned variables which are not
 		// accessed variables (w).
@@ -653,7 +623,7 @@ public final class AStyleUtils extends DecompositionUtils {
 			checkCancellation(subMonitor);
 		}
 		subMonitor.worked(1);
-		
+
 		// Return nothing if it does not modify any accessed variables.
 		// This covers the cases for
 		// w :: E(v, w)
@@ -679,8 +649,8 @@ public final class AStyleUtils extends DecompositionUtils {
 			BecomesEqualTo bcmeq = (BecomesEqualTo) parseAssignment;
 			Expression[] exps = bcmeq.getExpressions();
 			assert exps.length == assignedVars.length;
-			String newAssignmentStr = EventBUtils.identsToCSVString(
-					v.toArray(new FreeIdentifier[v.size()]));
+			String newAssignmentStr = EventBUtils.identsToCSVString(v
+					.toArray(new FreeIdentifier[v.size()]));
 			newAssignmentStr += " ≔ "; //$NON-NLS-1$
 			boolean fst = true;
 			for (int i = 0; i < exps.length; i++) {
@@ -706,10 +676,10 @@ public final class AStyleUtils extends DecompositionUtils {
 			Predicate P = bcmsuch.getCondition();
 			String vList = EventBUtils.identsToCSVString(v
 					.toArray(new FreeIdentifier[v.size()]));
-			String wPrimedList = EventBUtils.identsToPrimedCSVString(
-					w.toArray(new FreeIdentifier[w.size()]));
+			String wPrimedList = EventBUtils.identsToPrimedCSVString(w
+					.toArray(new FreeIdentifier[w.size()]));
 			checkCancellation(subMonitor);
-			
+
 			SourceLocation srcLoc = P.getSourceLocation();
 			String strP = assignmentStr.substring(srcLoc.getStart(), srcLoc
 					.getEnd() + 1);
@@ -729,11 +699,7 @@ public final class AStyleUtils extends DecompositionUtils {
 	 * @param evt
 	 *            the source event
 	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
+	 *            the progress monitor
 	 * @return the newly created event
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database
@@ -763,14 +729,56 @@ public final class AStyleUtils extends DecompositionUtils {
 		checkCancellation(subMonitor);
 
 		// Copy the parameters.
-		
+
 		EventBUtils.copyParameters(newEvt, flattened, null, subMonitor
 				.newChild(1));
 
 		EventBUtils.copyGuards(newEvt, flattened, null, subMonitor.newChild(1));
 
-		EventBUtils.copyActions(newEvt, flattened, null, subMonitor.newChild(1));
+		EventBUtils
+				.copyActions(newEvt, flattened, null, subMonitor.newChild(1));
 
 		return newEvt;
+	}
+
+	/**
+	 * Utility method to check that the decomposition is authorized.
+	 * 
+	 * @return <tt>true</tt> if and only if the decomposition is authorized
+	 * @param monitor
+	 *            the progress monitor
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database
+	 */
+	public static boolean check(IModelDecomposition modelDecomp,
+			IProgressMonitor monitor) throws RodinDBException {
+		// Checks that the INITIALISATION events of the sub-machines will not
+		// define an action modifying at the same time a private variable and a
+		// shared variable.
+		// An INITIALISATION event of a sub-machine will contain such an action
+		// if and only if the INITIALISATION event of the non-decomposed machine
+		// defines an action modifying a private variable and a shared variable
+		// which will be distributed in the same sub-machine (i.e. are both
+		// accessed in this sub-machine).
+		IEvent init = EventBUtils.getInitialisation(modelDecomp
+				.getMachineRoot());
+		Set<String> sharedVariables = getSharedVariables(modelDecomp, monitor);
+		for (ISubModel subModel : modelDecomp.getSubModels()) {
+			Set<String> accessedVariables = getAccessedVariables(subModel,
+					monitor);
+			for (IAction action : init.getActions()) {
+				List<String> assignedIdentifiers = EventBUtils
+						.getAssignedIdentifiers(action);
+				accessedVariables.retainAll(assignedIdentifiers);
+				sharedVariables.retainAll(accessedVariables);
+				int nbVar = accessedVariables.size();
+				if ((nbVar > 1) && (nbVar > sharedVariables.size())) {
+					throw new IllegalArgumentException(Messages.bind(
+							Messages.scuser_ActionOnPrivateAndSharedError,
+							action.getLabel()));
+				}
+			}
+		}
+		return true;
 	}
 }

@@ -26,16 +26,17 @@ public final class Messages extends NLS {
 	public static String label_project;
 	public static String label_machine;
 	public static String label_style;
+	
+	public static String error;
+	public static String info;
 
 	public static String wizard_name;
 	public static String wizard_decomposeContextsLabel;
-
 	public static String wizard_description;
 	public static String wizard_title;
 	public static String wizard_machine;
 	public static String wizard_elements;
 	public static String wizard_project;
-	public static String wizard_error;
 	public static String wizard_style;
 
 	public static String decomposition_forbidden;

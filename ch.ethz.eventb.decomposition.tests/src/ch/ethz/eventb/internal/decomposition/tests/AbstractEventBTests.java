@@ -61,7 +61,7 @@ public abstract class AbstractEventBTests extends TestCase {
 	/**
 	 * The progress monitor.
 	 */
-	private static final IProgressMonitor monitor = new NullProgressMonitor();
+	protected static final IProgressMonitor monitor = new NullProgressMonitor();
 
 	/**
 	 * The testing workspace.

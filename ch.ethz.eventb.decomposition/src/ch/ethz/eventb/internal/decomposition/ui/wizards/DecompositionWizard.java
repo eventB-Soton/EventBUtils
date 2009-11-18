@@ -12,8 +12,6 @@
 package ch.ethz.eventb.internal.decomposition.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,12 +28,8 @@ import org.eclipse.ui.IWorkbenchWizard;
 import org.eventb.core.IEvent;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IVariable;
-import org.rodinp.core.IRodinDB;
-import org.rodinp.core.IRodinProject;
-import org.rodinp.core.RodinCore;
 
 import ch.ethz.eventb.decomposition.IModelDecomposition;
-import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
 import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
@@ -104,8 +98,9 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 			public void run(final IProgressMonitor monitor)
 					throws InvocationTargetException {
 				try {
-					check(decomp);
-					decomp.perform(monitor);
+					if (decomp.check(monitor)) {
+						decomp.perform(monitor);
+					}
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -122,32 +117,11 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 			return false;
 		} catch (InvocationTargetException e) {
 			Throwable realException = e.getTargetException();
-			MessageDialog.openError(getShell(), Messages.wizard_error,
+			MessageDialog.openError(getShell(), Messages.error,
 					realException.getMessage());
 			return false;
 		}
 		return true;
-	}
-
-	private static void check(IModelDecomposition decomp) {
-		final IRodinDB rodinDB = RodinCore.getRodinDB();
-		final Set<String> projects = new HashSet<String>();
-		for (ISubModel subModel : decomp.getSubModels()) {
-			final String projectName = subModel.getProjectName();
-			final IRodinProject rodinProject = rodinDB
-					.getRodinProject(projectName);
-			if (rodinProject.exists()) {
-				throw new IllegalArgumentException(Messages.bind(
-						Messages.decomposition_error_existingproject,
-						projectName));
-			}
-			final boolean projectsWithSameName = !projects.add(projectName);
-			if (projectsWithSameName) {
-				throw new IllegalArgumentException(Messages.bind(
-						Messages.decomposition_error_duplicateSubModelNames,
-						projectName));
-			}
-		}
 	}
 	
 	/**

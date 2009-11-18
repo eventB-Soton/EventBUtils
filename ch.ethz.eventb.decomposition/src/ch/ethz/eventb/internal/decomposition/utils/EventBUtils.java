@@ -12,6 +12,7 @@
  *******************************************************************************/
 package ch.ethz.eventb.internal.decomposition.utils;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,6 +28,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.eventb.core.IAction;
 import org.eventb.core.ICarrierSet;
 import org.eventb.core.IConfigurationElement;
@@ -56,6 +61,7 @@ import org.eventb.core.ast.ITypeEnvironment;
 import org.eventb.core.ast.Predicate;
 import org.eventb.core.ast.Type;
 import org.eventb.core.seqprover.eventbExtensions.Lib;
+import org.eventb.ui.EventBUIPlugin;
 import org.rodinp.core.IInternalElement;
 import org.rodinp.core.IRodinDB;
 import org.rodinp.core.IRodinElement;
@@ -132,9 +138,9 @@ public final class EventBUtils {
 		if (!rodinProject.exists()) {
 			RodinCore.run(new IWorkspaceRunnable() {
 
-				public void run(IProgressMonitor pMonitor)
-						throws CoreException {
-					final SubMonitor subMonitor = SubMonitor.convert(pMonitor, 3);
+				public void run(IProgressMonitor pMonitor) throws CoreException {
+					final SubMonitor subMonitor = SubMonitor.convert(pMonitor,
+							3);
 					IProject project = rodinProject.getProject();
 					Assert.isTrue(!project.exists(), Messages.bind(
 							Messages.decomposition_error_existingproject,
@@ -176,8 +182,7 @@ public final class EventBUtils {
 	 *             if there are problems accessing the database
 	 */
 	public static IMachineRoot createMachine(IEventBProject project,
-			String fileName, IProgressMonitor monitor)
-			throws RodinDBException {
+			String fileName, IProgressMonitor monitor) throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				Messages.decomposition_machine, 2);
 		IRodinFile machine = project.getMachineFile(fileName);
@@ -211,8 +216,7 @@ public final class EventBUtils {
 	 *             if there are problems accessing the database
 	 */
 	public static IContextRoot createContext(IEventBProject project,
-			String fileName, IProgressMonitor monitor)
-			throws RodinDBException {
+			String fileName, IProgressMonitor monitor) throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				Messages.decomposition_contextsCopy, 2);
 		IRodinFile context = project.getContextFile(fileName);
@@ -226,8 +230,8 @@ public final class EventBUtils {
 		return root;
 	}
 
-	private static void setDecomposed(IEventBRoot root,
-			IProgressMonitor monitor) throws RodinDBException {
+	private static void setDecomposed(IEventBRoot root, IProgressMonitor monitor)
+			throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		// Tag the root as decomposed and generated
 		IDecomposedElement elt = (IDecomposedElement) root
@@ -412,7 +416,7 @@ public final class EventBUtils {
 	 */
 	public static Set<String> getCarrierSetsAndConstants(IContextRoot ctx)
 			throws RodinDBException {
-		// TODO not used  ? => can be removed 
+		// TODO not used ? => can be removed
 		final Set<IContextRoot> contexts = new LinkedHashSet<IContextRoot>();
 		addExtendedContexts(ctx, contexts);
 		contexts.add(ctx);
@@ -724,8 +728,7 @@ public final class EventBUtils {
 	// the given set of variables
 	private static void addWDTheorems(IMachineRoot mch, IInvariant srcInv,
 			Set<String> vars, Set<String> seenCarrierSetsAndConstants,
-			IProgressMonitor monitor)
-			throws RodinDBException {
+			IProgressMonitor monitor) throws RodinDBException {
 		final Predicate invWDPred = getWDPredicate(srcInv);
 		if (invWDPred == null) {
 			throw new IllegalArgumentException(
@@ -743,13 +746,12 @@ public final class EventBUtils {
 			if (isRelevant(pred, vars, seenCarrierSetsAndConstants)) {
 				// add WD predicate
 				final IInvariant newInv = mch.createChild(
-						IInvariant.ELEMENT_TYPE, null,
-						subMonitor.newChild(1));
+						IInvariant.ELEMENT_TYPE, null, subMonitor.newChild(1));
 				final String newLabel = makeLabel("WD", src.getComponentName(), //$NON-NLS-1$
 						srcInv.getLabel());
 				newInv.setLabel(newLabel, subMonitor.newChild(1));
-				newInv.setPredicateString(pred.toString(),
-						subMonitor.newChild(1));
+				newInv.setPredicateString(pred.toString(), subMonitor
+						.newChild(1));
 				newInv.setTheorem(true, subMonitor.newChild(1));
 			}
 		}
@@ -762,13 +764,13 @@ public final class EventBUtils {
 		if (!root.exists()) {
 			return null;
 		}
-		final ISCMachineRoot scRoot = ((IEventBRoot) root)
-				.getSCMachineRoot();
+		final ISCMachineRoot scRoot = ((IEventBRoot) root).getSCMachineRoot();
 		if (!scRoot.exists()) {
 			return null;
 		}
-		final ITypeEnvironment typEnv = scRoot.getTypeEnvironment(FORMULA_FACTORY);
-	
+		final ITypeEnvironment typEnv = scRoot
+				.getTypeEnvironment(FORMULA_FACTORY);
+
 		final Predicate predicate = Lib.parsePredicate(predicateString);
 		final boolean typeCheckClosed = Lib.typeCheckClosed(predicate, typEnv);
 		assert typeCheckClosed;
@@ -795,7 +797,7 @@ public final class EventBUtils {
 				.parsePredicate(inv.getPredicateString());
 		return isRelevant(predicate, vars, seenCarrierSetsAndConstants);
 	}
-	
+
 	private static boolean isRelevant(Predicate predicate, Set<String> vars,
 			Set<String> seenCarrierSetsAndConstants) {
 		final List<String> idents = toStringList(predicate
@@ -868,7 +870,7 @@ public final class EventBUtils {
 	public static List<String> getFreeIdentifiers(IEvent evt,
 			IProgressMonitor monitor) throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
-		
+
 		// First flatten the event.
 		evt = flatten(evt, subMonitor.newChild(3));
 
@@ -884,7 +886,7 @@ public final class EventBUtils {
 			}
 		}
 		subMonitor.worked(1);
-		
+
 		for (IAction act : evt.getActions()) {
 			List<String> actIdents = getFreeIdentifiers(act);
 			for (String actIdent : actIdents) {
@@ -923,7 +925,8 @@ public final class EventBUtils {
 	 * @throws RodinDBException
 	 *             if there are problems accessing the database
 	 */
-	public static IEvent flatten(IEvent evt, IProgressMonitor monitor) throws RodinDBException {
+	public static IEvent flatten(IEvent evt, IProgressMonitor monitor)
+			throws RodinDBException {
 		// FIXME side effects
 		if (evt.isExtended()) {
 			IEvent absEvt = getAbstract(evt);
@@ -993,7 +996,7 @@ public final class EventBUtils {
 	public static IEvent merge(IEvent dest, IEvent src, IProgressMonitor monitor)
 			throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
-		
+
 		// Get the current first parameter.
 		final IParameter[] currParams = dest.getParameters();
 		final IParameter fstParam;
@@ -1195,7 +1198,8 @@ public final class EventBUtils {
 			IEvent evt, Set<String> vars, IProgressMonitor monitor)
 			throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
-		final List<String> idents = getFreeIdentifiers(evt, subMonitor.newChild(1));
+		final List<String> idents = getFreeIdentifiers(evt, subMonitor
+				.newChild(1));
 		idents.removeAll(getSeenCarrierSetsAndConstants(src));
 		idents.removeAll(vars);
 		for (IParameter param : evt.getParameters()) {
@@ -1203,8 +1207,8 @@ public final class EventBUtils {
 		}
 		subMonitor.setWorkRemaining(8 * idents.size());
 		for (String ident : idents) {
-			final IParameter newParam = evt.createChild(IParameter.ELEMENT_TYPE,
-					null, subMonitor.newChild(2));
+			final IParameter newParam = evt.createChild(
+					IParameter.ELEMENT_TYPE, null, subMonitor.newChild(2));
 			newParam.setIdentifierString(ident, subMonitor.newChild(2));
 		}
 
@@ -1279,15 +1283,17 @@ public final class EventBUtils {
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
 	public static void copyActions(IEvent dest, IEvent source,
-			IInternalElement nextSibling, SubMonitor monitor) throws RodinDBException {
+			IInternalElement nextSibling, SubMonitor monitor)
+			throws RodinDBException {
 		final IAction[] actions = source.getActions();
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				3 * actions.length);
 		for (IAction act : actions) {
-			IAction newAct = dest.createChild(IAction.ELEMENT_TYPE, nextSibling,
-					subMonitor.newChild(1));
+			IAction newAct = dest.createChild(IAction.ELEMENT_TYPE,
+					nextSibling, subMonitor.newChild(1));
 			newAct.setLabel(act.getLabel(), subMonitor.newChild(1));
-			newAct.setAssignmentString(act.getAssignmentString(), subMonitor.newChild(1));
+			newAct.setAssignmentString(act.getAssignmentString(), subMonitor
+					.newChild(1));
 		}
 	}
 
@@ -1425,6 +1431,7 @@ public final class EventBUtils {
 	/**
 	 * Utility method to convert an array of free identifiers to comma separated
 	 * values.
+	 * 
 	 * @param idents
 	 *            an array of free identifiers.
 	 * 
@@ -1432,13 +1439,15 @@ public final class EventBUtils {
 	 */
 	public static String identsToCSVString(final FreeIdentifier[] idents) {
 		final List<String> stringList = toStringList(idents, false);
-		final String[] names = stringList.toArray(new String[stringList.size()]);
+		final String[] names = stringList
+				.toArray(new String[stringList.size()]);
 		return concatWithSeparator(COMMA_SPACE, names);
 	}
 
 	/**
 	 * Utility method to convert an array of free identifiers to a comma
 	 * separated primed values.
+	 * 
 	 * @param idents
 	 *            an array of free identifiers.
 	 * 
@@ -1446,7 +1455,8 @@ public final class EventBUtils {
 	 */
 	public static String identsToPrimedCSVString(final FreeIdentifier[] idents) {
 		final List<String> stringList = toStringList(idents, true);
-		final String[] names = stringList.toArray(new String[stringList.size()]);
+		final String[] names = stringList
+				.toArray(new String[stringList.size()]);
 		return concatWithSeparator(COMMA_SPACE, names);
 	}
 
@@ -1455,7 +1465,7 @@ public final class EventBUtils {
 		return new Status(IStatus.ERROR, DecompositionPlugin.PLUGIN_ID,
 				IStatus.OK, message, exception);
 	}
-	
+
 	/**
 	 * Creates a new Rodin database exception with the given message and message
 	 * arguments.
@@ -1476,11 +1486,11 @@ public final class EventBUtils {
 	public static RodinDBException newRodinDBException(final String message,
 			final Object... args) {
 
-		final IStatus status = makeErrorStatus(null,
-				Messages.bind(message, args));
+		final IStatus status = makeErrorStatus(null, Messages.bind(message,
+				args));
 		return new RodinDBException(new CoreException(status));
 	}
-	
+
 	/**
 	 * Logs the given exception with the given context message.
 	 * 
@@ -1504,6 +1514,26 @@ public final class EventBUtils {
 	}
 
 	/**
+	 * Opens an information dialog to the user displaying the given message.
+	 * 
+	 * @param message
+	 *            the dialog message
+	 * @param args
+	 *            the message arguments
+	 */
+	public static void showInfo(final String message, final Object[] args) {
+		final Shell shell = EventBUIPlugin.getActiveWorkbenchWindow()
+				.getShell();
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		display.syncExec(new Runnable() {
+			public void run() {
+				String msg = MessageFormat.format(message, args);
+				MessageDialog.openInformation(shell, Messages.info, msg);
+			}
+		});
+	}
+
+	/**
 	 * Returns a label composed of the given strings separated from each other
 	 * by an underscore character.
 	 * 
@@ -1522,7 +1552,7 @@ public final class EventBUtils {
 			return EMPTY_STRING;
 		}
 		final StringBuilder sb = new StringBuilder(strings[0]);
-		for (int i=1;i<strings.length;i++) {
+		for (int i = 1; i < strings.length; i++) {
 			sb.append(separator);
 			sb.append(strings[i]);
 		}

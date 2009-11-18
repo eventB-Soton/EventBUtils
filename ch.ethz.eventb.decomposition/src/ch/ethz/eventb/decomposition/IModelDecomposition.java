@@ -46,28 +46,28 @@ public interface IModelDecomposition {
 	 * Sets the machine root for this decomposition.
 	 * 
 	 * @param root
-	 *            the machine root.
+	 *            the machine root
 	 */
 	void setMachineRoot(IMachineRoot root);
 
 	/**
 	 * Returns the machine root for this decomposition.
 	 * 
-	 * @return the non-decomposed machine.
+	 * @return the non-decomposed machine
 	 */
 	IMachineRoot getMachineRoot();
 
 	/**
 	 * Creates a sub-model.
 	 * 
-	 * @return the newly created model.
+	 * @return the newly created model
 	 */
 	ISubModel addSubModel();
 
 	/**
 	 * Returns the set of sub-models.
 	 * 
-	 * @return the sub-models.
+	 * @return the sub-models
 	 */
 	ISubModel[] getSubModels();
 
@@ -75,17 +75,17 @@ public interface IModelDecomposition {
 	 * Removes a sub-model.
 	 * 
 	 * @param model
-	 *            the model to be removed.
+	 *            the model to be removed
 	 */
 	void removeSubModel(ISubModel model);
 
 	/**
 	 * Gets the decomposition style.
 	 * 
-	 * @return the decomposition style.
+	 * @return the decomposition style
 	 */
 	String getStyle();
-	
+
 	/**
 	 * Returns the type of context decomposition.
 	 * 
@@ -94,20 +94,31 @@ public interface IModelDecomposition {
 	ContextDecomposition getContextDecomposition();
 
 	/**
-	 * Sets the type of context decomposition
+	 * Sets the type of context decomposition.
 	 * 
 	 * @param contextDecomposition
 	 *            the type of context decomposition
 	 */
 	void setContextDecomposition(ContextDecomposition contextDecomposition);
-	
+
+	/**
+	 * Determines if the decomposition is authorized or not.
+	 * 
+	 * @param monitor
+	 *            a progress monitor
+	 * @return <tt>true</tt> if and only if the decomposition is authorized
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database
+	 */
+	boolean check(IProgressMonitor monitor) throws RodinDBException;
+
 	/**
 	 * Performs the decomposition.
 	 * 
 	 * @param monitor
-	 *            a progress monitor.
+	 *            a progress monitor
 	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
+	 *             if a problem occurs when accessing the Rodin database
 	 */
 	void perform(IProgressMonitor monitor) throws RodinDBException;
 }

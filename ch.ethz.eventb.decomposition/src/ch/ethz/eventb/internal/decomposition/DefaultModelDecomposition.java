@@ -13,12 +13,20 @@
 package ch.ethz.eventb.internal.decomposition;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eventb.core.IMachineRoot;
+import org.rodinp.core.IRodinDB;
+import org.rodinp.core.IRodinProject;
+import org.rodinp.core.RodinCore;
+import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.decomposition.IModelDecomposition;
 import ch.ethz.eventb.decomposition.ISubModel;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -82,13 +90,36 @@ public abstract class DefaultModelDecomposition implements IModelDecomposition {
 		subModels.remove(model);
 		return;
 	}
-	
+
 	public ContextDecomposition getContextDecomposition() {
 		return contextDecomposition;
 	}
-	
+
 	public void setContextDecomposition(
 			ContextDecomposition contextDecomposition) {
 		this.contextDecomposition = contextDecomposition;
+	}
+
+	public boolean check(IProgressMonitor monitor)
+			throws RodinDBException {
+		final IRodinDB rodinDB = RodinCore.getRodinDB();
+		final Set<String> projects = new HashSet<String>();
+		for (ISubModel subModel : subModels) {
+			final String projectName = subModel.getProjectName();
+			final IRodinProject rodinProject = rodinDB
+					.getRodinProject(projectName);
+			if (rodinProject.exists()) {
+				throw new IllegalArgumentException(Messages.bind(
+						Messages.decomposition_error_existingproject,
+						projectName));
+			}
+			final boolean projectsWithSameName = !projects.add(projectName);
+			if (projectsWithSameName) {
+				throw new IllegalArgumentException(Messages.bind(
+						Messages.decomposition_error_duplicateSubModelNames,
+						projectName));
+			}
+		}
+		return true;
 	}
 }
