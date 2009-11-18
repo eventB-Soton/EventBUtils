@@ -31,7 +31,7 @@ public enum DecompositionProblem implements IRodinProblem {
 			SEVERITY_ERROR, Messages.scuser_EventHasDisappearedError), EventInvalidStatusError(
 			SEVERITY_ERROR, Messages.scuser_EventInvalidStatusError), ParametersInExternalEventError(
 			SEVERITY_ERROR, Messages.scuser_ParametersInExternalEventError), GuardsInExternalEventError(
-			SEVERITY_ERROR, Messages.scuser_ParametersInExternalEventError), ActionsInExternalEventError(
+			SEVERITY_ERROR, Messages.scuser_GuardsInExternalEventError), ActionsInExternalEventError(
 			SEVERITY_ERROR, Messages.scuser_ActionsInExternalEventError), ActionOnPrivateAndSharedError(
 			SEVERITY_ERROR, Messages.scuser_ActionOnPrivateAndSharedError), ActionOnSharedError(
 			SEVERITY_ERROR, Messages.scuser_ActionOnSharedError);
