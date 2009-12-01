@@ -19,6 +19,7 @@ import ch.ethz.eventb.decomposition.IModelDecomposition;
 import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.DefaultModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.DefaultSubModel;
+import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -34,6 +35,7 @@ public class ModelDecomposition extends DefaultModelDecomposition {
 	 */
 	public ModelDecomposition() {
 		super();
+		this.contextDecomposition = ContextDecomposition.NO_DECOMPOSITION;
 	}
 
 	/**
@@ -60,5 +62,7 @@ public class ModelDecomposition extends DefaultModelDecomposition {
 	 */
 	public final void perform(final IProgressMonitor monitor)
 			throws RodinDBException {
+		throw new UnsupportedOperationException(
+				Messages.decomposition_notImplemented);
 	}
 }

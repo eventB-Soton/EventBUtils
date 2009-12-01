@@ -43,7 +43,7 @@ public abstract class DefaultModelDecomposition implements IModelDecomposition {
 	/** A list of sub-models. */
 	private List<ISubModel> subModels;
 
-	private ContextDecomposition contextDecomposition;
+	protected ContextDecomposition contextDecomposition;
 
 	/**
 	 * Constructor. Creates a model decomposition.

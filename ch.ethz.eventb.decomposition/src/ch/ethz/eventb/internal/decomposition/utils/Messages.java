@@ -41,6 +41,7 @@ public final class Messages extends NLS {
 
 	public static String decomposition_forbidden;
 	public static String decomposition_decomposeContexts;
+	public static String decomposition_notImplemented;
 
 	public static String decomposition_defaultproject;
 	public static String decomposition_description;
