@@ -1,0 +1,243 @@
+<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>Decomposition_Plug-in_User_Guide</title>
+	</head>
+	<body>
+		<p></p>
+		<h2 id="Introduction">Introduction</h2>
+		<p>The Decomposition plug-in allows to decompose a model into sub-models. </p>
+		<p>See the 
+			<a href="http://wiki.event-b.org/index.php/Event_Model_Decomposition">Event-B Model Decomposition</a> page for technical details on 
+			<i>shared variables</i> (A-style) decomposition.
+		</p>
+		<h2 id="Installing_and_Updating">Installing and Updating</h2>
+		<p>{{TODO | Not yet released, waiting for Rodin 1.2}}</p>
+		<h3 id="Setup">Setup</h3>
+		<p>The following steps will guide you through the setup process:</p>
+		<ol>
+			<li>Download Rodin for your platform from 
+				<a href="http://sourceforge.net/project/showfiles.php?group_id=108850&amp;amp;package_id=181714&amp;amp;release_id=687381">Sourceforge</a>:
+			</li>
+			<li>Extract the downloaded zip file.</li>
+			<li>Start Rodin from the folder where you extracted the zip file in the previous step.</li>
+			<li>Install the Decomposition plug-in:
+				<ol>
+					<li>In the menu choose 
+						<i>Help</i> -> 
+						<i>Software Updates...</i>
+					</li>
+					<li>Select the tab 
+						<i>Available Software</i> and click 
+						<i>Add Site...</i>
+					</li>
+					<li>Use the location URL: 
+						<a href="http://rodin-b-sharp.sourceforge.net/updates">http://rodin-b-sharp.sourceforge.net/updates</a>
+					</li>
+					<li>Back in 
+						<i>Available Software</i> open the update site you just added
+					</li>
+					<li>Select 
+						<i>Event-B Decomposition</i> and click 
+						<i>Install...</i>
+					</li>
+				</ol>
+			</li>
+			<li>Restart Rodin as suggested.</li>
+		</ol>
+		<p>Now you are ready to use the Decomposition plug-in. </p>
+		<h3 id="Update">Update</h3>
+		<p>The following steps will guide you through the update process:</p>
+		<ol>
+			<li>In Rodin open the preferences (
+				<i>Window</i> -> 
+				<i>Preferences</i> or for Mac: 
+				<i>Rodin</i> -> 
+				<i>Preferences</i>)
+			</li>
+			<li>Find 
+				<i>Install/Update</i> -> 
+				<i>Automatic Updates</i>
+			</li>
+			<li>Select 
+				<i>Automatically find new updates and notify me</i>
+			</li>
+		</ol>
+		<p>As soon as Rodin finds a new update it will ask you if you would like to install it.</p>
+		<h3 id="Release_Notes">Release Notes</h3>
+		<p>See the 
+			<a href="http://wiki.event-b.org/index.php/Decomposition_Release_History">Decomposition Release History</a>.
+		</p>
+		<h2 id="Decomposing">Decomposing</h2>
+		<h3 id="Running_the_Decompose_Action">Running the Decompose Action</h3>
+		<p>The <tt>Decompose</tt> action launches the decomposition wizard, which will perform the decomposition according to the preferences. It is available:</p>
+		<table>
+			<tr>
+				<td>1. Either from the toolbar of the Event-B explorer. </td>
+				<td>2. Or from the contextual menu, when right-clicking on a machine.</td>
+			</tr>
+			<tr>
+				<td valign="top">
+					<img align="middle" border="0" src="images/decompose_explorer.png"/> 
+				</td>
+				<td valign="top">
+					<img align="middle" border="0" src="images/decompose_contextual.png"/>
+				</td>
+			</tr>
+		</table>
+		<h3 id="Setting_the_Preferences">Setting the Preferences</h3>
+		<p>The different decomposition options are described below:</p>
+		<ul>
+			<li>Decomposition style. The shared variables (A-style) or shared events (B-style) decomposition will be performed, according to the specified decomposition style.</li>
+			<li>Context decomposition. The contexts seen by the input machine are decomposed if and only if this option is checked; otherwise, they are copied from the initial model to the decomposed sub-models.</li>
+		</ul>
+		<p>
+			<img border="0" src="images/decompose_options.png"/>
+		</p>
+		<h3 id="Selecting_the_Input_Machine_and_Partitioning_the_Elements">Selecting the Input Machine and Partitioning the Elements</h3>
+		<p>The following information has to be provided in the wizard dialog:</p>
+		<ul>
+			<li>Which machine will be decomposed.</li>
+			<li>Which sub-machines will be generated.</li>
+			<li>How the elements, and more precisely the events for shared variables (A-style) decomposition and the variables for shared events (B-style) decomposition, are partioned among these sub-machines.</li>
+		</ul>
+		<p>
+			<img border="0" src="images/decompose_partition.png"/>
+		</p>
+		<h3 id="Importing_.2F_Exporting_the_Configuration">Importing / Exporting the Configuration</h3>
+		<p>{{TODO | To be completed}}</p>
+		<p>It is possible on the one hand to export a configuration to a file, and on the other hand to import a configuration from a file.</p>
+		<h2 id="Reporting_a_Bug_or_Requesting_a_Feature">Reporting a Bug or Requesting a Feature</h2>
+		<p>Please, use the SourceForge trackers to report a bug on existing features, or to request new features:</p>
+		<ul>
+			<li>
+				<a href="https://sourceforge.net/tracker/?atid=651669&amp;amp;group_id=108850&amp;amp;category=1259297">Bugs</a>
+			</li>
+			<li>
+				<a href="https://sourceforge.net/tracker/?atid=651672&amp;amp;group_id=108850&amp;amp;category=1259298">Feature Requests</a>
+			</li>
+		</ul>
+		<h2 id="Error_Messages">Error Messages</h2>
+		<h3 id="When_running_the_decomposition">When running the decomposition</h3>
+		<p>The decomposition is forbidden, and an error message is displayed, if one of the following conditions applies:</p>
+		<ul>
+			<li>The built INITIALISATION events of the sub-machines would define an action modifying at the same time a 
+				<i>private</i> variable and a 
+				<i>shared</i> variable.
+				<br/><tt>Action {0} of the INITIALISATION event modifies a private variable and a shared variable</tt>
+				<br/>See 
+				<a href="http://wiki.event-b.org/index.php/Event_Model_Decomposition#Ensuring_that_a_shared_variable_is_not_refined_by_an_initialization_event">Ensuring that a shared variable is not refined by an initialization event</a> for further explanations.
+			</li>
+			<li>The sub-models shall be created in new Event-B projects, but one of the entered project names already exists.
+				<br/><tt>The project {0} should not exist</tt>
+			</li>
+			<li>The same project name has been entered for two distinct sub-models.
+				<br/><tt>Duplicate sub-model names: {0}</tt>
+			</li>
+		</ul>
+		<h3 id="When_running_the_static_checker">When running the static checker</h3>
+		<p>The following rules are enforced by the static checker, and errors are returned (in the Rodin Problems view) accordingly:</p>
+		<ul>
+			<li>A 
+				<i>shared</i> variable shall be present in subsequent refinements.
+				<br/><tt>Shared variable {0} has disappeared</tt>
+			</li>
+			<li>A 
+				<i>shared</i> variable shall still have the 
+				<i>shared</i> attribute in subsequent refinements.
+				<br/><tt>Inconsistent nature of shared variable {0}, shared expected</tt>
+			</li>
+			<li>An 
+				<i>external</i> event shall be present in subsequent refinements.
+				<br/><tt>External event {0} has disappeared</tt>
+			</li>
+			<li>An 
+				<i>external</i> event shall still have the 
+				<i>external</i> attribute in subsequent refinements.
+				<br/><tt>Inconsistent status of external event {0}, external expected</tt>
+			</li>
+			<li>An 
+				<i>external</i> event shall have the 
+				<i>extended</i> attribute in subsequent refinements.
+				<br/><tt>Inconsistent status of external event {0}, extended expected</tt>
+			</li>
+			<li>An 
+				<i>external</i> event shall not declare any additional parameter in subsequent refinements.
+				<br/><tt>Parameters cannot be added in external events</tt>
+			</li>
+			<li>An 
+				<i>external</i> event shall not declare any additional guard in subsequent refinements.
+				<br/><tt>Guards cannot be added in external events</tt>
+			</li>
+			<li>An 
+				<i>external</i> event shall not declare any additional action in subsequent refinements.
+				<br/><tt>Actions cannot be added in external events</tt>
+			</li>
+			<li>An INITIALISATION event shall not contain an action modifying at the same time a 
+				<i>private</i> variable and a 
+				<i>shared</i> variable.
+				<br/><tt>Action {0} of the INITIALISATION event modifies a private variable and a shared variable</tt>
+			</li>
+			<li>The actions of an INITIALISATION event modifying a 
+				<i>shared</i> variable shall be present and be syntactically equal in subsequent refinements.
+				<br/><tt>Action {0} of the INITIALISATION event has disappeared</tt>
+			</li>
+		</ul>
+		<p>For additional information, see:</p>
+		<ul>
+			<li>
+				<a href="http://wiki.event-b.org/index.php/Event_Model_Decomposition#Ensuring_that_a_shared_variable_is_not_refined">Ensuring that a shared variable is not refined</a>.
+			</li>
+			<li>
+				<a href="http://wiki.event-b.org/index.php/Event_Model_Decomposition#Ensuring_that_an_external_event_is_not_refined">Ensuring that an external event is not refined</a>.
+			</li>
+			<li>
+				<a href="http://wiki.event-b.org/index.php/Event_Model_Decomposition#Ensuring_that_a_shared_variable_is_not_refined_by_an_initialization_event">Ensuring that a shared variable is not refined by an initialization event</a>.
+			</li>
+		</ul>
+		<h2 id="Tips_and_Tricks">Tips and Tricks</h2>
+		<h3 id=".27.27Shared_variables.27.27_.28A-style.29_decomposition">''Shared variables'' (A-style) decomposition</h3>
+		<ul>
+			<li>
+				<b>An invariant is missing in a sub-machine, but I would like to have it copied.</b>
+				<br/>For example, an invariant between a concrete variable and some abstract variable may be useful.
+				<br/>A solution is to add a theorem based on the missing predicate in the non-decomposed machine. See the last paragraph 
+				<a href="http://wiki.event-b.org/index.php/Event_Model_Decomposition#inv_distribution" title="Event_Model_Decomposition#inv_distribution">about the invariants</a> in the Event-B Model Decomposition page.
+			</li>
+		</ul>
+		<ul>
+			<li>
+				<b>An axiom is missing in a sub-context, but I would like to have it copied.</b>
+				<br/>Such a situation may be encountered if the "Decompose contexts" option is checked.
+				<br/>The workaround proposed for the invariants applies to the axioms as well.
+				<br/>For example, if the non-decomposed context defines the axiom 
+				<img border="0" src="images/6a9ad2adbb2e75baca075ea3fad9caff.png"/>, and this axiom is not copied in a sub-context which contains the <i>S</i> carrier set but does not contain the <i>a</i> constant, then the information 
+				<img border="0" src="images/68cdc76e2d75eae3946735c30e066fdc.png"/> is lost. In order to keep it, it is possible to add the theorem 
+				<img border="0" src="images/1018e2d83b49680b70cdc6853014077c.png"/> in the non-decomposed context.
+			</li>
+		</ul>
+		<ul>
+			<li>
+				<b>A variable is tagged as 
+					<i>private</i> in a sub-machine, but I would like to have it tagged 
+					<i>shared</i>.
+				</b>
+				<br/>Such a behavior is suitable if you want to prevent this variable from being further refined.
+				<br/>A solution for such a variable <i>v</i> of a sub-machine <i>M<sub>i</sub></i> is to add a fake action 
+				<img border="0" src="images/f8e556131acd977a1af6d19f3924d148.png"/> in a event of the non-decomposed machine which is associated to the sub-machine <i>M<sub>j</sub></i> (<i>M<sub>i</sub></i> and <i>M<sub>j</sub></i> are distinct sub-machines) when performing the decomposition.
+				<br/>In the first example below, the <i>min</i> variable will become 
+				<i>private</i> when performing the decomposition:
+				<img width="500" align="middle" border="0" src="images/scenario1.png"/>
+				<br/>In the second example below, the <i>min</i> variable will become 
+				<i>shared</i> when performing the decomposition:
+				<img width="500" align="middle" border="0" src="images/scenario2.png"/>
+			</li>
+		</ul>
+		<p>
+			<a href="http://wiki.event-b.org/index.php/Category:User_documentation" title="Category:User documentation">Category:User documentation</a>
+
+			<a href="http://wiki.event-b.org/index.php/Category:Work_in_progress" title="Category:Work in progress">Category:Work in progress</a>
+		</p>
+	</body>
+</html>

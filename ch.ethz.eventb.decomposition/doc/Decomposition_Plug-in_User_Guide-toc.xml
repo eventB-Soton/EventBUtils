@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<toc topic="doc/Decomposition_Plug-in_User_Guide.html" label="Decomposition Plug-in User's Guide">
+	<topic href="doc/Decomposition_Plug-in_User_Guide.html" label="Introduction"></topic>
+	<topic href="doc/Decomposition_Plug-in_User_Guide.html#Installing_and_Updating" label="Installing and Updating">
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#Setup" label="Setup"></topic>
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#Update" label="Update"></topic>
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#Release_Notes" label="Release Notes"></topic>
+	</topic>
+	<topic href="doc/Decomposition_Plug-in_User_Guide.html#Decomposing" label="Decomposing">
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#Running_the_Decompose_Action" label="Running the Decompose Action"></topic>
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#Setting_the_Preferences" label="Setting the Preferences"></topic>
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#Selecting_the_Input_Machine_and_Partitioning_the_Elements" label="Selecting the Input Machine and Partitioning the Elements"></topic>
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#Importing_.2F_Exporting_the_Configuration" label="Importing / Exporting the Configuration"></topic>
+	</topic>
+	<topic href="doc/Decomposition_Plug-in_User_Guide.html#Reporting_a_Bug_or_Requesting_a_Feature" label="Reporting a Bug or Requesting a Feature"></topic>
+	<topic href="doc/Decomposition_Plug-in_User_Guide.html#Error_Messages" label="Error Messages">
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#When_running_the_decomposition" label="When running the decomposition"></topic>
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#When_running_the_static_checker" label="When running the static checker"></topic>
+	</topic>
+	<topic href="doc/Decomposition_Plug-in_User_Guide.html#Tips_and_Tricks" label="Tips and Tricks">
+		<topic href="doc/Decomposition_Plug-in_User_Guide.html#.27.27Shared_variables.27.27_.28A-style.29_decomposition" label="''Shared variables'' (A-style) decomposition"></topic>
+	</topic>
+</toc>

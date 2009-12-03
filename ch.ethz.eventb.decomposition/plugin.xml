@@ -231,5 +231,12 @@
            name="%pogMachineModule">
      </rootType>
   </extension>
+  <extension
+        point="org.eclipse.help.toc">
+     <toc
+           file="doc/Decomposition_Plug-in_User_Guide-toc.xml"
+           primary="true">
+     </toc>
+  </extension>
 
 </plugin>

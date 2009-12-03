@@ -158,8 +158,7 @@ public class MachineRefinesModule extends SCProcessorModule {
 	 * <i>REFINES</i> clause points to the event itself; otherwise an
 	 * <tt>InconsistentEventLabelWarning</tt> is detected.
 	 * <li>Check that this event does not declare any additional element
-	 * (parameter, guard, witness, action). Note that this event implicitly does
-	 * not declare any additional guard because the event is <i>extended</i>.
+	 * (parameter, guard, witness, action). 
 	 * </ul>
 	 * 
 	 * @throws CoreException
