@@ -19,7 +19,6 @@ import ch.ethz.eventb.decomposition.IModelDecomposition;
 import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.internal.decomposition.DefaultModelDecomposition;
 import ch.ethz.eventb.internal.decomposition.DefaultSubModel;
-import ch.ethz.eventb.internal.decomposition.utils.Messages;
 
 /**
  * @author htson
@@ -35,7 +34,6 @@ public class ModelDecomposition extends DefaultModelDecomposition {
 	 */
 	public ModelDecomposition() {
 		super();
-		this.contextDecomposition = ContextDecomposition.NO_DECOMPOSITION;
 	}
 
 	/**
@@ -58,11 +56,18 @@ public class ModelDecomposition extends DefaultModelDecomposition {
 	}
 
 	/**
-	 * @TODO To be implemented.
+	 * Perform the decomposition using the shared event style
 	 */
 	public final void perform(final IProgressMonitor monitor)
 			throws RodinDBException {
-		throw new UnsupportedOperationException(
-				Messages.decomposition_notImplemented);
+		BStyleUtils.decompose(this, monitor);
 	}
+	
+	public final boolean check(final IProgressMonitor monitor) throws RodinDBException {
+		if (!super.check(monitor))
+			return false;
+		
+		return BStyleUtils.check(this, monitor);
+	}
+	
 }
