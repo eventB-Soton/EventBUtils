@@ -124,7 +124,7 @@ public final class AStyleUtils extends DecompositionUtils {
 
 			for (ISubModel subModel : subModels) {
 				subMonitor.setTaskName(Messages.decomposition_description
-						+ " (" + subModel.getProjectName() + ")");
+						+ " (" + subModel.getComponentName() + ")");
 				// For each distribution, create the corresponding model.
 				subMonitor.subTask(Messages.decomposition_submodel);
 				createSubModel(subModel, modelDecomp.getContextDecomposition(),
@@ -155,17 +155,24 @@ public final class AStyleUtils extends DecompositionUtils {
 		// Monitor has 8 works.
 		subMonitor.setWorkRemaining(8);
 		final IMachineRoot src = subModel.getMachineRoot();
+		String fileName = "";
 
-		// 1: Create project
-		subMonitor.subTask(Messages.decomposition_project);
-		final IEventBProject prj = EventBUtils.createProject(subModel
-				.getProjectName(), subMonitor.newChild(1));
+		// 1: Create project if necessary
+		IEventBProject prj = null;
+		if(subModel.getModelDecomposition().createNewProjectDecomposition()){
+			subMonitor.subTask(Messages.decomposition_project);
+			prj = EventBUtils.createProject(subModel.getComponentName(), subMonitor.newChild(1));
+			fileName = src.getElementName();
+		}
+		else {
+			prj = src.getEventBProject();
+			fileName = subModel.getComponentName();
+		}
 		checkCancellation(subMonitor);
 
 		// 2: Create machine.
 		subMonitor.subTask(Messages.decomposition_machine);
-		final IMachineRoot dest = EventBUtils.createMachine(prj, src
-				.getElementName(), subMonitor.newChild(1));
+		final IMachineRoot dest = EventBUtils.createMachine(prj, fileName, subMonitor.newChild(1));
 		checkCancellation(subMonitor);
 
 		// 3: Create variables.
@@ -188,15 +195,14 @@ public final class AStyleUtils extends DecompositionUtils {
 		switch (contextDecomp) {
 		case NO_DECOMPOSITION:
 			subMonitor.subTask(Messages.decomposition_contextsCopy);
-			EventBUtils.copyContexts(src.getEventBProject(), prj, subMonitor
-					.newChild(1));
+			EventBUtils.copyContexts(src.getEventBProject(), prj, src, subMonitor.newChild(1));
 			checkCancellation(subMonitor);
 			subMonitor.subTask(Messages.decomposition_seesclauses);
 			EventBUtils.copySeesClauses(src, dest, subMonitor.newChild(1));
 			checkCancellation(subMonitor);
 			break;
 		case MINIMAL_FLATTENED_CONTEXT:
-			final String contextName = Messages.label_decomposedContextName;
+			final String contextName = EventBUtils.makeLabel(Messages.label_decomposedContextName,fileName); // //Messages.label_decomposedContextName;
 			subMonitor.subTask(Messages.decomposition_contextsDecompose);
 			final boolean contextCreated = createFlattenedContext(dest,
 					subModel, prj, subMonitor.newChild(1), contextName);
@@ -410,8 +416,7 @@ public final class AStyleUtils extends DecompositionUtils {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				2 * events.length);
 		for (IEvent evt : events) {
-			DecomposedEventType type = getEventType(subModel, evt, subMonitor
-					.newChild(1));
+			DecomposedEventType type = getEventType(subModel, evt, subMonitor.newChild(1));
 			if (type == DecomposedEventType.EXTERNAL) {
 				createExternalEvent(dest, subModel, evt, subMonitor.newChild(1));
 			} else if (type == DecomposedEventType.INTERNAL) {
@@ -514,8 +519,7 @@ public final class AStyleUtils extends DecompositionUtils {
 					subMonitor.newChild(1));
 
 			// Set the external attribute.
-			IExternalElement elt = (IExternalElement) newEvt
-					.getAdapter(IExternalElement.class);
+			IExternalElement elt = (IExternalElement) newEvt.getAdapter(IExternalElement.class);
 			elt.setExternal(true, subMonitor.newChild(1));
 		}
 		subMonitor.setWorkRemaining(14);
@@ -535,8 +539,7 @@ public final class AStyleUtils extends DecompositionUtils {
 		checkCancellation(subMonitor);
 
 		// Decomposing actions.
-		Set<String> vars = getAccessedVariables(subModel, subMonitor
-				.newChild(1));
+		Set<String> vars = getAccessedVariables(subModel, subMonitor.newChild(1));
 		decomposeActions(newEvt, flattened, vars, subMonitor.newChild(5));
 
 		// Creating missing parameters and guards.
@@ -568,17 +571,13 @@ public final class AStyleUtils extends DecompositionUtils {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
 				4 * acts.length);
 		for (IAction act : acts) {
-			final String newAssignmentStr = decomposeAction(act, vars,
-					subMonitor.newChild(1));
+			final String newAssignmentStr = decomposeAction(act, vars,subMonitor.newChild(1));
 			if (newAssignmentStr == null) {
 				continue;
 			}
-			final IAction newAct = dest.createChild(IAction.ELEMENT_TYPE, null,
-					subMonitor.newChild(1));
+			final IAction newAct = dest.createChild(IAction.ELEMENT_TYPE, null,subMonitor.newChild(1));
 			newAct.setLabel(act.getLabel(), subMonitor.newChild(1));
-			newAct
-					.setAssignmentString(newAssignmentStr, subMonitor
-							.newChild(1));
+			newAct.setAssignmentString(newAssignmentStr, subMonitor.newChild(1));
 			checkCancellation(subMonitor);
 		}
 	}
