@@ -47,11 +47,14 @@ import org.eventb.core.IInvariant;
 import org.eventb.core.ILabeledElement;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IParameter;
+import org.eventb.core.IPredicateElement;
 import org.eventb.core.IRefinesEvent;
 import org.eventb.core.IRefinesMachine;
 import org.eventb.core.ISCContextRoot;
+import org.eventb.core.ISCEvent;
 import org.eventb.core.ISCIdentifierElement;
 import org.eventb.core.ISCMachineRoot;
+import org.eventb.core.ISCParameter;
 import org.eventb.core.ISeesContext;
 import org.eventb.core.ast.Assignment;
 import org.eventb.core.ast.Expression;
@@ -280,6 +283,62 @@ public final class EventBUtils {
 			final IRodinFile ctxFile = context.getRodinFile();
 			ctxFile.copy(to.getRodinProject(), null, null, true, subMonitor
 					.newChild(1));
+		}
+
+		// Tag the contexts as decomposed and generated and set the
+		// configuration
+		for (IContextRoot context : contexts) {
+			final IContextRoot copiedContext = to.getContextRoot(context
+					.getElementName());
+			final IDecomposedElement elt = (IDecomposedElement) copiedContext
+					.getAdapter(IDecomposedElement.class);
+			elt.setDecomposed(subMonitor.newChild(1));
+
+			((IConfigurationElement) copiedContext).setConfiguration(
+					DECOMPOSITION_CONFIG_SC, subMonitor.newChild(1));
+		}
+	}
+	
+	/**
+	 * Utility method to copy seen contexts of a machine from a project to another one.
+	 * WARNING: This method will overwrite any existing contexts in the
+	 * destination with the same name.
+	 * 
+	 * @param from
+	 *            the source project
+	 * @param to
+	 *            the destination project
+	 * @param scr
+	 * 			  the source machine
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
+	 * @throws RodinDBException
+	 *             when some errors occur when
+	 *             <ul>
+	 *             <li>getting the contexts in the from project
+	 *             {@link IRodinProject#getRootElementsOfType(org.rodinp.core.IInternalElementType)}
+	 *             .</li>
+	 *             <li>copying any context to the destination project
+	 *             {@link IRodinFile#copy(IRodinElement, IRodinElement, String, boolean, IProgressMonitor)}
+	 *             .</li>
+	 *             </ul>
+	 */
+	public static void copyContexts(IEventBProject from, IEventBProject to, IMachineRoot scr,
+			IProgressMonitor monitor) throws RodinDBException {
+//		final IRodinProject fromPrj = from.getRodinProject();
+		List<IContextRoot> contexts = new ArrayList<IContextRoot>();
+		for(ISeesContext seenContext: scr.getSeesClauses()){
+			contexts.add(seenContext.getSeenContextRoot());
+		}
+//		final IContextRoot[] contexts = fromPrj.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,3 * contexts.size());
+		for (IContextRoot context : contexts) {
+			final IRodinFile ctxFile = context.getRodinFile();
+			ctxFile.copy(to.getRodinProject(), null, null, true, subMonitor.newChild(1));
 		}
 
 		// Tag the contexts as decomposed and generated and set the
@@ -549,6 +608,11 @@ public final class EventBUtils {
 		return new ConstantTypingTheoremMaker(src).getTypingTheorem(cst);
 	}
 
+	public static String getTypingTheorem(IMachineRoot src, IEvent evt, String var)
+			throws RodinDBException {
+		return new ParameterTypingTheoremMaker(src,evt).getTypingTheorem(var);
+	}
+	
 	public static Expression getTypeExpression(IContextRoot src, String cst)
 			throws RodinDBException {
 		return new ConstantTypingTheoremMaker(src).getTypingExpression(cst);
@@ -649,6 +713,30 @@ public final class EventBUtils {
 				return null;
 			}
 			return mchSC.getSCVariables();
+		}
+	}
+	
+	private static class ParameterTypingTheoremMaker extends
+	TypingTheoremMaker<IMachineRoot> {
+		
+		private final IEvent evt;
+		
+		public ParameterTypingTheoremMaker(IMachineRoot root, IEvent evt) {
+			super(root);
+			this.evt = evt;
+		}
+		
+		@Override
+		protected ISCParameter[] getSCIdents() throws RodinDBException {
+			ISCMachineRoot mchSC = root.getSCMachineRoot();
+			if (!mchSC.exists()) {
+				return null;
+			}else for(ISCEvent event :mchSC.getSCEvents()){
+				if(event.getLabel().equals(evt.getLabel()))
+					return mchSC.getSCEvent(event.getElementName()).getSCParameters();
+			}
+			
+			return null;
 		}
 	}
 
@@ -797,7 +885,39 @@ public final class EventBUtils {
 				.parsePredicate(inv.getPredicateString());
 		return isRelevant(predicate, vars, seenCarrierSetsAndConstants);
 	}
+	
+	/**
+	 * Checks if an predicateElement is relevant for a set of variables or not,
+	 * <i>i.e.</i> if the referenced variables are contained in the input set of
+	 * variables.
+	 * 
+	 * @param inv
+	 *            an invariant.
+	 * @param vars
+	 *            a set of variables (in {@link String}).
+	 * @return return <code>true</code> if and only if the predicateElement is
+	 *         relevant.
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database.
+	 */
+	public static <E extends IPredicateElement> boolean isRelevant(E element , Set<String> vars,
+			Set<String> seenCarrierSetsAndConstants) throws RodinDBException {
+		final Predicate predicate = Lib
+				.parsePredicate(element.getPredicateString());
+		return isRelevant(predicate, vars, seenCarrierSetsAndConstants);
+	}
 
+	/**
+	 *  * Checks if a predicate is relevant for a set of variables or not,
+	 * <i>i.e.</i> if the referenced variables are contained in the input set of
+	 * variables.
+	 * 
+	 * @param predicate
+	 * @param vars
+	 * @param seenCarrierSetsAndConstants
+	 * @return return <code>true</code> if and only if the predicate is
+	 *         relevant.
+	 */
 	private static boolean isRelevant(Predicate predicate, Set<String> vars,
 			Set<String> seenCarrierSetsAndConstants) {
 		final List<String> idents = toStringList(predicate
@@ -1198,8 +1318,7 @@ public final class EventBUtils {
 			IEvent evt, Set<String> vars, IProgressMonitor monitor)
 			throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
-		final List<String> idents = getFreeIdentifiers(evt, subMonitor
-				.newChild(1));
+		final List<String> idents = getFreeIdentifiers(evt, subMonitor.newChild(1));
 		idents.removeAll(getSeenCarrierSetsAndConstants(src));
 		idents.removeAll(vars);
 		for (IParameter param : evt.getParameters()) {
