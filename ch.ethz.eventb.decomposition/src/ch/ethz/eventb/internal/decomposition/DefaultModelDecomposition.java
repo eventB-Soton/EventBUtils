@@ -18,8 +18,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eventb.core.EventBPlugin;
 import org.eventb.core.IMachineRoot;
 import org.rodinp.core.IRodinDB;
+import org.rodinp.core.IRodinFile;
 import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinCore;
 import org.rodinp.core.RodinDBException;
@@ -44,6 +46,8 @@ public abstract class DefaultModelDecomposition implements IModelDecomposition {
 	private List<ISubModel> subModels;
 
 	protected ContextDecomposition contextDecomposition;
+	
+	private boolean createNewProjects;
 
 	/**
 	 * Constructor. Creates a model decomposition.
@@ -103,23 +107,54 @@ public abstract class DefaultModelDecomposition implements IModelDecomposition {
 	public boolean check(IProgressMonitor monitor)
 			throws RodinDBException {
 		final IRodinDB rodinDB = RodinCore.getRodinDB();
-		final Set<String> projects = new HashSet<String>();
+		final Set<String> newComponents = new HashSet<String>();
 		for (ISubModel subModel : subModels) {
-			final String projectName = subModel.getProjectName();
-			final IRodinProject rodinProject = rodinDB
-					.getRodinProject(projectName);
-			if (rodinProject.exists()) {
-				throw new IllegalArgumentException(Messages.bind(
-						Messages.decomposition_error_existingproject,
-						projectName));
+			final String componentName = subModel.getComponentName();
+			if(createNewProjects){
+				final IRodinProject rodinProject = rodinDB.getRodinProject(componentName);
+			
+				if (rodinProject.exists()) {
+					throw new IllegalArgumentException(Messages.bind(
+							Messages.decomposition_error_existingproject,
+							componentName));
+				}
+				final boolean projectsWithSameName = !newComponents.add(componentName);
+				if (projectsWithSameName) {
+					throw new IllegalArgumentException(Messages.bind(
+							Messages.decomposition_error_duplicateSubModelNames,
+							componentName));
+				}
 			}
-			final boolean projectsWithSameName = !projects.add(projectName);
-			if (projectsWithSameName) {
-				throw new IllegalArgumentException(Messages.bind(
-						Messages.decomposition_error_duplicateSubModelNames,
-						projectName));
+			else {
+				final IRodinProject rodinProject = mch.getRodinProject();
+				String machineFile = EventBPlugin.getMachineFileName(componentName);
+				IRodinFile rodinFile = rodinProject.getRodinFile(machineFile);
+				
+				//Check if machine name already exist in that project
+				if (rodinFile.exists()) {
+					throw new IllegalArgumentException(Messages.bind(
+							Messages.decomposition_error_existingmachine,
+							componentName));
+				}
+				final boolean componentsWithSameName = !newComponents.add(componentName);
+				if (componentsWithSameName) {
+					throw new IllegalArgumentException(Messages.bind(
+							Messages.decomposition_error_duplicateSubModelNames,
+							componentName));
+				}
+
 			}
+			
 		}
 		return true;
+	}
+	
+	public boolean createNewProjectDecomposition() {
+		return createNewProjects;
+	}
+
+	public void setCreateNewProjectDecomposition(boolean createNewProject) {
+		this.createNewProjects = createNewProject;
+		
 	}
 }
