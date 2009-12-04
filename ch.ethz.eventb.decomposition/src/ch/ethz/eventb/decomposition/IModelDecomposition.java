@@ -100,6 +100,21 @@ public interface IModelDecomposition {
 	 *            the type of context decomposition
 	 */
 	void setContextDecomposition(ContextDecomposition contextDecomposition);
+	
+	/**
+	 * Gets if the sub-components are generated in new projects or on the same.
+	 * 
+	 * @return true if the sub-components are created in new projects or false otherwise
+	 */
+	boolean createNewProjectDecomposition();
+
+	
+	/**
+	 * Sets if the sub-components are generated in a new project or on the same
+	 * 
+	 * @param createNewProject
+	 */
+	void setCreateNewProjectDecomposition(boolean createNewProject);
 
 	/**
 	 * Determines if the decomposition is authorized or not.

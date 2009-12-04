@@ -43,19 +43,19 @@ public interface ISubModel {
 	IMachineRoot getMachineRoot();
 
 	/**
-	 * Sets the name of the project associated to this sub-model.
+	 * Sets the name of the component associated to this sub-model.
 	 * 
-	 * @param prjName
-	 *            the project name.
+	 * @param componentName
+	 *            the component name.
 	 */
-	void setProjectName(String prjName);
+	void setComponentName(String componentName);
 
 	/**
-	 * Returns the name of the project associated to this sub-model.
+	 * Returns the name of the component associated to this sub-model.
 	 * 
-	 * @return the project name.
+	 * @return the component name.
 	 */
-	String getProjectName();
+	String getComponentName();
 
 	/**
 	 * Sets the elements chosen by the end-user for this sub-model.
