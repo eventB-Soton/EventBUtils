@@ -32,12 +32,14 @@ public final class Messages extends NLS {
 
 	public static String wizard_name;
 	public static String wizard_decomposeContextsLabel;
+	public static String wizard_createNewProjectsSubComponentsLabel;
 	public static String wizard_description;
 	public static String wizard_title;
 	public static String wizard_machine;
 	public static String wizard_elements;
 	public static String wizard_project;
 	public static String wizard_style;
+	public static String wizard_component;
 
 	public static String decomposition_forbidden;
 	public static String decomposition_decomposeContexts;
@@ -51,6 +53,7 @@ public final class Messages extends NLS {
 	public static String decomposition_seesclauses;
 	public static String decomposition_saving;
 	public static String decomposition_external;
+	public static String decomposition_events;
 	public static String decomposition_external_comment;
 	public static String decomposition_internal_comment;
 	public static String decomposition_invariants;
