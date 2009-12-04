@@ -13,6 +13,8 @@ package ch.ethz.eventb.internal.decomposition.ui.wizards;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -180,20 +182,24 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends
 			}
 
 			public void widgetSelected(final SelectionEvent e) {
-				ISubModel subModel = getSelectedSubModel();
-				if (subModel != null) {
-					ElementPartitionDialog<T> dialog = new ElementPartitionDialog<T>(
-							viewer.getControl().getShell(), subModel, type);
-					dialog.open();
-					if (dialog.getReturnCode() == Dialog.OK) {
-						subModel.setProjectName(dialog.getProjectName());
-						subModel.setElements(dialog.getElements());
-						viewer.refresh();
-						updateButtons();
-					}
-				}
+				clickEditButton();
 			}
 		});
+	}
+	
+	private void clickEditButton(){
+		ISubModel subModel = getSelectedSubModel();
+		if (subModel != null) {
+			ElementPartitionDialog<T> dialog = new ElementPartitionDialog<T>(
+					viewer.getControl().getShell(), subModel, type);
+			dialog.open();
+			if (dialog.getReturnCode() == Dialog.OK) {
+				subModel.setComponentName(dialog.getProjectName());
+				subModel.setElements(dialog.getElements());
+				viewer.refresh();
+				updateButtons();
+			}
+		}
 	}
 
 	private void createAddButton(final Composite composite) {
@@ -234,6 +240,15 @@ public class ElementPartitionWizardPage<T extends IRodinElement> extends
 				updateButtons();
 			}
 
+		});
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
+			
+			public void doubleClick(DoubleClickEvent event) {
+				//when double clicked, enter on the edit mode
+				if(!editButton.isDisposed() && editButton.isEnabled()){
+					clickEditButton();
+				}
+			}
 		});
 	}
 

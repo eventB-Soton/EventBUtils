@@ -76,25 +76,26 @@ public class ElementPartitionDialog<T extends IRodinElement> extends Dialog {
 	@Override
 	protected final Control createDialogArea(final Composite parent) {
 		Control control = super.createDialogArea(parent);
+		control.setLayoutData(
+				new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		// Area to choose the project name.
-		Composite prjNameComp = new Composite((Composite) control, SWT.NONE);
+		Composite prjNameComp = new Composite((Composite) control, SWT.BORDER | SWT.MULTI);
 		prjNameComp.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		prjNameComp.setLayout(layout);
 
 		Label prjLabel = new Label(prjNameComp, SWT.CENTER);
-		prjLabel.setText(Messages.wizard_project);
+		prjLabel.setText(Messages.wizard_component);
 		prjLabel.setLayoutData(new GridData());
 
 		prjText = new Text(prjNameComp, SWT.BORDER | SWT.SINGLE);
-		prjText.setText(subModel.getProjectName());
+		prjText.setText(subModel.getComponentName());
 		prjText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		// Create the viewer to choose the list of events.
-		viewer = new RodinElementSelectionViewer<T>(prjNameComp, type,
-				Messages.wizard_elements);
+		// Create the viewer to choose the list of events/variables
+		viewer = new RodinElementSelectionViewer<T>(prjNameComp, type,Messages.wizard_elements);
 		viewer.setInput(subModel);
 
 		return control;

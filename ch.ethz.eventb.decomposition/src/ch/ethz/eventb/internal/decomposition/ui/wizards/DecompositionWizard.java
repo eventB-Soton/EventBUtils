@@ -73,8 +73,7 @@ public class DecompositionWizard extends Wizard implements INewWizard {
 			if (modelDecomp.getStyle().equals(IModelDecomposition.A_STYLE)) {
 				decompPage = new ElementPartitionWizardPage<IEvent>(
 						modelDecomp, selection, IEvent.ELEMENT_TYPE);
-			} else if (modelDecomp.getStyle().equals(
-					IModelDecomposition.B_STYLE)) {
+			} else if (modelDecomp.getStyle().equals(IModelDecomposition.B_STYLE)) {
 				decompPage = new ElementPartitionWizardPage<IVariable>(
 						modelDecomp, selection, IVariable.ELEMENT_TYPE);
 			} else {

@@ -78,6 +78,8 @@ public class InitialWizardPage extends WizardPage {
 		styleChooser.setSelection(new StructuredSelection(aDecomp), true);
 		IModelDecomposition bDecomp = new ch.ethz.eventb.internal.decomposition.bstyle.ModelDecomposition();
 		styleChooser.add(bDecomp);
+		
+		createNewProjectCheckBox(container);
 
 		createDecompContextsCheckbox(container);
 		
@@ -108,13 +110,29 @@ public class InitialWizardPage extends WizardPage {
 		noDecompContextsCheckBox.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				final boolean selected = noDecompContextsCheckBox
-						.getSelection();
-				if (selected) {
+				final boolean selected = noDecompContextsCheckBox.getSelection();
+				if (!selected) {
 					modelDecomp.setContextDecomposition(ContextDecomposition.NO_DECOMPOSITION);
 				} else {
 					modelDecomp.setContextDecomposition(ContextDecomposition.MINIMAL_FLATTENED_CONTEXT);
 				}
+			}
+		});
+	}
+	
+	private void createNewProjectCheckBox(Composite container) {
+		final Button newProjectCheckBox = new Button(container, SWT.CHECK);
+		GridData gd_addToWorkingSetButton = new GridData(SWT.LEFT, SWT.CENTER,
+				false, false, 3, 1);
+		newProjectCheckBox.setLayoutData(gd_addToWorkingSetButton);
+		newProjectCheckBox.setData("name", "createNewProjectsSubComponents"); //$NON-NLS-1$ //$NON-NLS-2$
+		newProjectCheckBox.setText(Messages.wizard_createNewProjectsSubComponentsLabel);
+		newProjectCheckBox.setSelection(false);
+		newProjectCheckBox.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				final boolean selected = newProjectCheckBox.getSelection();
+				modelDecomp.setCreateNewProjectDecomposition(selected);
 			}
 		});
 	}
