@@ -29,8 +29,8 @@ import ch.ethz.eventb.decomposition.ISubModel;
  */
 public class DefaultSubModel implements ISubModel {
 
-	/** The project name. */
-	private String prjName;
+	/** The component name. */
+	private String componentName;
 	
 	/** The set of Rodin elements. */
 	private IRodinElement[] elements;
@@ -47,7 +47,7 @@ public class DefaultSubModel implements ISubModel {
 	 */
 	public DefaultSubModel(final IModelDecomposition modelDecomp) {
 		this.modelDecomp = modelDecomp;
-		prjName = ISubModel.DEFAULT_PROJECT_NAME;
+		componentName = ISubModel.DEFAULT_PROJECT_NAME;
 		elements = new IRodinElement[0];
 	}
 	
@@ -59,12 +59,12 @@ public class DefaultSubModel implements ISubModel {
 		return modelDecomp.getMachineRoot();
 	}
 
-	public final void setProjectName(final String prjName) {
-		this.prjName = prjName;
+	public final void setComponentName(final String prjName) {
+		this.componentName = prjName;
 	}
 
-	public final String getProjectName() {
-		return prjName;
+	public final String getComponentName() {
+		return componentName;
 	}
 
 	public final void setElements(final IRodinElement... elements) {

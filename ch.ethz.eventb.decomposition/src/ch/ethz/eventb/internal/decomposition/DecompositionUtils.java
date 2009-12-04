@@ -38,6 +38,7 @@ import org.eventb.core.IIdentifierElement;
 import org.eventb.core.IInvariant;
 import org.eventb.core.ILabeledElement;
 import org.eventb.core.IMachineRoot;
+import org.eventb.core.IVariable;
 import org.eventb.core.IConvergenceElement.Convergence;
 import org.rodinp.core.IInternalElement;
 import org.rodinp.core.IInternalElementType;
@@ -45,6 +46,7 @@ import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 import org.rodinp.core.location.IInternalLocation;
 
+import ch.ethz.eventb.decomposition.IModelDecomposition;
 import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
@@ -77,13 +79,33 @@ public class DecompositionUtils {
 	public static Set<String> getAccessedVariables(final ISubModel subModel,
 			IProgressMonitor monitor) throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-		final Set<String> vars = getFreeIdentifiersFromEvents(subModel, subMonitor.newChild(1));
+		//final Set<String> vars = getFreeIdentifiersFromEvents(subModel, subMonitor.newChild(1));
+		Set<String> vars;
+		if(subModel.getModelDecomposition().getStyle().equals(IModelDecomposition.A_STYLE))
+			vars = getFreeIdentifiersFromEvents(subModel, subMonitor.newChild(1));
+		else vars = getVariablesSubModel(subModel, subMonitor.newChild(1));
 		// Removes the constants and sets.
 		final IMachineRoot mch = subModel.getMachineRoot();
 		vars.removeAll(EventBUtils.getSeenCarrierSetsAndConstants(mch));
 		checkCancellation(subMonitor);
 		subMonitor.worked(1);
 		return vars;
+	}
+	
+	protected static Set<String> getVariablesSubModel(ISubModel subModel, IProgressMonitor monitor) throws RodinDBException{
+		final Set<String> variables = new HashSet<String>();
+		final IRodinElement[] elements = subModel.getElements();
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, elements.length);
+		for (IRodinElement element : elements) {
+			if (! (element instanceof IVariable)) {
+				throw new IllegalArgumentException("Variable Decomposition: variable expected as sub-model element"); //$NON-NLS-1$
+			}
+			variables.add(((IVariable)element).getIdentifierString());
+		}
+		subMonitor.worked(1);
+		checkCancellation(subMonitor);
+
+		return variables;
 	}
 	
 	private static Set<String> getFreeIdentifiersFromEvents(ISubModel subModel,
@@ -176,7 +198,7 @@ public class DecompositionUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs when accessing the Rodin database.
 	 */
-	private static void createTypingTheorems(IMachineRoot mch,
+	protected static void createTypingTheorems(IMachineRoot mch,
 			IMachineRoot src, Set<String> vars, IProgressMonitor monitor)
 			throws RodinDBException {
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,
