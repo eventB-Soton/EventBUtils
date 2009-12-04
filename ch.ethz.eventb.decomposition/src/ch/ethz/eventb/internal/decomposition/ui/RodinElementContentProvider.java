@@ -60,8 +60,7 @@ public class RodinElementContentProvider<T extends IRodinElement> implements
 				// If the type is IMachineRoot then return the list of
 				// IMachineRoot.
 				if (type == IMachineRoot.ELEMENT_TYPE) {
-					return project
-							.getRootElementsOfType((IInternalElementType<?>) type);
+					return project.getRootElementsOfType((IInternalElementType<?>) type);
 				}
 			}
 

@@ -25,7 +25,7 @@ public class DecompositionLabelProvider extends RodinElementLabelProvider {
 		}
 		
 		if (element instanceof ISubModel) {
-			return ((ISubModel) element).getProjectName();
+			return ((ISubModel) element).getComponentName();
 		}
 		
 		return super.getText(element);

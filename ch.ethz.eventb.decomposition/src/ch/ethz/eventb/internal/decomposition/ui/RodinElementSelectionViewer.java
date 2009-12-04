@@ -112,7 +112,7 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 		createLabels(parent);
 
 		// Create the available elements list.
-		availableViewer = createListViewer(parent);
+		availableViewer = createListViewer(parent,false);
 		availableViewer.addFilter(new ViewerFilter() {
 
 			@Override
@@ -127,7 +127,7 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 		createButtons(parent);
 
 		// Create the selected elements list.
-		selectedViewer = createListViewer(parent);
+		selectedViewer = createListViewer(parent,true);
 		selectedViewer.addFilter(new ViewerFilter() {
 
 			@Override
@@ -169,9 +169,12 @@ public class RodinElementSelectionViewer<T extends IRodinElement> {
 	 *            the parent control
 	 * @return the list viewer
 	 */
-	private ListViewer createListViewer(final Composite parent) {
-		ListViewer viewer = new ListViewer(parent, SWT.BORDER | SWT.MULTI
-				| SWT.V_SCROLL | SWT.H_SCROLL);
+	private ListViewer createListViewer(final Composite parent,boolean resizable) {
+		int style = SWT.BORDER | SWT.MULTI;
+		if(resizable){
+			style = style | SWT.V_SCROLL | SWT.H_SCROLL;
+		}
+		ListViewer viewer = new ListViewer(parent, style);
 		viewer.getControl().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		viewer.setLabelProvider(new RodinElementLabelProvider());
