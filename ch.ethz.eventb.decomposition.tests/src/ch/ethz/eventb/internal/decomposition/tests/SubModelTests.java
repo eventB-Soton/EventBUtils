@@ -52,8 +52,8 @@ public class SubModelTests extends AbstractDecompositionTests {
 	}
 	
 	/**
-	 * Test method for {@link ISubModel#setProjectName(String)} and
-	 * {@link ISubModel#getProjectName()}.
+	 * Test method for {@link ISubModel#setComponentName(String)} and
+	 * {@link ISubModel#getComponentName()}.
 	 */
 	@Test
 	public void testSetAndGetProjectName() {
@@ -65,17 +65,17 @@ public class SubModelTests extends AbstractDecompositionTests {
 	
 	/**
 	 * Utility method to test
-	 * {@link ISubModel#setProjectName(String)} and
-	 * {@link ISubModel#getProjectName()}.
+	 * {@link ISubModel#setComponentName(String)} and
+	 * {@link ISubModel#getComponentName()}.
 	 * 
 	 * @param subModel an element distribution.
 	 * @param prjName the name of the project.
 	 */
 	private void testSetAndGetProjectName(ISubModel subModel,
 			String prjName) {
-		subModel.setProjectName(prjName);
+		subModel.setComponentName(prjName);
 		assertEquals("Incorrect project name", prjName, subModel
-				.getProjectName());	
+				.getComponentName());	
 	}
 
 	/**

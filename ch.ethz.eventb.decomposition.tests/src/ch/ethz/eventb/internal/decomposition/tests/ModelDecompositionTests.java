@@ -60,7 +60,7 @@ public class ModelDecompositionTests extends AbstractDecompositionTests {
 		ISubModel elemDist = modelDecomp.addSubModel();
 		assertEquals(message + ": Incorrect project name",
 				ISubModel.DEFAULT_PROJECT_NAME, elemDist
-						.getProjectName());
+						.getComponentName());
 		assertEquals(message + ": Incorrect model distribution", modelDecomp,
 				elemDist.getModelDecomposition());
 		ISubModel[] elemDists = modelDecomp.getSubModels();
@@ -114,7 +114,7 @@ public class ModelDecompositionTests extends AbstractDecompositionTests {
 		}
 		if (!found) {
 			fail(message + ": Cannot find element distribution "
-					+ subModel.getProjectName());
+					+ subModel.getComponentName());
 		}
 	}
 	
