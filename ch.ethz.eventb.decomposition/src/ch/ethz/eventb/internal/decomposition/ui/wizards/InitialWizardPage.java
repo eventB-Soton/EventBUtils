@@ -34,11 +34,32 @@ import ch.ethz.eventb.internal.decomposition.utils.Messages;
  */
 public class InitialWizardPage extends WizardPage {
 
+	private static final IModelDecomposition A_DECOMP = new ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition();
+	private static final IModelDecomposition B_DECOMP = new ch.ethz.eventb.internal.decomposition.bstyle.ModelDecomposition();
+
+	private static enum Option {
+
+		A(true, true), B(false, false), ;
+
+		public final boolean decomposeContexts;
+		public final boolean createNewProjects;
+
+		private Option(boolean decomposeContexts, boolean createNewProjects) {
+			this.decomposeContexts = decomposeContexts;
+			this.createNewProjects = createNewProjects;
+		}
+
+	}
+	
 	/** The model decomposition. */
 	private IModelDecomposition modelDecomp;
 
 	/** A style chooser group to specify the decomposition style. */
 	private StyleSelectionGroup styleGroup;
+	
+	
+	private Button decompContextsCheckBox;
+	private Button newProjectCheckBox;
 
 	/**
 	 * The constructor.
@@ -68,20 +89,21 @@ public class InitialWizardPage extends WizardPage {
 					public void selectionChanged(
 							final SelectionChangedEvent event) {
 						modelDecomp = styleChooser.getElement();
+						setDefaultOptions();
 					}
 
 				});
 
-		// Set the selection.
-		IModelDecomposition aDecomp = new ch.ethz.eventb.internal.decomposition.astyle.ModelDecomposition();
-		styleChooser.setInput(aDecomp);
-		styleChooser.setSelection(new StructuredSelection(aDecomp), true);
-		IModelDecomposition bDecomp = new ch.ethz.eventb.internal.decomposition.bstyle.ModelDecomposition();
-		styleChooser.add(bDecomp);
+		styleChooser.setInput(A_DECOMP);
+		styleChooser.setSelection(new StructuredSelection(A_DECOMP), true);
+		styleChooser.add(B_DECOMP);
 		
 		createNewProjectCheckBox(container);
 
 		createDecompContextsCheckbox(container);
+		
+		// Set default options
+		setDefaultOptions();
 		
 		// Update the status.
 		updateStatus(null);
@@ -100,28 +122,32 @@ public class InitialWizardPage extends WizardPage {
 	}
 
 	private void createDecompContextsCheckbox(Composite container) {
-		final Button noDecompContextsCheckBox = new Button(container, SWT.CHECK);
+		decompContextsCheckBox = new Button(container, SWT.CHECK);
 		GridData gd_addToWorkingSetButton = new GridData(SWT.LEFT, SWT.CENTER,
 				false, false, 3, 1);
-		noDecompContextsCheckBox.setLayoutData(gd_addToWorkingSetButton);
-		noDecompContextsCheckBox.setData("name", "decompContextsButton"); //$NON-NLS-1$ //$NON-NLS-2$
-		noDecompContextsCheckBox.setText(Messages.wizard_decomposeContextsLabel);
-		noDecompContextsCheckBox.setSelection(true);
-		noDecompContextsCheckBox.addSelectionListener(new SelectionAdapter() {
+		decompContextsCheckBox.setLayoutData(gd_addToWorkingSetButton);
+		decompContextsCheckBox.setData("name", "decompContextsButton"); //$NON-NLS-1$ //$NON-NLS-2$
+		decompContextsCheckBox.setText(Messages.wizard_decomposeContextsLabel);
+		decompContextsCheckBox.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				final boolean selected = noDecompContextsCheckBox.getSelection();
-				if (!selected) {
-					modelDecomp.setContextDecomposition(ContextDecomposition.NO_DECOMPOSITION);
-				} else {
-					modelDecomp.setContextDecomposition(ContextDecomposition.MINIMAL_FLATTENED_CONTEXT);
-				}
+				final boolean selected = decompContextsCheckBox.getSelection();
+				setContextDecomposition(selected);
 			}
+
 		});
+	}
+
+	private void setContextDecomposition(boolean selected) {
+		if (!selected) {
+			modelDecomp.setContextDecomposition(ContextDecomposition.NO_DECOMPOSITION);
+		} else {
+			modelDecomp.setContextDecomposition(ContextDecomposition.MINIMAL_FLATTENED_CONTEXT);
+		}
 	}
 	
 	private void createNewProjectCheckBox(Composite container) {
-		final Button newProjectCheckBox = new Button(container, SWT.CHECK);
+		newProjectCheckBox = new Button(container, SWT.CHECK);
 		GridData gd_addToWorkingSetButton = new GridData(SWT.LEFT, SWT.CENTER,
 				false, false, 3, 1);
 		newProjectCheckBox.setLayoutData(gd_addToWorkingSetButton);
@@ -158,4 +184,26 @@ public class InitialWizardPage extends WizardPage {
 		return modelDecomp;
 	}
 
+	private void setDefaultOptions() {
+		if (modelDecomp == null) {
+			return;
+		}
+		final Option currentStyle;
+		if (modelDecomp == A_DECOMP) {
+			currentStyle = Option.A;
+		} else {
+			currentStyle = Option.B;
+		}
+		setSelection(decompContextsCheckBox, currentStyle.decomposeContexts);
+		setContextDecomposition(currentStyle.decomposeContexts);
+		setSelection(newProjectCheckBox, currentStyle.createNewProjects);
+		modelDecomp
+				.setCreateNewProjectDecomposition(currentStyle.createNewProjects);
+	}
+
+	private static void setSelection(Button button, boolean selected) {
+		if (button != null && !button.isDisposed()) {
+			button.setSelection(selected);
+		}
+	}
 }
