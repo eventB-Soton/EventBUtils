@@ -14,6 +14,8 @@ package ch.ethz.eventb.internal.decomposition.utils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -277,26 +279,8 @@ public final class EventBUtils {
 		final IRodinProject fromPrj = from.getRodinProject();
 		final IContextRoot[] contexts = fromPrj
 				.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
-		final SubMonitor subMonitor = SubMonitor.convert(monitor,
-				3 * contexts.length);
-		for (IContextRoot context : contexts) {
-			final IRodinFile ctxFile = context.getRodinFile();
-			ctxFile.copy(to.getRodinProject(), null, null, true, subMonitor
-					.newChild(1));
-		}
 
-		// Tag the contexts as decomposed and generated and set the
-		// configuration
-		for (IContextRoot context : contexts) {
-			final IContextRoot copiedContext = to.getContextRoot(context
-					.getElementName());
-			final IDecomposedElement elt = (IDecomposedElement) copiedContext
-					.getAdapter(IDecomposedElement.class);
-			elt.setDecomposed(subMonitor.newChild(1));
-
-			((IConfigurationElement) copiedContext).setConfiguration(
-					DECOMPOSITION_CONFIG_SC, subMonitor.newChild(1));
-		}
+		copyContexts(Arrays.asList(contexts), to, monitor);
 	}
 	
 	/**
@@ -329,12 +313,18 @@ public final class EventBUtils {
 	 */
 	public static void copyContexts(IEventBProject from, IEventBProject to, IMachineRoot scr,
 			IProgressMonitor monitor) throws RodinDBException {
-//		final IRodinProject fromPrj = from.getRodinProject();
-		List<IContextRoot> contexts = new ArrayList<IContextRoot>();
-		for(ISeesContext seenContext: scr.getSeesClauses()){
-			contexts.add(seenContext.getSeenContextRoot());
-		}
-//		final IContextRoot[] contexts = fromPrj.getRootElementsOfType(IContextRoot.ELEMENT_TYPE);
+		
+		final Set<IContextRoot> contexts = getSeenContexts(scr);
+
+		copyContexts(contexts, to, monitor);
+	}
+
+	// copies given contexts into given project
+	// tags every copied context as decomposed and generated
+	// sets the decomposition configuration
+	private static void copyContexts(Collection<IContextRoot> contexts, IEventBProject to,
+			IProgressMonitor monitor) throws RodinDBException {
+		
 		final SubMonitor subMonitor = SubMonitor.convert(monitor,3 * contexts.size());
 		for (IContextRoot context : contexts) {
 			final IRodinFile ctxFile = context.getRodinFile();
@@ -731,9 +721,11 @@ public final class EventBUtils {
 			ISCMachineRoot mchSC = root.getSCMachineRoot();
 			if (!mchSC.exists()) {
 				return null;
-			}else for(ISCEvent event :mchSC.getSCEvents()){
-				if(event.getLabel().equals(evt.getLabel()))
-					return mchSC.getSCEvent(event.getElementName()).getSCParameters();
+			} else {
+				for (ISCEvent event : mchSC.getSCEvents()) {
+					if (event.getLabel().equals(evt.getLabel()))
+						return event.getSCParameters();
+				}
 			}
 			
 			return null;
