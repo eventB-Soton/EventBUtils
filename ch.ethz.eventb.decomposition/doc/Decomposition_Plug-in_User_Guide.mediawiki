@@ -48,6 +48,7 @@ The <tt>Decompose</tt> action launches the decomposition wizard, which will perf
 === Setting the Preferences ===
 The different decomposition options are described below:
 * Decomposition style. The shared variables (A-style) or shared events (B-style) decomposition will be performed, according to the specified decomposition style.
+* Create new projects for sub-components. If checked, the decomposed sub-models are created in new projects.
 * Context decomposition. The contexts seen by the input machine are decomposed if and only if this option is checked; otherwise, they are copied from the initial model to the decomposed sub-models.
 
 [[Image:decompose_options.png]]
