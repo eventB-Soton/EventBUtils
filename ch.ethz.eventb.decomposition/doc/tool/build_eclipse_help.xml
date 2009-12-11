@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <project name="deploy" default="generate-help">
-
-	<property name="tool.dir" value="${ant.file.deploy}/.."/>
+	
+	<dirname property="tool.dir" file="${ant.file.deploy}"/>
 	<property name="dest.dir" value="${tool.dir}/.."/>
 	<property name="wiki.domain" value="http://wiki.event-b.org"/>
 	<property name="wiki.page" value="Decomposition_Plug-in_User_Guide"/>
