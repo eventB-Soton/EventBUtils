@@ -460,7 +460,7 @@ public class BStyleUtils extends DecompositionUtils{
 		checkCancellation(subMonitor);
 
 		// Decomposing actions.
-		Set<String> vars = getAccessedVariables(subModel, subMonitor.newChild(1));
+		Set<String> vars = getVariablesSubModel(subModel, subMonitor.newChild(1));
 		decomposeActions(newEvt, flattened, vars, subMonitor.newChild(5));
 
 		// Editing missing parameters and guards.
@@ -674,7 +674,34 @@ public class BStyleUtils extends DecompositionUtils{
 		}
 	}
 
+	/**
+	 * Returns the set of variables accessed by a sub-model.
+	 * 
+	 * @param subModel
+	 *            the sub-model to be considered
+	 * @param monitor
+	 * @return the labels of the accessed variables.
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database.
+	 */
+	private static Set<String> getVariablesSubModel(ISubModel subModel,
+			IProgressMonitor monitor) throws RodinDBException {
+		final Set<String> variables = new HashSet<String>();
+		final IRodinElement[] elements = subModel.getElements();
+		final SubMonitor subMonitor = SubMonitor.convert(monitor,
+				elements.length);
+		for (IRodinElement element : elements) {
+			if (!(element instanceof IVariable)) {
+				throw new IllegalArgumentException(
+						"Variable Decomposition: variable expected as sub-model element"); //$NON-NLS-1$
+			}
+			variables.add(((IVariable) element).getIdentifierString());
+		}
+		subMonitor.worked(1);
+		checkCancellation(subMonitor);
 
+		return variables;
+	}
 
 
 }

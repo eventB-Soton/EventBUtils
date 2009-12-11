@@ -38,7 +38,6 @@ import org.eventb.core.IIdentifierElement;
 import org.eventb.core.IInvariant;
 import org.eventb.core.ILabeledElement;
 import org.eventb.core.IMachineRoot;
-import org.eventb.core.IVariable;
 import org.eventb.core.IConvergenceElement.Convergence;
 import org.rodinp.core.IInternalElement;
 import org.rodinp.core.IInternalElementType;
@@ -46,7 +45,6 @@ import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 import org.rodinp.core.location.IInternalLocation;
 
-import ch.ethz.eventb.decomposition.IModelDecomposition;
 import ch.ethz.eventb.decomposition.ISubModel;
 import ch.ethz.eventb.decomposition.astyle.IExternalElement;
 import ch.ethz.eventb.internal.decomposition.utils.EventBUtils;
@@ -66,49 +64,7 @@ import ch.ethz.eventb.internal.decomposition.utils.symbols.SymbolTable;
  */
 public class DecompositionUtils {
 
-	/**
-	 * Returns the set of variables accessed by a sub-model.
-	 * 
-	 * @param subModel
-	 *            the sub-model to be considered
-	 *            @param monitor
-	 * @return the labels of the accessed variables.
-	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
-	 */
-	public static Set<String> getAccessedVariables(final ISubModel subModel,
-			IProgressMonitor monitor) throws RodinDBException {
-		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-		//final Set<String> vars = getFreeIdentifiersFromEvents(subModel, subMonitor.newChild(1));
-		Set<String> vars;
-		if(subModel.getModelDecomposition().getStyle().equals(IModelDecomposition.A_STYLE))
-			vars = getFreeIdentifiersFromEvents(subModel, subMonitor.newChild(1));
-		else vars = getVariablesSubModel(subModel, subMonitor.newChild(1));
-		// Removes the constants and sets.
-		final IMachineRoot mch = subModel.getMachineRoot();
-		vars.removeAll(EventBUtils.getSeenCarrierSetsAndConstants(mch));
-		checkCancellation(subMonitor);
-		subMonitor.worked(1);
-		return vars;
-	}
-	
-	protected static Set<String> getVariablesSubModel(ISubModel subModel, IProgressMonitor monitor) throws RodinDBException{
-		final Set<String> variables = new HashSet<String>();
-		final IRodinElement[] elements = subModel.getElements();
-		final SubMonitor subMonitor = SubMonitor.convert(monitor, elements.length);
-		for (IRodinElement element : elements) {
-			if (! (element instanceof IVariable)) {
-				throw new IllegalArgumentException("Variable Decomposition: variable expected as sub-model element"); //$NON-NLS-1$
-			}
-			variables.add(((IVariable)element).getIdentifierString());
-		}
-		subMonitor.worked(1);
-		checkCancellation(subMonitor);
-
-		return variables;
-	}
-	
-	private static Set<String> getFreeIdentifiersFromEvents(ISubModel subModel,
+	protected static Set<String> getFreeIdentifiersFromEvents(ISubModel subModel,
 			IProgressMonitor monitor)
 			throws RodinDBException {
 		final IMachineRoot mch = subModel.getMachineRoot();
@@ -142,41 +98,6 @@ public class DecompositionUtils {
 			checkCancellation(monitor);
 		}
 		return identifiers;
-	}
-
-	/**
-	 * Utility method to create invariants in an input machine for a given
-	 * sub-model. This is done by first creating the typing theorems for the
-	 * accessed variables, and then copying the "relevant" invariants from the
-	 * source model (recursively).
-	 * 
-	 * @param mch
-	 *            a machine.
-	 * @param subModel
-	 *            a sub-model.
-	 * @param monitor
-	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled
-	 * @throws RodinDBException
-	 *             if a problem occurs when accessing the Rodin database.
-	 */
-	public static void decomposeInvariants(IMachineRoot mch,
-			ISubModel subModel, IProgressMonitor monitor)
-			throws RodinDBException {
-		final SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
-		final IMachineRoot src = subModel.getMachineRoot();
-		final Set<String> vars = getAccessedVariables(subModel, subMonitor.newChild(1));
-		
-		// Create the typing theorems.
-		createTypingTheorems(mch, src, vars, subMonitor.newChild(1));
-		checkCancellation(subMonitor);
-		
-		// Copy relevant invariants.
-		EventBUtils.copyInvariants(mch, src, vars, subMonitor.newChild(1));
-		checkCancellation(subMonitor);
 	}
 
 	/**

@@ -282,6 +282,30 @@ public final class AStyleUtils extends DecompositionUtils {
 	}
 
 	/**
+	 * Returns the set of variables accessed by a sub-model.
+	 * 
+	 * @param subModel
+	 *            the sub-model to be considered
+	 * @param monitor
+	 * @return the labels of the accessed variables.
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database.
+	 */
+	public static Set<String> getAccessedVariables(final ISubModel subModel,
+			IProgressMonitor monitor) throws RodinDBException {
+		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+	
+		final Set<String> vars = getFreeIdentifiersFromEvents(subModel,
+				subMonitor.newChild(1));
+		// Removes the constants and sets.
+		final IMachineRoot mch = subModel.getMachineRoot();
+		vars.removeAll(EventBUtils.getSeenCarrierSetsAndConstants(mch));
+		checkCancellation(subMonitor);
+		subMonitor.worked(1);
+		return vars;
+	}
+
+	/**
 	 * Gets the set of variables shared between the sub-models of the
 	 * decomposition (in {@link String}).
 	 * 
@@ -395,6 +419,40 @@ public final class AStyleUtils extends DecompositionUtils {
 		elt.setNature(Nature.PRIVATE, subMonitor.newChild(1));
 		return var;
 	}
+
+	/**
+	 * Utility method to create invariants in an input machine for a given
+	 * sub-model. This is done by first creating the typing theorems for the
+	 * accessed variables, and then copying the "relevant" invariants from the
+	 * source model (recursively).
+	 * 
+	 * @param mch
+	 *            a machine.
+	 * @param subModel
+	 *            a sub-model.
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled
+	 * @throws RodinDBException
+	 *             if a problem occurs when accessing the Rodin database.
+	 */
+	public static void decomposeInvariants(IMachineRoot mch, ISubModel subModel, IProgressMonitor monitor)
+			throws RodinDBException {
+				final SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
+				final IMachineRoot src = subModel.getMachineRoot();
+				final Set<String> vars = getAccessedVariables(subModel, subMonitor.newChild(1));
+				
+				// Create the typing theorems.
+				createTypingTheorems(mch, src, vars, subMonitor.newChild(1));
+				checkCancellation(subMonitor);
+				
+				// Copy relevant invariants.
+				EventBUtils.copyInvariants(mch, src, vars, subMonitor.newChild(1));
+				checkCancellation(subMonitor);
+			}
 
 	/**
 	 * Utility method to create the event in an input machine for a given
