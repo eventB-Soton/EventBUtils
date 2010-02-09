@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: ch.ethz.eventb.utils.tests
+Bundle-Localization: plugin
+Bundle-Version: 0.0.1.qualifier
+Bundle-Vendor: %providerName
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: ch.ethz.eventb.utils;bundle-version="0.0.1",
+ org.junit4;bundle-version="4.5.0";visibility:=reexport
+Export-Package: ch.ethz.eventb.utils.tests
