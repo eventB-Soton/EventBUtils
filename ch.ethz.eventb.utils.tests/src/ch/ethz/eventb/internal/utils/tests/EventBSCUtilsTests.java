@@ -11,6 +11,7 @@ import org.eventb.core.IMachineRoot;
 import org.eventb.core.ast.Predicate;
 import org.junit.Before;
 import org.junit.Test;
+import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.utils.EventBSCUtils;
@@ -39,15 +40,15 @@ public class EventBSCUtilsTests extends SetupTests {
 	@Test
 	public void testGetSeenCarrierSetsAndConstants() {
 		try {
-			Collection<String> seenElements = EventBSCUtils
+			Collection<IRodinElement> seenElements = EventBSCUtils
 					.getSeenCarrierSetsAndConstants(channel);
-			assertSameStrings("Machine channel",
+			assertIdentifierElements("Machine channel",
 					"Seen carrier sets and constants", seenElements, "MESSAGE");
 			seenElements = EventBSCUtils.getSeenCarrierSetsAndConstants(EO);
-			assertSameStrings("Machine EO", "seen carrier sets and constants",
+			assertIdentifierElements("Machine EO", "seen carrier sets and constants",
 					seenElements, "MESSAGE", "max_size");
 			seenElements = EventBSCUtils.getSeenCarrierSetsAndConstants(EOIO);
-			assertSameStrings("Machine EOIO",
+			assertIdentifierElements("Machine EOIO",
 					"seen carrier sets and constants", seenElements, "MESSAGE",
 					"max_size");
 		} catch (RodinDBException e) {

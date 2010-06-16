@@ -26,6 +26,7 @@ import org.eventb.core.ISCInternalContext;
 import org.eventb.core.ISCMachineRoot;
 import org.eventb.core.ast.Predicate;
 import org.eventb.core.seqprover.eventbExtensions.Lib;
+import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 
 /**
@@ -59,9 +60,9 @@ public final class EventBSCUtils {
 	 *             statically checked version.</li>
 	 *             </ul>
 	 */
-	public static Collection<String> getSeenCarrierSetsAndConstants(
+	public static Collection<IRodinElement> getSeenCarrierSetsAndConstants(
 			IMachineRoot mch) throws RodinDBException {
-		Collection<String> result = new ArrayList<String>();
+		Collection<IRodinElement> result = new ArrayList<IRodinElement>();
 
 		if (mch == null)
 			return result;
@@ -80,11 +81,11 @@ public final class EventBSCUtils {
 		for (ISCInternalContext scSeenContext : scSeenContexts) {
 			ISCConstant[] scConstants = scSeenContext.getSCConstants();
 			for (ISCConstant scConstant : scConstants) {
-				result.add(scConstant.getIdentifierString());
+				result.add(scConstant.getSource());
 			}
 			ISCCarrierSet[] scCarrierSets = scSeenContext.getSCCarrierSets();
 			for (ISCCarrierSet scCarrierSet : scCarrierSets) {
-				result.add(scCarrierSet.getIdentifierString());
+				result.add(scCarrierSet.getSource());
 			}
 		}
 

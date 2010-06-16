@@ -12,6 +12,7 @@
 
 package ch.ethz.eventb.utils.tests;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -36,6 +37,7 @@ import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
 import org.eventb.core.IExtendsContext;
 import org.eventb.core.IGuard;
+import org.eventb.core.IIdentifierElement;
 import org.eventb.core.IInvariant;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IParameter;
@@ -47,6 +49,7 @@ import org.eventb.core.IWitness;
 import org.eventb.core.IConvergenceElement.Convergence;
 import org.junit.After;
 import org.junit.Before;
+import org.rodinp.core.IRodinElement;
 import org.rodinp.core.IRodinFile;
 import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinCore;
@@ -1239,9 +1242,9 @@ public abstract class AbstractEventBTests extends TestCase {
 	 * @param type
 	 *            the type of items in collections
 	 * @param actual
-	 *            actual set of variables.
+	 *            actual set of strings.
 	 * @param expected
-	 *            expected array of variables.
+	 *            expected array of strings.
 	 */
 	protected static void assertSameStrings(String message, String type,
 			Collection<String> actual, String... expected) {
@@ -1252,6 +1255,36 @@ public abstract class AbstractEventBTests extends TestCase {
 			assertTrue(message + ": Expected " + type + " " + exp
 					+ " not found", actual.contains(exp));
 		}
+	}
+
+	/**
+	 * Utility method to compare a collection of identifier elements and an
+	 * array of string.
+	 * 
+	 * @param message
+	 *            a message.
+	 * @param type
+	 *            the element type.
+	 * @param elements
+	 *            actual set of identifier elements.
+	 * @param expected
+	 *            expected array of identifiers.
+	 */
+	protected void assertIdentifierElements(String message, String type,
+			Collection<IRodinElement> elements, String... expected) {
+		Collection<String> actual = new ArrayList<String>(elements.size());
+		for (IRodinElement element : elements) {
+			try {
+				assertTrue("The element should be an identifier element",
+						element instanceof IIdentifierElement);
+				actual
+						.add(((IIdentifierElement) element)
+								.getIdentifierString());
+			} catch (RodinDBException e) {
+				fail("There should be no exception");
+			}
+		}
+		assertSameStrings(message, "identfier element", actual, expected);
 	}
 
 }
