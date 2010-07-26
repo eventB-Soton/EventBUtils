@@ -24,8 +24,9 @@ import org.eventb.core.ISCCarrierSet;
 import org.eventb.core.ISCConstant;
 import org.eventb.core.ISCInternalContext;
 import org.eventb.core.ISCMachineRoot;
+import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.ast.Predicate;
-import org.eventb.core.seqprover.eventbExtensions.Lib;
+import org.eventb.core.seqprover.eventbExtensions.DLib;
 import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 
@@ -142,8 +143,8 @@ public final class EventBSCUtils {
 					// SUBTITUTIONS LATTER ON.
 					String key = scSeenContext.getElementName() + "/"
 							+ scAxiom.getLabel();
-					Predicate value = Lib.parsePredicate(scAxiom
-							.getPredicateString());
+					Predicate value = DLib.mDLib(FormulaFactory.getDefault())
+							.parsePredicate(scAxiom.getPredicateString());
 					result.put(key, value);
 				}
 			}
