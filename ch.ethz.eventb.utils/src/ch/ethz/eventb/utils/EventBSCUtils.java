@@ -22,12 +22,13 @@ import org.eventb.core.IMachineRoot;
 import org.eventb.core.ISCAxiom;
 import org.eventb.core.ISCCarrierSet;
 import org.eventb.core.ISCConstant;
+import org.eventb.core.ISCIdentifierElement;
 import org.eventb.core.ISCInternalContext;
 import org.eventb.core.ISCMachineRoot;
 import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.ast.Predicate;
 import org.eventb.core.seqprover.eventbExtensions.DLib;
-import org.rodinp.core.IRodinElement;
+import org.rodinp.core.IInternalElementType;
 import org.rodinp.core.RodinDBException;
 
 /**
@@ -41,57 +42,6 @@ public final class EventBSCUtils {
 
 	private EventBSCUtils() {
 		// Utility classes shall not have a public or default constructor.
-	}
-
-	/**
-	 * Return the collection of seen constants and carrier sets (as strings) of
-	 * a given machine by looking at the statically checked version of the
-	 * machine.
-	 * 
-	 * @param mch
-	 *            the input machine root.
-	 * @return the collection of seen constants and carrier sets. Return an
-	 *         empty collection if the statically checked version of the machine
-	 *         does not exist.
-	 * @throws RodinDBException
-	 *             if some errors occurred when:
-	 *             <ul>
-	 *             <li>Getting the statically checked version of the machine.</li>
-	 *             <li>Getting the internal elements, e.g. seen contexts, of the
-	 *             statically checked version.</li>
-	 *             </ul>
-	 */
-	public static Collection<IRodinElement> getSeenCarrierSetsAndConstants(
-			IMachineRoot mch) throws RodinDBException {
-		Collection<IRodinElement> result = new ArrayList<IRodinElement>();
-
-		if (mch == null)
-			return result;
-
-		// Get the statically checked version of the machine root and test if it
-		// exists.
-		ISCMachineRoot scMachineRoot = mch.getSCMachineRoot();
-		if (!scMachineRoot.exists())
-			return result;
-
-		// Get the list of seen contexts.
-		ISCInternalContext[] scSeenContexts = scMachineRoot.getSCSeenContexts();
-
-		// Add the constants and carrier sets from each seen context to the
-		// result.
-		for (ISCInternalContext scSeenContext : scSeenContexts) {
-			ISCConstant[] scConstants = scSeenContext.getSCConstants();
-			for (ISCConstant scConstant : scConstants) {
-				result.add(scConstant.getSource());
-			}
-			ISCCarrierSet[] scCarrierSets = scSeenContext.getSCCarrierSets();
-			for (ISCCarrierSet scCarrierSet : scCarrierSets) {
-				result.add(scCarrierSet.getSource());
-			}
-		}
-
-		// Return result as an array of objects.
-		return result;
 	}
 
 	public final static int AXIOMS = 1;
@@ -153,6 +103,95 @@ public final class EventBSCUtils {
 		// Return result as an array of objects.
 		return result;
 
+	}
+
+	/*
+	 * Utility method for getting the collection of statically checked seen
+	 * element (e.g. carrier set or constant) identifier strings of a given
+	 * machine by looking at the statically checked version of the machine.
+	 * 
+	 * @param mch
+	 *            the input machine root.
+	 * 
+	 * @param type
+	 *            the statically checked element type
+	 * 
+	 * @return the collection of statically checked seen element identifier
+	 *         strings. Return an empty collection if the statically checked
+	 *         version of the machine does not exist.
+	 * 
+	 * @throws RodinDBException
+	 *             if there was a problem accessing the database.
+	 */
+	private static Collection<String> getSCSeenElementIdentifierStrings(
+			IMachineRoot mch,
+			IInternalElementType<? extends ISCIdentifierElement> type)
+			throws RodinDBException {
+		Collection<String> result = new ArrayList<String>();
+
+		if (mch == null)
+			return result;
+
+		// Get the statically checked version of the machine root and test if it
+		// exists.
+		ISCMachineRoot scMachineRoot = mch.getSCMachineRoot();
+		if (!scMachineRoot.exists())
+			return result;
+
+		// Get the list of seen contexts.
+		ISCInternalContext[] scSeenContexts = scMachineRoot.getSCSeenContexts();
+
+		// Add the constants and carrier sets from each seen context to the
+		// result.
+		for (ISCInternalContext scSeenContext : scSeenContexts) {
+			ISCIdentifierElement[] seenElms = scSeenContext
+					.getChildrenOfType(type);
+			for (ISCIdentifierElement seenElm : seenElms) {
+				result.add(seenElm.getIdentifierString());
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Utility method for getting the collection of statically checked seen
+	 * carrier set identifier strings of a given machine by looking at the
+	 * statically checked version of the machine.
+	 * 
+	 * @param mch
+	 *            the input machine root.
+	 * 
+	 * @return the collection of statically checked seen carrier set identifier
+	 *         strings. Return an empty collection if the statically checked
+	 *         version of the machine does not exist.
+	 * 
+	 * @throws RodinDBException
+	 *             if there was a problem accessing the database.
+	 */
+	public static Collection<String> getSCSeenCarrierSetIdentifierStrings(
+			IMachineRoot mch) throws RodinDBException {
+		return getSCSeenElementIdentifierStrings(mch,
+				ISCCarrierSet.ELEMENT_TYPE);
+	}
+
+	/**
+	 * Utility method for getting the collection of statically checked seen
+	 * constant identifier strings of a given machine by looking at the
+	 * statically checked version of the machine.
+	 * 
+	 * @param mch
+	 *            the input machine root.
+	 * 
+	 * @return the collection of statically checked seen constant identifier
+	 *         strings. Return an empty collection if the statically checked
+	 *         version of the machine does not exist.
+	 * 
+	 * @throws RodinDBException
+	 *             if there was a problem accessing the database.
+	 */
+	public static Collection<String> getSCSeenConstantIdentifierStrings(
+			IMachineRoot mch) throws RodinDBException {
+		return getSCSeenElementIdentifierStrings(mch, ISCConstant.ELEMENT_TYPE);
 	}
 
 }

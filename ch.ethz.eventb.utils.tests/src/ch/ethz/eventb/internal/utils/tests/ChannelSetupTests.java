@@ -12,6 +12,7 @@ package ch.ethz.eventb.internal.utils.tests;
 
 import org.eventb.core.IAction;
 
+
 import org.eventb.core.IAxiom;
 import org.eventb.core.ICarrierSet;
 import org.eventb.core.IConstant;
@@ -35,7 +36,7 @@ import ch.ethz.eventb.utils.tests.AbstractEventBTests;
  *         of a channel is created by the setup method {@link #setUp()}.
  *         </p>
  */
-public abstract class SetupTests extends AbstractEventBTests {
+public abstract class ChannelSetupTests extends AbstractEventBTests {
 
 	/**
 	 * Some predefined projects.
@@ -63,11 +64,11 @@ public abstract class SetupTests extends AbstractEventBTests {
 	/**
 	 * Some axioms and theorems.
 	 */
-	protected IAxiom axm_message_1;
+	protected IAxiom message_ctx_axm_1;
 	
-	protected IAxiom thm_message_2;
+	protected IAxiom message_ctx_thm_1;
 
-	protected IAxiom axm_maxsize_1;
+	protected IAxiom size_ctx_axm_1;
 
 	/**
 	 * Some predefined machines.
@@ -82,133 +83,143 @@ public abstract class SetupTests extends AbstractEventBTests {
 	/**
 	 * Some variables.
 	 */
-	protected IVariable s_count_channel;
+	protected IVariable channel_s_count;
 
-	protected IVariable r_count_channel;
+	protected IVariable channel_r_count;
 		
-	protected IVariable s_count_EO;
+	protected IVariable EO_s_count;
 
-	protected IVariable r_count_EO;
+	protected IVariable EO_r_count;
 
-	protected IVariable channel_EO;
+	protected IVariable EO_channel;
 
-	protected IVariable sents_EO;
+	protected IVariable EO_sents;
 
-	protected IVariable receiveds_EO;
+	protected IVariable EO_receiveds;
 
-	protected IVariable s_count_EOIO;
+	protected IVariable EOIO_s_count;
 
-	protected IVariable r_count_EOIO;
+	protected IVariable EOIO_r_count;
 
-	protected IVariable channel_EOIO;
+	protected IVariable EOIO_channel;
 
-	protected IVariable sents_EOIO;
+	protected IVariable EOIO_sents;
 
-	protected IVariable receiveds_EOIO;
+	protected IVariable EOIO_receiveds;
 
 	/**
 	 * Some invariants within machines.
 	 */
-	protected IInvariant inv_channel_1;
+	protected IInvariant channel_inv_1;
 	
-	protected IInvariant inv_channel_2;
+	protected IInvariant channel_inv_2;
 	
-	protected IInvariant inv_EO_1;
+	protected IInvariant EO_inv_1;
 	
-	protected IInvariant inv_EO_2;
+	protected IInvariant EO_inv_2;
 
-	protected IInvariant inv_EO_3;
+	protected IInvariant EO_inv_3;
 	
-	protected IInvariant thm_EO_4;
+	protected IInvariant EO_thm_1;
 
-	protected IInvariant inv_EO_5;
+	protected IInvariant EO_inv_4;
 	
-	protected IInvariant inv_EO_6;
+	protected IInvariant EO_inv_5;
 
-	protected IInvariant thm_EO_7;
+	protected IInvariant EO_thm_2;
 	
-	protected IInvariant inv_EO_8;
+	protected IInvariant EO_inv_6;
 	
-	protected IInvariant thm_EO_9;
+	protected IInvariant EO_thm_3;
 
-	protected IInvariant inv_EOIO_1;
+	protected IInvariant EOIO_inv_1;
 	
-	protected IInvariant thm_EOIO_2;
+	protected IInvariant EOIO_thm_1;
+
+	protected IInvariant EOIO_thm_2;
+
+	protected IInvariant EOIO_thm_3;
+
+	protected IInvariant EOIO_thm_4;
+
+	protected IInvariant EOIO_thm_5;
 
 	/**
 	 * Some events within machines.
 	 */
-	protected IEvent init_channel;
+	protected IEvent channel_init;
 	
-	protected IEvent sends_channel;
+	protected IEvent channel_sends;
 
-	protected IEvent receives_channel;
+	protected IEvent channel_receives;
 
-	protected IEvent init_EO;
+	protected IEvent EO_init;
 	
-	protected IEvent sends_EO;
+	protected IEvent EO_sends;
 
-	protected IEvent receives_EO;
+	protected IEvent EO_receives;
 
-	protected IEvent init_EOIO;
+	protected IEvent EOIO_init;
 	
-	protected IEvent sends_EOIO;
+	protected IEvent EOIO_sends;
 
-	protected IEvent receives_EOIO;
+	protected IEvent EOIO_receives;
 
 	/**
 	 * Some parameters of the events
 	 */
-	protected IParameter msg_sends_channel;
+	protected IParameter channel_sends_msg;
 
-	protected IParameter msg_receives_channel;
+	protected IParameter channel_receives_msg;
 
-	protected IParameter idx_receives_EO;
+	protected IParameter EO_receives_idx;
 
 	/**
 	 * Some guards within events
 	 */
-	protected IGuard grd_sends_channel_1;
+	protected IGuard channel_sends_grd_1;
 
-	protected IGuard grd_receives_channel_1;
+	protected IGuard channel_receives_grd_1;
 
-	protected IGuard grd_sends_EO_2;
+	protected IGuard EO_sends_grd_2;
 
-	protected IGuard grd_receives_EO_1;
+	protected IGuard EO_sends_thm_1;
 
-	protected IGuard grd_receives_EOIO_2;
+	protected IGuard EO_receives_grd_1;
+
+	protected IGuard EOIO_receives_grd_2;
 
 	/**
 	 * Some witnesses within events
 	 */
-	protected IWitness msg_receives_EO;
+	protected IWitness EO_receives_msg;
 	
 	/**
 	 * Some actions within events
 	 */
-	protected IAction act_init_channel_1;
+	protected IAction channel_init_act_1;
 	
-	protected IAction act_init_channel_2;
+	protected IAction channel_init_act_2;
 
-	protected IAction act_sends_channel_1;
+	protected IAction channel_sends_act_1;
 
-	protected IAction act_receives_channel_1;
+	protected IAction channel_receives_act_1;
 
-	protected IAction act_init_EO_3;
+	protected IAction EO_init_act_3;
 	
-	protected IAction act_init_EO_4;
+	protected IAction EO_init_act_4;
 
-	protected IAction act_init_EO_5;
+	protected IAction EO_init_act_5;
 
-	protected IAction act_sends_EO_2;
+	protected IAction EO_sends_act_2;
 
-	protected IAction act_sends_EO_3;
+	protected IAction EO_sends_act_3;
 
-	protected IAction act_receives_EO_1;
+	protected IAction EO_receives_act_1;
 
-	protected IAction act_receives_EO_2;
+	protected IAction EO_receives_act_2;
 
-	protected IAction act_receives_EO_3;
+	protected IAction EO_receives_act_3;
 
 	@Before
 	@Override
@@ -226,12 +237,12 @@ public abstract class SetupTests extends AbstractEventBTests {
 		// SETS MESSAGE
 		// AXIOMS
 		//   axm1: finite(MESSAGE)
-		//   thm2: card(MESSAGE) : NAT1
+		//   thm1: card(MESSAGE) : NAT1
 		// END
 		MESSAGE = createCarrierSet(message_ctx, "MESSAGE");
-		axm_message_1 = createAxiom(message_ctx, "axm1",
+		message_ctx_axm_1 = createAxiom(message_ctx, "axm1",
 				"finite(MESSAGE)", false);
-		thm_message_2 = createAxiom(message_ctx, "thm2",
+		message_ctx_thm_1 = createAxiom(message_ctx, "thm1",
 				"card(MESSAGE) ∈ ℕ1", true);
 		message_ctx.getRodinFile().save(monitor, false);
 		
@@ -242,7 +253,7 @@ public abstract class SetupTests extends AbstractEventBTests {
 		//   axm1: max_size : NAT1
 		// END
 		max_size = createConstant(size_ctx, "max_size");
-		axm_maxsize_1 = createAxiom(size_ctx, "axm1", "max_size ∈ ℕ1",
+		size_ctx_axm_1 = createAxiom(size_ctx, "axm1", "max_size ∈ ℕ1",
 				false);
 		size_ctx.getRodinFile().save(monitor, false);
 		
@@ -262,11 +273,11 @@ public abstract class SetupTests extends AbstractEventBTests {
 		//   ...
 		// END
 		createSeesContextClause(channel, "message_ctx");
-		s_count_channel = createVariable(channel, "s_count");
-		r_count_channel = createVariable(channel, "r_count");
-		inv_channel_1 = createInvariant(channel, "inv1",
+		channel_s_count = createVariable(channel, "s_count");
+		channel_r_count = createVariable(channel, "r_count");
+		channel_inv_1 = createInvariant(channel, "inv1",
 				"s_count ∈ ℕ", false);
-		inv_channel_2 = createInvariant(channel, "inv2",
+		channel_inv_2 = createInvariant(channel, "inv2",
 				"r_count ∈ ℕ", false);
 
 		//   INITIALISATION
@@ -275,10 +286,10 @@ public abstract class SetupTests extends AbstractEventBTests {
 		//     act1: s_count := 0
 		//     act2: r_count := 0
 		//   END
-		init_channel = createEvent(channel, IEvent.INITIALISATION);
-		act_init_channel_1 = createAction(init_channel, "act1",
+		channel_init = createEvent(channel, IEvent.INITIALISATION);
+		channel_init_act_1 = createAction(channel_init, "act1",
 				"s_count ≔ 0");
-		act_init_channel_2 = createAction(init_channel, "act2",
+		channel_init_act_2 = createAction(channel_init, "act2",
 				"r_count ≔ 0");
 		
 		//   sends
@@ -289,11 +300,11 @@ public abstract class SetupTests extends AbstractEventBTests {
 		//   THEN
 		//     act1: s_count := s_count + 1
 		//   END
-		sends_channel = createEvent(channel, "sends");
-		msg_sends_channel = createParameter(sends_channel, "msg");
-		grd_sends_channel_1 = createGuard(sends_channel, "grd1",
+		channel_sends = createEvent(channel, "sends");
+		channel_sends_msg = createParameter(channel_sends, "msg");
+		channel_sends_grd_1 = createGuard(channel_sends, "grd1",
 				"msg ∈ MESSAGE");
-		act_sends_channel_1 = createAction(sends_channel, "act1",
+		channel_sends_act_1 = createAction(channel_sends, "act1",
 				"s_count ≔ s_count + 1");
 
 		//   receives
@@ -302,13 +313,13 @@ public abstract class SetupTests extends AbstractEventBTests {
 		//   WHERE
 		//     grd1 : msg : MESSAGE
 		//   THEN
-		//     act1: s_count := s_count + 1
+		//     act1: r_count := r_count + 1
 		//   END
-		receives_channel = createEvent(channel, "receives");
-		msg_receives_channel = createParameter(receives_channel, "msg");
-		grd_receives_channel_1 = createGuard(receives_channel, "grd1",
+		channel_receives = createEvent(channel, "receives");
+		channel_receives_msg = createParameter(channel_receives, "msg");
+		channel_receives_grd_1 = createGuard(channel_receives, "grd1",
 				"msg ∈ MESSAGE");
-		act_receives_channel_1 = createAction(receives_channel, "act1",
+		channel_receives_act_1 = createAction(channel_receives, "act1",
 				"r_count ≔ r_count + 1");
 
 		// Save channel
@@ -323,55 +334,55 @@ public abstract class SetupTests extends AbstractEventBTests {
 		//   inv1: sents : 1..s_count --> MESSAGE
 		//   inv2: receiveds : 1..r_count >-> 1..s_count
 		//   inv3: ran(receiveds) \/ channel = 1..s_count
-		//   thm4: channel <: 1..s_count
-		//   inv5: ran(receiveds) /\ channel = {}
-		//   inv6: r_count + card(channel) = s_count
-		//   thm7: r_count <= s_count
-		//   inv8: card(channel) <= max_size
-		//   thm9: s_count <= r_count + max_size
+		//   thm1: channel <: 1..s_count
+		//   inv4: ran(receiveds) /\ channel = {}
+		//   inv5: r_count + card(channel) = s_count
+		//   thm2: r_count <= s_count
+		//   inv6: card(channel) <= max_size
+		//   thm3: s_count <= r_count + max_size
 		// EVENTS
 		//   ...
 		// END
 		createRefinesMachineClause(EO, "channel");
 		createSeesContextClause(EO, "message_ctx");
 		createSeesContextClause(EO, "size_ctx");
-		s_count_EO = createVariable(EO, "s_count");
-		r_count_EO = createVariable(EO, "r_count");
-		channel_EO = createVariable(EO, "channel");
-		sents_EO = createVariable(EO, "sents");
-		receiveds_EO = createVariable(EO, "receiveds");
-		inv_EO_1 = createInvariant(EO, "inv1",
+		EO_s_count = createVariable(EO, "s_count");
+		EO_r_count = createVariable(EO, "r_count");
+		EO_channel = createVariable(EO, "channel");
+		EO_sents = createVariable(EO, "sents");
+		EO_receiveds = createVariable(EO, "receiveds");
+		EO_inv_1 = createInvariant(EO, "inv1",
 				"sents ∈ 1‥s_count → MESSAGE", false);
-		inv_EO_2 = createInvariant(EO, "inv2",
+		EO_inv_2 = createInvariant(EO, "inv2",
 				"receiveds ∈ 1‥r_count ↣ 1‥s_count", false);
-		inv_EO_3 = createInvariant(EO, "inv3",
+		EO_inv_3 = createInvariant(EO, "inv3",
 				"ran(receiveds) ∪ channel = 1‥s_count", false);
-		thm_EO_4 = createInvariant(EO, "thm4",
+		EO_thm_1 = createInvariant(EO, "thm1",
 				"channel ⊆ 1‥s_count", true);
-		inv_EO_5 = createInvariant(EO, "inv5",
+		EO_inv_4 = createInvariant(EO, "inv4",
 				"ran(receiveds) ∩ channel = ∅", false);
-		inv_EO_6 = createInvariant(EO, "inv6",
+		EO_inv_5 = createInvariant(EO, "inv5",
 				"r_count + card(channel) = s_count", false);
-		thm_EO_7 = createInvariant(EO, "thm7",
+		EO_thm_2 = createInvariant(EO, "thm2",
 				"r_count ≤ s_count", true);
-		inv_EO_8 = createInvariant(EO, "inv8",
+		EO_inv_6 = createInvariant(EO, "inv6",
 				"card(channel) ≤ max_size", false);
-		thm_EO_9 = createInvariant(EO, "thm9",
+		EO_thm_3 = createInvariant(EO, "thm3",
 				"s_count ≤ r_count + max_size", false);
 	
 		//   INITIALISATION
 		//     extended
 		//   STATUS ordinary
 		//   BEGIN
-		//     act3: channel := {}
-		//     act4: sents := {}
-		//     act5: receiveds := {}
+		//     act3: sents := {}
+		//     act4: receiveds := {}
+		//     act5: channel := {}
 		//   END
-		init_EO = createEvent(EO, IEvent.INITIALISATION);
-		init_EO.setExtended(true, monitor);
-		act_init_EO_3 = createAction(init_EO, "act3", "channel ≔ ∅");
-		act_init_EO_4 = createAction(init_EO, "act4", "sents ≔ ∅");
-		act_init_EO_5 = createAction(init_EO, "act5", "receiveds ≔ ∅");
+		EO_init = createEvent(EO, IEvent.INITIALISATION);
+		EO_init.setExtended(true, monitor);
+		EO_init_act_3 = createAction(EO_init, "act3", "sents ≔ ∅");
+		EO_init_act_4 = createAction(EO_init, "act4", "receiveds ≔ ∅");
+		EO_init_act_5 = createAction(EO_init, "act5", "channel ≔ ∅");
 
 		//   sends
 		//     extended
@@ -379,18 +390,21 @@ public abstract class SetupTests extends AbstractEventBTests {
 		//   REFINES sends
 		//   WHEN
 		//     grd2 : card(channel) /= max_size
+		//     thm1 : {s_count + 1 |-> msg} : 1 .. s_count + 1 +-> MESSAGE
 		//   THEN
 		//     act2: sents(s_count + 1) := msg
 		//     act3: channel := channel \/ {s_count + 1}
 		//   END
-		sends_EO = createEvent(EO, "sends");
-		sends_EO.setExtended(true, monitor);
-		createRefinesEventClause(sends_EO, "sends");
-		grd_sends_EO_2 = createGuard(sends_EO, "grd2",
+		EO_sends = createEvent(EO, "sends");
+		EO_sends.setExtended(true, monitor);
+		createRefinesEventClause(EO_sends, "sends");
+		EO_sends_grd_2 = createGuard(EO_sends, "grd2",
 				"card(channel) ≠ max_size");
-		act_sends_EO_2 = createAction(sends_EO, "act2",
+		EO_sends_thm_1 = createGuard(EO_sends, "thm1",
+				"{s_count + 1 ↦ msg} ∈ 1 ‥ s_count + 1 ⇸ MESSAGE");
+		EO_sends_act_2 = createAction(EO_sends, "act2",
 				"sents(s_count + 1) ≔ msg");
-		act_sends_EO_3 = createAction(sends_EO, "act3",
+		EO_sends_act_3 = createAction(EO_sends, "act3",
 				"channel ≔ channel ∪ {s_count + 1}");
 
 		//   receives
@@ -406,16 +420,16 @@ public abstract class SetupTests extends AbstractEventBTests {
 		//     act2: channel := channel \ {idx}
 		//     act3: receiveds(r_count + 1) := idx
 		//   END
-		receives_EO = createEvent(EO, "receives");
-		createRefinesEventClause(receives_EO, "receives");
-		idx_receives_EO = createParameter(receives_EO, "idx");
-		grd_receives_EO_1 = createGuard(receives_EO, "grd1", "idx ∈ channel");
-		msg_receives_EO = createWitness(receives_EO, "msg", "msg = sents(idx)");
-		act_receives_EO_1 = createAction(receives_EO, "act1",
+		EO_receives = createEvent(EO, "receives");
+		createRefinesEventClause(EO_receives, "receives");
+		EO_receives_idx = createParameter(EO_receives, "idx");
+		EO_receives_grd_1 = createGuard(EO_receives, "grd1", "idx ∈ channel");
+		EO_receives_msg = createWitness(EO_receives, "msg", "msg = sents(idx)");
+		EO_receives_act_1 = createAction(EO_receives, "act1",
 				"r_count ≔ r_count + 1");
-		act_receives_EO_2 = createAction(receives_EO, "act2",
+		EO_receives_act_2 = createAction(EO_receives, "act2",
 				"channel ≔ channel ∖ {idx}");
-		act_receives_EO_3 = createAction(receives_EO, "act3",
+		EO_receives_act_3 = createAction(EO_receives, "act3",
 				"receiveds(r_count + 1) ≔ idx");
 
 		// Save EO
@@ -428,38 +442,49 @@ public abstract class SetupTests extends AbstractEventBTests {
 		// VARIABLES s_count, r_count, channel, sents, receiveds
 		// INVARIANTS
 		//   inv1: ran(receiveds) = 1..r_count
-		//   thm2: channel = 1 + r_count..s_count
+		//   thm1: r_count : NAT
+		//   thm2: ran(receiveds) \/ channel = 1..s_count
+		//   thm3: ran(receiveds) /\ channel = {}
+		//   thm4: ran(receiveds) = 1..r_count
+		//   thm5: channel = 1 + r_count..s_count
 		// EVENTS
 		//   ...
 		// END
 		createRefinesMachineClause(EOIO, "EO");
 		createSeesContextClause(EOIO, "message_ctx");
 		createSeesContextClause(EOIO, "size_ctx");
-		s_count_EOIO = createVariable(EOIO, "s_count");
-		r_count_EOIO = createVariable(EOIO, "r_count");
-		channel_EOIO = createVariable(EOIO, "channel");
-		sents_EOIO = createVariable(EOIO, "sents");
-		receiveds_EOIO = createVariable(EOIO, "receiveds");
-		inv_EOIO_1 = createInvariant(EOIO, "inv1",
+		EOIO_s_count = createVariable(EOIO, "s_count");
+		EOIO_r_count = createVariable(EOIO, "r_count");
+		EOIO_channel = createVariable(EOIO, "channel");
+		EOIO_sents = createVariable(EOIO, "sents");
+		EOIO_receiveds = createVariable(EOIO, "receiveds");
+		EOIO_inv_1 = createInvariant(EOIO, "inv1",
 				"ran(receiveds) = 1‥r_count", false);
-		thm_EOIO_2 = createInvariant(EOIO, "thm2",
+		EOIO_thm_1 = createInvariant(EOIO, "thm1", "r_count ∈ ℕ", true);
+		EOIO_thm_2 = createInvariant(EOIO, "thm2",
+				"ran(receiveds) ∪ channel = 1‥s_count", true);
+		EOIO_thm_3 = createInvariant(EOIO, "thm3",
+				"ran(receiveds) ∩ channel = ∅", true);
+		EOIO_thm_4 = createInvariant(EOIO, "thm4",
+				"ran(receiveds) = 1‥r_count", true);
+		EOIO_thm_5 = createInvariant(EOIO, "thm5",
 				"channel = 1 + r_count ‥ s_count", true);
 
 		//   INITIALISATION
 		//     extended
 		//   STATUS ordinary
 		//   END
-		init_EOIO = createEvent(EOIO, IEvent.INITIALISATION);
-		init_EOIO.setExtended(true, monitor);
+		EOIO_init = createEvent(EOIO, IEvent.INITIALISATION);
+		EOIO_init.setExtended(true, monitor);
 
 		//   sends
 		//     extended
 		//   STATUS ordinary
 		//   REFINES sends
 		//   END
-		sends_EOIO = createEvent(EOIO, "sends");
-		sends_EOIO.setExtended(true, monitor);
-		createRefinesEventClause(sends_EOIO, "sends");
+		EOIO_sends = createEvent(EOIO, "sends");
+		EOIO_sends.setExtended(true, monitor);
+		createRefinesEventClause(EOIO_sends, "sends");
 
 		//   receives
 		//     extended
@@ -471,10 +496,10 @@ public abstract class SetupTests extends AbstractEventBTests {
 		//   THEN
 		//     ...
 		//   END
-		receives_EOIO = createEvent(EOIO, "receives");
-		receives_EOIO.setExtended(true, monitor);
-		createRefinesEventClause(receives_EOIO, "receives");
-		grd_receives_EOIO_2 = createGuard(receives_EOIO, "grd2",
+		EOIO_receives = createEvent(EOIO, "receives");
+		EOIO_receives.setExtended(true, monitor);
+		createRefinesEventClause(EOIO_receives, "receives");
+		EOIO_receives_grd_2 = createGuard(EOIO_receives, "grd2",
 				"idx = r_count + 1");
 
 		// Save EOIO

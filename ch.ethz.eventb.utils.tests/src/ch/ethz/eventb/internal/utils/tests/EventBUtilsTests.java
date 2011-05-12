@@ -20,7 +20,7 @@ import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.utils.EventBUtils;
 
-public class EventBUtilsTests extends SetupTests {
+public class EventBUtilsTests extends ChannelSetupTests {
 
 	/**
 	 * Test method for {@link EventBUtils#getEventBProject(String)}.
@@ -222,12 +222,12 @@ public class EventBUtilsTests extends SetupTests {
 	 */
 	public void testCreateParameter() {
 		try {
-			IParameter par = EventBUtils.createParameter(sends_channel, "x",
+			IParameter par = EventBUtils.createParameter(channel_sends, "x",
 					monitor);
-			testEventParameters("Create parameter 1", sends_channel, "msg", "x");
+			testEventParameters("Create parameter 1", channel_sends, "msg", "x");
 			testParameter("Create parameter 1", par, "x");
-			par = EventBUtils.createParameter(receives_EO, "y", monitor);
-			testEventParameters("Create parameter 2", receives_EO, "idx", "y");
+			par = EventBUtils.createParameter(EO_receives, "y", monitor);
+			testEventParameters("Create parameter 2", EO_receives, "idx", "y");
 			testParameter("Create parameter 2", par, "y");
 		} catch (RodinDBException e) {
 			e.printStackTrace();
@@ -242,14 +242,14 @@ public class EventBUtilsTests extends SetupTests {
 	 */
 	public void testCreateGuard() {
 		try {
-			IGuard grd = EventBUtils.createGuard(sends_channel, "grd2",
+			IGuard grd = EventBUtils.createGuard(channel_sends, "grd2",
 					"s_count = 0", false, monitor);
-			testEventGuards("Create guard 1", sends_channel,
+			testEventGuards("Create guard 1", channel_sends,
 					"grd1:msg ∈ MESSAGE:false", "grd2:s_count = 0:false");
 			testGuard("Create guard 1", grd, "grd2:s_count = 0:false");
-			grd = EventBUtils.createGuard(receives_EO, "grd2",
+			grd = EventBUtils.createGuard(EO_receives, "grd2",
 					"idx ≥ r_count + 1", true, monitor);
-			testEventGuards("Create guard 2", receives_EO,
+			testEventGuards("Create guard 2", EO_receives,
 					"grd1:idx ∈ channel:false", "grd2:idx ≥ r_count + 1:true");
 			testGuard("Create guard 2", grd, "grd2:idx ≥ r_count + 1:true");
 		} catch (RodinDBException e) {
@@ -265,14 +265,14 @@ public class EventBUtilsTests extends SetupTests {
 	 */
 	public void testCreateAction() {
 		try {
-			IAction act = EventBUtils.createAction(sends_channel, "act2",
+			IAction act = EventBUtils.createAction(channel_sends, "act2",
 					"r_count ≔ r_count + 1", monitor);
-			testEventActions("Create action 1", sends_channel,
+			testEventActions("Create action 1", channel_sends,
 					"act1:s_count ≔ s_count + 1", "act2:r_count ≔ r_count + 1");
 			testAction("Create action 1", act, "act2:r_count ≔ r_count + 1");
-			act = EventBUtils.createAction(receives_EO, "act4",
+			act = EventBUtils.createAction(EO_receives, "act4",
 					"s_count ≔ s_count + 1", monitor);
-			testEventActions("Create action 2", receives_EO,
+			testEventActions("Create action 2", EO_receives,
 					"act1:r_count ≔ r_count + 1",
 					"act2:channel ≔ channel ∖ {idx}",
 					"act3:receiveds(r_count + 1) ≔ idx",

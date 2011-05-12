@@ -12,8 +12,6 @@
 
 package ch.ethz.eventb.utils.tests;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import junit.framework.TestCase;
@@ -33,11 +31,11 @@ import org.eventb.core.ICarrierSet;
 import org.eventb.core.IConfigurationElement;
 import org.eventb.core.IConstant;
 import org.eventb.core.IContextRoot;
+import org.eventb.core.IConvergenceElement.Convergence;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
 import org.eventb.core.IExtendsContext;
 import org.eventb.core.IGuard;
-import org.eventb.core.IIdentifierElement;
 import org.eventb.core.IInvariant;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IParameter;
@@ -46,10 +44,8 @@ import org.eventb.core.IRefinesMachine;
 import org.eventb.core.ISeesContext;
 import org.eventb.core.IVariable;
 import org.eventb.core.IWitness;
-import org.eventb.core.IConvergenceElement.Convergence;
 import org.junit.After;
 import org.junit.Before;
-import org.rodinp.core.IRodinElement;
 import org.rodinp.core.IRodinFile;
 import org.rodinp.core.IRodinProject;
 import org.rodinp.core.RodinCore;
@@ -1237,25 +1233,23 @@ public abstract class AbstractEventBTests extends TestCase {
 	/**
 	 * Utility method to compare two string collections.
 	 * 
-	 * @param message
+	 * @param msg
 	 *            a message
-	 * @param type
-	 *            the type of items in collections
 	 * @param actual
 	 *            actual set of strings.
 	 * @param expected
 	 *            expected array of strings.
 	 */
-	protected static void assertSameStrings(String message, String type,
+	protected static void assertSameStrings(String msg,
 			Collection<String> actual, String... expected) {
-		assertEquals(message + ": Incorrect number of " + type + "s\n"
-				+ Arrays.toString(actual.toArray(new String[actual.size()])),
-				expected.length, actual.size());
+		assertEquals(msg + ": Incorrect number of elements\n", expected.length,
+				actual.size());
 		for (String exp : expected) {
-			assertTrue(message + ": Expected " + type + " " + exp
-					+ " not found", actual.contains(exp));
+			assertTrue(msg + ": Expected element " + exp + " not found",
+					actual.contains(exp));
 		}
 	}
+
 
 	/**
 	 * Utility method to compare a collection of identifier elements and an
@@ -1270,21 +1264,21 @@ public abstract class AbstractEventBTests extends TestCase {
 	 * @param expected
 	 *            expected array of identifiers.
 	 */
-	protected void assertIdentifierElements(String message, String type,
-			Collection<IRodinElement> elements, String... expected) {
-		Collection<String> actual = new ArrayList<String>(elements.size());
-		for (IRodinElement element : elements) {
-			try {
-				assertTrue("The element should be an identifier element",
-						element instanceof IIdentifierElement);
-				actual
-						.add(((IIdentifierElement) element)
-								.getIdentifierString());
-			} catch (RodinDBException e) {
-				fail("There should be no exception");
-			}
-		}
-		assertSameStrings(message, "identfier element", actual, expected);
-	}
+//	protected void assertIdentifierElements(String message, String type,
+//			Collection<IRodinElement> elements, String... expected) {
+//		Collection<String> actual = new ArrayList<String>(elements.size());
+//		for (IRodinElement element : elements) {
+//			try {
+//				assertTrue("The element should be an identifier element",
+//						element instanceof IIdentifierElement);
+//				actual
+//						.add(((IIdentifierElement) element)
+//								.getIdentifierString());
+//			} catch (RodinDBException e) {
+//				fail("There should be no exception");
+//			}
+//		}
+//		assertSameStrings(message, "identfier element", actual, expected);
+//	}
 
 }
