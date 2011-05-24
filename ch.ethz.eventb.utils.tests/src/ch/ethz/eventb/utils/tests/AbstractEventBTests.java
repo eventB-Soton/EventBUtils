@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Zurich and others.
+ * Copyright (c) 2009,2011 ETH Zurich and others.
+
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -13,6 +14,8 @@
 package ch.ethz.eventb.utils.tests;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -32,6 +35,7 @@ import org.eventb.core.IConfigurationElement;
 import org.eventb.core.IConstant;
 import org.eventb.core.IContextRoot;
 import org.eventb.core.IConvergenceElement.Convergence;
+import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
 import org.eventb.core.IExtendsContext;
@@ -70,6 +74,11 @@ public abstract class AbstractEventBTests extends TestCase {
 	 */
 	protected IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
+	/**
+	 * The formula factory used to create formulae. 
+	 */
+	protected static final FormulaFactory ff = FormulaFactory.getDefault();
+	
 	/**
 	 * Constructor: Create max_size test case.
 	 */
@@ -456,15 +465,17 @@ public abstract class AbstractEventBTests extends TestCase {
 	 *            the label of the guard.
 	 * @param predicateString
 	 *            the predicate string of the guard.
+	 * @param b 
 	 * @return the newly created guard.
 	 * @throws RodinDBException
 	 *             if some errors occurred.
 	 */
 	protected IGuard createGuard(IEvent evt, String label,
-			String predicateString) throws RodinDBException {
+			String predicateString, boolean thm) throws RodinDBException {
 		IGuard grd = evt.createChild(IGuard.ELEMENT_TYPE, null, monitor);
 		grd.setLabel(label, monitor);
 		grd.setPredicateString(predicateString, monitor);
+		grd.setTheorem(thm, monitor);
 		return grd;
 	}
 
@@ -850,6 +861,42 @@ public abstract class AbstractEventBTests extends TestCase {
 		}
 	}
 
+	/**
+	 * Utility method for testing the variables of a machine.
+	 * 
+	 * @param message
+	 *            a message for debugging.
+	 * @param mch
+	 *            the machine root whose variables will be tested.
+	 * @param expected
+	 *            an array of expected variables. Each variable is represented
+	 *            by its identifier. The order of the variables is NOT important.
+	 */
+	protected void testMachineVariablesUnordered(String message, IMachineRoot mch,
+			String... expected) {
+		try {
+			IVariable[] vars = mch.getVariables();
+			assertEquals(message + ": Incorrect number of variables",
+					expected.length, vars.length);
+			for (int i = 0; i < expected.length; i++) {
+				boolean b = false;
+				for (int j = 0; j < vars.length; j++) {
+					if (vars[j].getIdentifierString().equals(expected[i])) {
+						b = true;
+						break;
+					}
+				}
+				if (!b) {
+					fail("Variable " + expected[i] + " cannot be found");
+				}
+			}
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+			fail("There should be no exception");
+			return;
+		}
+	}
+	
 	/**
 	 * Utility method for testing a variable.
 	 * 
@@ -1251,6 +1298,24 @@ public abstract class AbstractEventBTests extends TestCase {
 	}
 
 
+	protected static void assertSameStrings(String msg, String[] actual,
+			String... expected) {
+		assertEquals(msg + ": Incorrect number of strings\n", expected.length,
+				actual.length);
+		for (int i = 0; i < expected.length; i++) {
+			assertEquals(msg, expected[i], actual[i]);
+		}
+	}
+
+	protected static void assertSameObjects(String msg, Object[] expected,
+			Object[] actual) {
+		assertEquals(msg + ": Incorrect number of objects\n", expected.length,
+				actual.length);
+		for (int i = 0; i < expected.length; i++) {
+			assertEquals(msg, expected[i], actual[i]);
+		}
+	}
+
 	/**
 	 * Utility method to compare a collection of identifier elements and an
 	 * array of string.
@@ -1280,5 +1345,27 @@ public abstract class AbstractEventBTests extends TestCase {
 //		}
 //		assertSameStrings(message, "identfier element", actual, expected);
 //	}
+
+
+	protected void assertSameMap(String msg,
+			Map<? extends Object, ? extends Object> expected,
+			Map<? extends Object, ? extends Object> actual) {
+		Set<? extends Object> expectedKeySet = expected.keySet();
+		Set<? extends Object> actualKeySet = actual.keySet();
+		assertSameSet(msg, expectedKeySet, actualKeySet);
+		for (Object key : expectedKeySet) {
+			assertEquals(msg, expected.get(key), actual.get(key));
+		}
+	}
+
+	private void assertSameSet(String msg, Set<? extends Object> expected,
+			Set<? extends Object> actual) {
+		assertEquals(msg + ": The number of elements must be the same",
+				expected.size(), actual.size());
+		for (Object elm : expected) {
+			assertTrue(msg + ": expected element " + elm + " not found",
+					actual.contains(elm));
+		}
+	} 
 
 }

@@ -34,15 +34,15 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 	public void testGetSeenCarrierSetIdentifierStrings() {
 		try {
 			Collection<String> seenSCSetIdentStrs = EventBSCUtils
-					.getSCSeenCarrierSetIdentifierStrings(channel);
+					.getSCSeenCarrierSetIdentifierStrings(channelMchRoot);
 			assertSameStrings("Machine channel: seen SC carrier sets",
 					seenSCSetIdentStrs, "MESSAGE");
 			seenSCSetIdentStrs = EventBSCUtils
-					.getSCSeenCarrierSetIdentifierStrings(EO);
+					.getSCSeenCarrierSetIdentifierStrings(EOMchRoot);
 			assertSameStrings("Machine EO: seen SC carrier sets",
 					seenSCSetIdentStrs, "MESSAGE");
 			seenSCSetIdentStrs = EventBSCUtils
-					.getSCSeenCarrierSetIdentifierStrings(EOIO);
+					.getSCSeenCarrierSetIdentifierStrings(EOIOMchRoot);
 			assertSameStrings("Machine EO: seen SC carrier sets",
 					seenSCSetIdentStrs, "MESSAGE");
 		} catch (RodinDBException e) {
@@ -60,15 +60,15 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 	public void testGetSCSeenConstantIdentifierStrings() {
 		try {
 			Collection<String> seenSCCstIdentStrs = EventBSCUtils
-					.getSCSeenConstantIdentifierStrings(channel);
+					.getSCSeenConstantIdentifierStrings(channelMchRoot);
 			assertSameStrings("Machine channel: seen SC constants",
 					seenSCCstIdentStrs);
 			seenSCCstIdentStrs = EventBSCUtils
-					.getSCSeenConstantIdentifierStrings(EO);
+					.getSCSeenConstantIdentifierStrings(EOMchRoot);
 			assertSameStrings("Machine EO: seen SC constants",
 					seenSCCstIdentStrs, "max_size");
 			seenSCCstIdentStrs = EventBSCUtils
-					.getSCSeenConstantIdentifierStrings(EOIO);
+					.getSCSeenConstantIdentifierStrings(EOIOMchRoot);
 			assertSameStrings("Machine EO: seen SC constants",
 					seenSCCstIdentStrs, "max_size");
 		} catch (RodinDBException e) {

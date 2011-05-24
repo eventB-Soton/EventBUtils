@@ -94,21 +94,21 @@ public class EventBUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testCreateAxiom() {
 		try {
-			IAxiom axiom = EventBUtils.createAxiom(message_ctx, "axm3",
+			IAxiom axiom = EventBUtils.createAxiom(message_ctx, "axm2",
 					"finite(PROPOSAL)", false, monitor);
 			testContextAxioms("Create axiom 1", message_ctx,
 					"axm1:finite(MESSAGE):false",
-					"thm2:card(MESSAGE) ∈ ℕ1:true",
-					"axm3:finite(PROPOSAL):false");
-			testAxiom("Create axiom 1", axiom, "axm3:finite(PROPOSAL):false");
-			axiom = EventBUtils.createAxiom(message_ctx, "thm4",
+					"thm1:card(MESSAGE) ∈ ℕ1:true",
+					"axm2:finite(PROPOSAL):false");
+			testAxiom("Create axiom 1", axiom, "axm2:finite(PROPOSAL):false");
+			axiom = EventBUtils.createAxiom(message_ctx, "thm2",
 					"card(PROPOSAL) ∈ ℕ1", true, monitor);
 			testContextAxioms("Create axiom 2", message_ctx,
 					"axm1:finite(MESSAGE):false",
-					"thm2:card(MESSAGE) ∈ ℕ1:true",
-					"axm3:finite(PROPOSAL):false",
-					"thm4:card(PROPOSAL) ∈ ℕ1:true");
-			testAxiom("Create axiom 2", axiom, "thm4:card(PROPOSAL) ∈ ℕ1:true");
+					"thm1:card(MESSAGE) ∈ ℕ1:true",
+					"axm2:finite(PROPOSAL):false",
+					"thm2:card(PROPOSAL) ∈ ℕ1:true");
+			testAxiom("Create axiom 2", axiom, "thm2:card(PROPOSAL) ∈ ℕ1:true");
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -123,14 +123,14 @@ public class EventBUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testCreateSeesClause() {
 		try {
-			ISeesContext seesClause = EventBUtils.createSeesClause(channel,
+			ISeesContext seesClause = EventBUtils.createSeesClause(channelMchRoot,
 					"ctx", null, monitor);
-			testMachineSeesClauses("Create SEES clause 1", channel,
+			testMachineSeesClauses("Create SEES clause 1", channelMchRoot,
 					"message_ctx", "ctx");
 			testSeesClause("Create SEES clause 1", seesClause, "ctx");
-			seesClause = EventBUtils.createSeesClause(channel,
+			seesClause = EventBUtils.createSeesClause(channelMchRoot,
 					"ctx1", seesClause, monitor);
-			testMachineSeesClauses("Create SEES clause 2", channel,
+			testMachineSeesClauses("Create SEES clause 2", channelMchRoot,
 					"message_ctx", "ctx1", "ctx");
 			testSeesClause("Create SEES clause 2", seesClause, "ctx1");
 		} catch (RodinDBException e) {
@@ -148,12 +148,12 @@ public class EventBUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testCreateVariable() {
 		try {
-			IVariable var = EventBUtils.createVariable(channel, "x", monitor);
-			testMachineVariables("Create variable 1", channel, "s_count",
+			IVariable var = EventBUtils.createVariable(channelMchRoot, "x", monitor);
+			testMachineVariables("Create variable 1", channelMchRoot, "s_count",
 					"r_count", "x");
 			testVariable("Create variable 1", var, "x");
-			var = EventBUtils.createVariable(channel, "y", monitor);
-			testMachineVariables("Create variable 2", channel, "s_count",
+			var = EventBUtils.createVariable(channelMchRoot, "y", monitor);
+			testMachineVariables("Create variable 2", channelMchRoot, "s_count",
 					"r_count", "x", "y");
 			testVariable("Create variable 2", var, "y");
 		} catch (RodinDBException e) {
@@ -170,16 +170,16 @@ public class EventBUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testCreateInvariant() {
 		try {
-			IInvariant inv = EventBUtils.createInvariant(channel, "thm3",
+			IInvariant inv = EventBUtils.createInvariant(channelMchRoot, "thm3",
 					"s_count ≥ 0", true, monitor);
-			testMachineInvariants("Create invariant 1", channel,
+			testMachineInvariants("Create invariant 1", channelMchRoot,
 					"inv1:s_count ∈ ℕ:false", "inv2:r_count ∈ ℕ:false",
 					"thm3:s_count ≥ 0:true");
 			testInvariant("Create invariant 1", inv, "thm3:s_count ≥ 0:true");
 
-			inv = EventBUtils.createInvariant(channel, "inv4", "r_count ≤ 5",
+			inv = EventBUtils.createInvariant(channelMchRoot, "inv4", "r_count ≤ 5",
 					false, monitor);
-			testMachineInvariants("Create invariant 2", channel,
+			testMachineInvariants("Create invariant 2", channelMchRoot,
 					"inv1:s_count ∈ ℕ:false", "inv2:r_count ∈ ℕ:false",
 					"thm3:s_count ≥ 0:true", "inv4:r_count ≤ 5:false");
 			testInvariant("Create invariant 2", inv, "inv4:r_count ≤ 5:false");
@@ -197,15 +197,15 @@ public class EventBUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testCreateEvent() {
 		try {
-			IEvent evt = EventBUtils.createEvent(channel, "evt1",
+			IEvent evt = EventBUtils.createEvent(channelMchRoot, "evt1",
 					Convergence.ANTICIPATED, true, monitor);
-			testMachineEvents("Create event 1", channel,
+			testMachineEvents("Create event 1", channelMchRoot,
 					"INITIALISATION:ORDINARY:false", "sends:ORDINARY:false",
 					"receives:ORDINARY:false", "evt1:ANTICIPATED:true");
 			testEvent("Create event 1", evt, "evt1:ANTICIPATED:true");
-			evt = EventBUtils.createEvent(EO, "evt2", Convergence.CONVERGENT,
+			evt = EventBUtils.createEvent(EOMchRoot, "evt2", Convergence.CONVERGENT,
 					false, monitor);
-			testMachineEvents("Create event 2", EO,
+			testMachineEvents("Create event 2", EOMchRoot,
 					"INITIALISATION:ORDINARY:true", "sends:ORDINARY:true",
 					"receives:ORDINARY:false", "evt2:CONVERGENT:false");
 			testEvent("Create event 2", evt, "evt2:CONVERGENT:false");
