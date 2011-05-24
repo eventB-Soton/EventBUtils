@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eventb.core.IAxiom;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.ISCAxiom;
 import org.eventb.core.ISCCarrierSet;
@@ -25,10 +26,9 @@ import org.eventb.core.ISCConstant;
 import org.eventb.core.ISCIdentifierElement;
 import org.eventb.core.ISCInternalContext;
 import org.eventb.core.ISCMachineRoot;
-import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.ast.Predicate;
-import org.eventb.core.seqprover.eventbExtensions.DLib;
 import org.rodinp.core.IInternalElementType;
+import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
 
 /**
@@ -44,18 +44,14 @@ public final class EventBSCUtils {
 		// Utility classes shall not have a public or default constructor.
 	}
 
-	public final static int AXIOMS = 1;
-
-	public final static int THEOREMS = 2;
-
 	/**
 	 * Returns a map from label (String) to predicate ({@link Predicate})
 	 * corresponding to the seen axioms of a given machine root. This is done by
 	 * looking at the statically checked version of the machine.
 	 * 
-	 * @param mch
+	 * @param mchRoot
 	 *            a machine root.
-	 * @param flag
+	 * @param isTheorem
 	 *            the flag to indicate either only axioms or theorems or both
 	 *            must be selected. See {@link #AXIOMS} and {@link #THEOREMS}.
 	 * @return the map of seen axioms of the input machine. Each axiom is a map
@@ -65,37 +61,31 @@ public final class EventBSCUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
 	 */
-	public static Map<String, Predicate> getSeenAxioms(IMachineRoot mch,
-			int flag) throws RodinDBException {
-		Map<String, Predicate> result = new HashMap<String, Predicate>();
+	public static Map<String, String> getSCSeenAxioms(
+			IMachineRoot mchRoot, boolean isTheorem)
+			throws RodinDBException {
+		Map<String, String> result = new HashMap<String, String>();
 
-		if (mch == null)
+		if (mchRoot == null)
 			return result;
 
-		// Get the statically checked version of the machine root and test if it
-		// exists.
-		ISCMachineRoot scMachineRoot = mch.getSCMachineRoot();
-		if (!scMachineRoot.exists())
-			return result;
-
+		ISCMachineRoot scMchRoot = mchRoot.getSCMachineRoot();
+		
 		// Get the list of seen contexts.
-		ISCInternalContext[] scSeenContexts = scMachineRoot.getSCSeenContexts();
+		ISCInternalContext[] scSeenContexts = scMchRoot.getSCSeenContexts();
 
 		// Add the axioms from each seen context to the result.
 		for (ISCInternalContext scSeenContext : scSeenContexts) {
 			ISCAxiom[] scAxioms = scSeenContext.getSCAxioms();
 			for (ISCAxiom scAxiom : scAxioms) {
-				int internalFlag = scAxiom.isTheorem() ? THEOREMS : AXIOMS;
-
-				if ((internalFlag & flag) != 0) {
-					// IMPORTANT: GET THE PREDICATE STRING AND PARSE IT TO
-					// HAVE A CLEAR THE TYPE ENVIRONMENT. THIS ALLOWS THE
-					// SUBTITUTIONS LATTER ON.
+				
+				if (scAxiom.isTheorem() == isTheorem) {
 					String key = scSeenContext.getElementName() + "/"
 							+ scAxiom.getLabel();
-					Predicate value = DLib.mDLib(FormulaFactory.getDefault())
-							.parsePredicate(scAxiom.getPredicateString());
-					result.put(key, value);
+					IRodinElement source = scAxiom.getSource();
+					assert (source instanceof IAxiom);
+					IAxiom axiom = (IAxiom) source;
+					result.put(key, axiom.getPredicateString());
 				}
 			}
 		}
@@ -134,12 +124,21 @@ public final class EventBSCUtils {
 
 		// Get the statically checked version of the machine root and test if it
 		// exists.
-		ISCMachineRoot scMachineRoot = mch.getSCMachineRoot();
-		if (!scMachineRoot.exists())
+		ISCMachineRoot scMchRoot = mch.getSCMachineRoot();
+		return getSCSeenElementIdentifierStrings(scMchRoot, type);
+	}
+
+	private static Collection<String> getSCSeenElementIdentifierStrings(
+			ISCMachineRoot scMchRoot,
+			IInternalElementType<? extends ISCIdentifierElement> type)
+			throws RodinDBException {
+		Collection<String> result = new ArrayList<String>();
+
+		if (scMchRoot == null)
 			return result;
 
 		// Get the list of seen contexts.
-		ISCInternalContext[] scSeenContexts = scMachineRoot.getSCSeenContexts();
+		ISCInternalContext[] scSeenContexts = scMchRoot.getSCSeenContexts();
 
 		// Add the constants and carrier sets from each seen context to the
 		// result.
@@ -152,7 +151,7 @@ public final class EventBSCUtils {
 		}
 		return result;
 	}
-
+	
 	/**
 	 * Utility method for getting the collection of statically checked seen
 	 * carrier set identifier strings of a given machine by looking at the
@@ -174,6 +173,12 @@ public final class EventBSCUtils {
 				ISCCarrierSet.ELEMENT_TYPE);
 	}
 
+	public static Collection<String> getSCSeenCarrierSetIdentifierStrings(
+			ISCMachineRoot mch) throws RodinDBException {
+		return getSCSeenElementIdentifierStrings(mch,
+				ISCCarrierSet.ELEMENT_TYPE);
+	}
+	
 	/**
 	 * Utility method for getting the collection of statically checked seen
 	 * constant identifier strings of a given machine by looking at the
@@ -194,4 +199,9 @@ public final class EventBSCUtils {
 		return getSCSeenElementIdentifierStrings(mch, ISCConstant.ELEMENT_TYPE);
 	}
 
+	public static Collection<String> getSCSeenConstantIdentifierStrings(
+			ISCMachineRoot mch) throws RodinDBException {
+		return getSCSeenElementIdentifierStrings(mch, ISCConstant.ELEMENT_TYPE);
+	}
+	
 }

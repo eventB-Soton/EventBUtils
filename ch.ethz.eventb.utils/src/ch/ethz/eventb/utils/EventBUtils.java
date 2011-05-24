@@ -20,6 +20,7 @@ import org.eventb.core.IAction;
 import org.eventb.core.IAxiom;
 import org.eventb.core.IConfigurationElement;
 import org.eventb.core.IContextRoot;
+import org.eventb.core.IConvergenceElement.Convergence;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
 import org.eventb.core.IExtendsContext;
@@ -30,7 +31,6 @@ import org.eventb.core.IParameter;
 import org.eventb.core.IRefinesMachine;
 import org.eventb.core.ISeesContext;
 import org.eventb.core.IVariable;
-import org.eventb.core.IConvergenceElement.Convergence;
 import org.rodinp.core.IInternalElement;
 import org.rodinp.core.IRodinDB;
 import org.rodinp.core.IRodinFile;
@@ -518,6 +518,18 @@ public final class EventBUtils {
 		act.setLabel(label, subMonitor.newChild(1));
 		act.setAssignmentString(assignment, subMonitor.newChild(1));
 		return act;
+	}
+
+	public static IEvent getEvent(IMachineRoot mchRoot, String evtLabel)
+			throws RodinDBException {
+		if (mchRoot == null)
+			return null;
+		IEvent[] evts = mchRoot.getEvents();
+		for (IEvent evt : evts) {
+			if (evt.getLabel().equals(evtLabel))
+				return evt;
+		}
+		return null;
 	}
 
 }
