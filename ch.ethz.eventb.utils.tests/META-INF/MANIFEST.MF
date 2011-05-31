@@ -3,9 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: ch.ethz.eventb.utils.tests
 Bundle-Localization: plugin
-Bundle-Version: 0.0.1.qualifier
+Bundle-Version: 0.1.1.qualifier
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: ch.ethz.eventb.utils,
- org.junit4;visibility:=reexport
+ org.junit4;visibility:=reexport,
+ org.eclipse.core.runtime;bundle-version="3.6.0",
+ org.eventb.core;bundle-version="2.2.0"
 Export-Package: ch.ethz.eventb.utils.tests

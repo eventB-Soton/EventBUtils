@@ -1,6 +1,7 @@
 package ch.ethz.eventb.internal.utils.tests;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+
 import org.eventb.core.IAction;
 import org.eventb.core.IAxiom;
 import org.eventb.core.IContextRoot;
@@ -11,6 +12,7 @@ import org.eventb.core.IGuard;
 import org.eventb.core.IInvariant;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.IParameter;
+import org.eventb.core.IRefinesMachine;
 import org.eventb.core.ISeesContext;
 import org.eventb.core.IVariable;
 import org.eventb.core.IConvergenceElement.Convergence;
@@ -19,6 +21,7 @@ import org.rodinp.core.IInternalElement;
 import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.utils.EventBUtils;
+import ch.ethz.eventb.utils.tests.ChannelSetupTests;
 
 public class EventBUtilsTests extends ChannelSetupTests {
 
@@ -46,15 +49,21 @@ public class EventBUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testCreateContext() {
 		try {
-			IContextRoot ctx = EventBUtils.createContext(channelPrj, "axioms",
+			IContextRoot ctx = EventBUtils.createContext(channelPrj, "ctx",
 					monitor);
 			String actualName = ctx.getElementName();
-			String expectedName = "axioms";
-			assertEquals("Incorect context name", expectedName, actualName);
-			ctx = EventBUtils.createContext(channelPrj, "axioms", monitor);
+			String expectedName = "ctx";
+			assertEquals("Incorect context name 1", expectedName, actualName);
+
+			ctx = EventBUtils.createContext(channelPrj, "ctx", monitor);
 			actualName = ctx.getElementName();
-			expectedName = "axioms_0";
-			assertEquals("Incorect context name", expectedName, actualName);
+			expectedName = "ctx_0";
+			assertEquals("Incorect context name 2", expectedName, actualName);
+			
+			ctx = EventBUtils.createContext(channelPrj, "ctx", monitor);
+			actualName = ctx.getElementName();
+			expectedName = "ctx_1";
+			assertEquals("Incorect context name 3", expectedName, actualName);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -62,6 +71,35 @@ public class EventBUtilsTests extends ChannelSetupTests {
 		}
 	}
 
+	/**
+	 * Test method for
+	 * {@link EventBUtils#createMachine(IEventBProject, String, IProgressMonitor)}.
+	 */
+	@Test
+	public void testCreateMachine() {
+		try {
+			IMachineRoot mchRoot = EventBUtils.createMachine(channelPrj, "mch",
+					monitor);
+			String actualName = mchRoot.getElementName();
+			String expectedName = "mch";
+			assertEquals("Incorect machine name", expectedName, actualName);
+			
+			mchRoot = EventBUtils.createMachine(channelPrj, "mch", monitor);
+			actualName = mchRoot.getElementName();
+			expectedName = "mch_0";
+			assertEquals("Incorect machine name", expectedName, actualName);
+			
+			mchRoot = EventBUtils.createMachine(channelPrj, "mch", monitor);
+			actualName = mchRoot.getElementName();
+			expectedName = "mch_1";
+			assertEquals("Incorect machine name", expectedName, actualName);
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+			fail("There should be no exception");
+			return;
+		}
+	}
+	
 	/**
 	 * Test method for
 	 * {@link EventBUtils#createExtendsClause(IContextRoot, String, IInternalElement, IProgressMonitor)}.
@@ -116,6 +154,31 @@ public class EventBUtilsTests extends ChannelSetupTests {
 		}
 	}
 
+	/**
+	 * Test method for
+	 * {@link EventBUtils#createRefinesClause(IMachineRoot, String, IInternalElement, IProgressMonitor)}.
+	 */
+	@Test
+	public void testCreateRefinesClause() {
+		try {
+			IRefinesMachine refClause = EventBUtils.createRefinesClause(
+					channelMchRoot, "mch", null, monitor);
+			testMachineRefinesClauses("Create REFINES clause 1",
+					channelMchRoot, "mch");
+			testRefinesClause("Create REFINES clause 1", refClause, "mch");
+
+			refClause = EventBUtils.createRefinesClause(EOMchRoot, "mch", null,
+					monitor);
+			testMachineRefinesClauses("Create REFINES clause 2",
+					EOMchRoot, "channel", "mch");
+			testRefinesClause("Create REFINES clause 2", refClause, "mch");
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+			fail("There should be no exception");
+			return;
+		}
+	}
+	
 	/**
 	 * Test method for
 	 * {@link EventBUtils#createSeesClause(IMachineRoot, String, IInternalElement, IProgressMonitor)}.
@@ -278,6 +341,27 @@ public class EventBUtilsTests extends ChannelSetupTests {
 					"act3:receiveds(r_count + 1) ≔ idx",
 					"act4:s_count ≔ s_count + 1");
 			testAction("Create action 2", act, "act4:s_count ≔ s_count + 1");
+		} catch (RodinDBException e) {
+			e.printStackTrace();
+			fail("There should be no exception");
+			return;
+		}
+	}
+
+	/**
+	 * Test method for {@link EventBUtils#getEvent(IMachineRoot, String)}.
+	 */
+	@Test
+	public void testGetEvent() {
+		try {
+			IEvent evt = EventBUtils.getEvent(channelMchRoot, "evt");
+			assertNull("Test get event 1", evt);
+			
+			evt = EventBUtils.getEvent(channelMchRoot, "sends");
+			assertEquals("Test get event 2", channel_sends, evt);
+			
+			evt = EventBUtils.getEvent(EOMchRoot, "receives");
+			assertEquals("Test get event 3", EO_receives, evt);
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");

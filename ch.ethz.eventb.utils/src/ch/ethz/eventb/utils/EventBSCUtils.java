@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.Assert;
 import org.eventb.core.IAxiom;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.ISCAxiom;
@@ -26,10 +27,11 @@ import org.eventb.core.ISCConstant;
 import org.eventb.core.ISCIdentifierElement;
 import org.eventb.core.ISCInternalContext;
 import org.eventb.core.ISCMachineRoot;
-import org.eventb.core.ast.Predicate;
 import org.rodinp.core.IInternalElementType;
 import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
+
+import ch.ethz.eventb.internal.utils.Messages;
 
 /**
  * @author htson
@@ -45,31 +47,41 @@ public final class EventBSCUtils {
 	}
 
 	/**
-	 * Returns a map from label (String) to predicate ({@link Predicate})
-	 * corresponding to the seen axioms of a given machine root. This is done by
-	 * looking at the statically checked version of the machine.
+	 * Returns a map from label (String) to predicate string (String)
+	 * corresponding to the seen axioms of an EXISTING machine root. This is
+	 * done by checking the statically checked version of the machine (as a
+	 * result, the statically checked version must exist).
 	 * 
 	 * @param mchRoot
 	 *            a machine root.
 	 * @param isTheorem
-	 *            the flag to indicate either only axioms or theorems or both
-	 *            must be selected. See {@link #AXIOMS} and {@link #THEOREMS}.
+	 *            the flag to indicate either only axioms or theorems can be
+	 *            selected.
 	 * @return the map of seen axioms of the input machine. Each axiom is a map
-	 *         from a label to a predicate. The label is composed of the name of
-	 *         the machine and the original label of the axiom with
-	 *         <code>/</code> in between.
+	 *         from a label to a predicate string. The label is composed of the
+	 *         name of the context and the original label of the axiom separated
+	 *         by <code>/</code>. The predicate string is the source string
+	 *         presented in the unchecked version of the context. There is no
+	 *         guarantee on the order under which the axioms are sorted.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
 	 */
 	public static Map<String, String> getSCSeenAxioms(
 			IMachineRoot mchRoot, boolean isTheorem)
 			throws RodinDBException {
-		Map<String, String> result = new HashMap<String, String>();
-
-		if (mchRoot == null)
-			return result;
-
+		// Assert preconditions.
+		Assert.isNotNull(mchRoot, Messages.error_NullMachine);
+		Assert.isTrue(mchRoot.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mchRoot.getRodinFile()
+						.getBareName()));
 		ISCMachineRoot scMchRoot = mchRoot.getSCMachineRoot();
+		Assert.isNotNull(scMchRoot, Messages.error_NullSCMachine);
+		Assert.isTrue(scMchRoot.exists(), Messages.bind(
+				Messages.error_NonExistingSCMachine, scMchRoot.getRodinFile()
+						.getBareName()));
+
+		// Empty result.
+		Map<String, String> result = new HashMap<String, String>();
 		
 		// Get the list of seen contexts.
 		ISCInternalContext[] scSeenContexts = scMchRoot.getSCSeenContexts();
@@ -83,7 +95,10 @@ public final class EventBSCUtils {
 					String key = scSeenContext.getElementName() + "/"
 							+ scAxiom.getLabel();
 					IRodinElement source = scAxiom.getSource();
-					assert (source instanceof IAxiom);
+					Assert.isTrue(
+							source instanceof IAxiom,
+							Messages.bind(Messages.error_NotAnAxiom,
+									source.getElementName()));
 					IAxiom axiom = (IAxiom) source;
 					result.put(key, axiom.getPredicateString());
 				}
@@ -95,47 +110,72 @@ public final class EventBSCUtils {
 
 	}
 
-	/*
+	/**
 	 * Utility method for getting the collection of statically checked seen
-	 * element (e.g. carrier set or constant) identifier strings of a given
-	 * machine by looking at the statically checked version of the machine.
+	 * element (e.g. carrier set or constant) identifier strings of an EXISTING
+	 * machine by checking the statically checked version of the machine.
 	 * 
-	 * @param mch
+	 * @param mchRoot
 	 *            the input machine root.
 	 * 
 	 * @param type
 	 *            the statically checked element type
 	 * 
 	 * @return the collection of statically checked seen element identifier
-	 *         strings. Return an empty collection if the statically checked
-	 *         version of the machine does not exist.
-	 * 
+	 *         strings. There is no guarantee on the order under which the
+	 *         identifiers are sorted.
+	 * @see #getSCSeenElementIdentifierStrings(ISCMachineRoot,
+	 *      IInternalElementType).
 	 * @throws RodinDBException
 	 *             if there was a problem accessing the database.
 	 */
 	private static Collection<String> getSCSeenElementIdentifierStrings(
-			IMachineRoot mch,
+			IMachineRoot mchRoot,
 			IInternalElementType<? extends ISCIdentifierElement> type)
 			throws RodinDBException {
-		Collection<String> result = new ArrayList<String>();
+		// Assert preconditions.
+		Assert.isNotNull(mchRoot, Messages.error_NullMachine);
+		Assert.isTrue(mchRoot.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mchRoot.getRodinFile()
+						.getBareName()));
+		ISCMachineRoot scMchRoot = mchRoot.getSCMachineRoot();
+		Assert.isNotNull(scMchRoot, Messages.error_NullSCMachine);
+		Assert.isTrue(scMchRoot.exists(), Messages.bind(
+				Messages.error_NonExistingSCMachine, scMchRoot.getRodinFile()
+						.getBareName()));
 
-		if (mch == null)
-			return result;
-
-		// Get the statically checked version of the machine root and test if it
-		// exists.
-		ISCMachineRoot scMchRoot = mch.getSCMachineRoot();
+		// Get the seen element identifier strings of the statically checked
+		// version.
 		return getSCSeenElementIdentifierStrings(scMchRoot, type);
 	}
 
+	/**
+	 * Utility method for getting the collection of statically checked seen
+	 * element (e.g. carrier set or constant) identifier strings of an EXISTING
+	 * statically checked machine.
+	 * 
+	 * @param mchRoot
+	 *            the input statically checked machine root.
+	 * 
+	 * @param type
+	 *            the statically checked element type
+	 * 
+	 * @return the collection of statically checked seen element identifier
+	 *         strings. There is no guarantee on the order under which the
+	 *         identifiers are sorted.
+	 * @throws RodinDBException
+	 *             if there was a problem accessing the database.
+	 */
 	private static Collection<String> getSCSeenElementIdentifierStrings(
 			ISCMachineRoot scMchRoot,
 			IInternalElementType<? extends ISCIdentifierElement> type)
 			throws RodinDBException {
+		// Assert preconditions.
+		Assert.isNotNull(scMchRoot, Messages.error_NullSCMachine);
+		Assert.isTrue(scMchRoot.exists(), Messages.bind(
+				Messages.error_NonExistingSCMachine, scMchRoot.getRodinFile()
+						.getBareName()));
 		Collection<String> result = new ArrayList<String>();
-
-		if (scMchRoot == null)
-			return result;
 
 		// Get the list of seen contexts.
 		ISCInternalContext[] scSeenContexts = scMchRoot.getSCSeenContexts();
@@ -149,20 +189,22 @@ public final class EventBSCUtils {
 				result.add(seenElm.getIdentifierString());
 			}
 		}
+		
 		return result;
 	}
-	
+
 	/**
 	 * Utility method for getting the collection of statically checked seen
-	 * carrier set identifier strings of a given machine by looking at the
-	 * statically checked version of the machine.
+	 * carrier set identifier strings of an EXISTING machine by looking at the
+	 * statically checked version of the machine (as a result, the statically
+	 * checked version must exist).
 	 * 
 	 * @param mch
 	 *            the input machine root.
 	 * 
 	 * @return the collection of statically checked seen carrier set identifier
-	 *         strings. Return an empty collection if the statically checked
-	 *         version of the machine does not exist.
+	 *         strings. There is no guarantee on the order under which the
+	 *         identifiers are sorted.
 	 * 
 	 * @throws RodinDBException
 	 *             if there was a problem accessing the database.
@@ -173,23 +215,38 @@ public final class EventBSCUtils {
 				ISCCarrierSet.ELEMENT_TYPE);
 	}
 
+	/**
+	 * Utility method for getting the collection of statically checked seen
+	 * carrier set identifier strings of an EXISTING statically checked machine.
+	 * 
+	 * @param mch
+	 *            the input machine root.
+	 * 
+	 * @return the collection of statically checked seen carrier set identifier
+	 *         strings. There is no guarantee on the order under which the
+	 *         identifiers are sorted.
+	 * 
+	 * @throws RodinDBException
+	 *             if there was a problem accessing the database.
+	 */
 	public static Collection<String> getSCSeenCarrierSetIdentifierStrings(
 			ISCMachineRoot mch) throws RodinDBException {
 		return getSCSeenElementIdentifierStrings(mch,
 				ISCCarrierSet.ELEMENT_TYPE);
 	}
-	
+
 	/**
 	 * Utility method for getting the collection of statically checked seen
-	 * constant identifier strings of a given machine by looking at the
-	 * statically checked version of the machine.
+	 * constant identifier strings of an EXISTING machine by looking at the
+	 * statically checked version of the machine (as a result, the statically
+	 * checked version must exist).
 	 * 
 	 * @param mch
 	 *            the input machine root.
 	 * 
 	 * @return the collection of statically checked seen constant identifier
-	 *         strings. Return an empty collection if the statically checked
-	 *         version of the machine does not exist.
+	 *         strings. There is no guarantee on the order under which the
+	 *         identifiers are sorted.
 	 * 
 	 * @throws RodinDBException
 	 *             if there was a problem accessing the database.
@@ -199,6 +256,20 @@ public final class EventBSCUtils {
 		return getSCSeenElementIdentifierStrings(mch, ISCConstant.ELEMENT_TYPE);
 	}
 
+	/**
+	 * Utility method for getting the collection of statically checked seen
+	 * constant identifier strings of an EXISTING statically checked machine.
+	 * 
+	 * @param mch
+	 *            the input machine root.
+	 * 
+	 * @return the collection of statically checked seen constant identifier
+	 *         strings. There is no guarantee on the order under which the
+	 *         identifiers are sorted.
+	 * 
+	 * @throws RodinDBException
+	 *             if there was a problem accessing the database.
+	 */
 	public static Collection<String> getSCSeenConstantIdentifierStrings(
 			ISCMachineRoot mch) throws RodinDBException {
 		return getSCSeenElementIdentifierStrings(mch, ISCConstant.ELEMENT_TYPE);

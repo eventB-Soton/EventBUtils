@@ -1,6 +1,5 @@
 /*******************************************************************************
  * Copyright (c) 2009,2011 ETH Zurich and others.
-
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,12 +11,6 @@
  *******************************************************************************/
 
 package ch.ethz.eventb.utils.tests;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
-import junit.framework.TestCase;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -35,7 +28,6 @@ import org.eventb.core.IConfigurationElement;
 import org.eventb.core.IConstant;
 import org.eventb.core.IContextRoot;
 import org.eventb.core.IConvergenceElement.Convergence;
-import org.eventb.core.ast.FormulaFactory;
 import org.eventb.core.IEvent;
 import org.eventb.core.IEventBProject;
 import org.eventb.core.IExtendsContext;
@@ -48,6 +40,7 @@ import org.eventb.core.IRefinesMachine;
 import org.eventb.core.ISeesContext;
 import org.eventb.core.IVariable;
 import org.eventb.core.IWitness;
+import org.eventb.core.ast.FormulaFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.rodinp.core.IRodinFile;
@@ -62,10 +55,10 @@ import org.rodinp.internal.core.debug.DebugHelpers;
  *         Abstract class for Event-B tests.
  *         </p>
  */
-public abstract class AbstractEventBTests extends TestCase {
+public abstract class AbstractEventBTests extends AbstractTests {
 
 	/**
-	 * The progress monitor.
+	 * The null progress monitor. 
 	 */
 	protected static final IProgressMonitor monitor = new NullProgressMonitor();
 
@@ -133,29 +126,6 @@ public abstract class AbstractEventBTests extends TestCase {
 		super.tearDown();
 	}
 
-	/**
-	 * Utility method for getting an event with a specific label of a machine.
-	 * 
-	 * @param mch
-	 *            the input machine root.
-	 * @param label
-	 *            the label of the event.
-	 * @return the event in the input machine with given label or
-	 *         <code>null</code> if cannot be found.
-	 * @throws RodinDBException
-	 *             if a problem occurs while accessing the database.
-	 */
-	protected IEvent getEventWithLabel(IMachineRoot mch, String label)
-			throws RodinDBException {
-		IEvent[] evts = mch.getEvents();
-		for (IEvent evt : evts) {
-			if (evt.getLabel().equals(label)) {
-				return evt;
-			}
-		}
-		return null;
-	}
-	
 	// =========================================================================
 	// Utility methods for creating various Event-B elements.
 	// =========================================================================
@@ -1276,96 +1246,5 @@ public abstract class AbstractEventBTests extends TestCase {
 			return;
 		}
 	}
-
-	/**
-	 * Utility method to compare two string collections.
-	 * 
-	 * @param msg
-	 *            a message
-	 * @param actual
-	 *            actual set of strings.
-	 * @param expected
-	 *            expected array of strings.
-	 */
-	protected static void assertSameStrings(String msg,
-			Collection<String> actual, String... expected) {
-		assertEquals(msg + ": Incorrect number of elements\n", expected.length,
-				actual.size());
-		for (String exp : expected) {
-			assertTrue(msg + ": Expected element " + exp + " not found",
-					actual.contains(exp));
-		}
-	}
-
-
-	protected static void assertSameStrings(String msg, String[] actual,
-			String... expected) {
-		assertEquals(msg + ": Incorrect number of strings\n", expected.length,
-				actual.length);
-		for (int i = 0; i < expected.length; i++) {
-			assertEquals(msg, expected[i], actual[i]);
-		}
-	}
-
-	protected static void assertSameObjects(String msg, Object[] expected,
-			Object[] actual) {
-		assertEquals(msg + ": Incorrect number of objects\n", expected.length,
-				actual.length);
-		for (int i = 0; i < expected.length; i++) {
-			assertEquals(msg, expected[i], actual[i]);
-		}
-	}
-
-	/**
-	 * Utility method to compare a collection of identifier elements and an
-	 * array of string.
-	 * 
-	 * @param message
-	 *            a message.
-	 * @param type
-	 *            the element type.
-	 * @param elements
-	 *            actual set of identifier elements.
-	 * @param expected
-	 *            expected array of identifiers.
-	 */
-//	protected void assertIdentifierElements(String message, String type,
-//			Collection<IRodinElement> elements, String... expected) {
-//		Collection<String> actual = new ArrayList<String>(elements.size());
-//		for (IRodinElement element : elements) {
-//			try {
-//				assertTrue("The element should be an identifier element",
-//						element instanceof IIdentifierElement);
-//				actual
-//						.add(((IIdentifierElement) element)
-//								.getIdentifierString());
-//			} catch (RodinDBException e) {
-//				fail("There should be no exception");
-//			}
-//		}
-//		assertSameStrings(message, "identfier element", actual, expected);
-//	}
-
-
-	protected void assertSameMap(String msg,
-			Map<? extends Object, ? extends Object> expected,
-			Map<? extends Object, ? extends Object> actual) {
-		Set<? extends Object> expectedKeySet = expected.keySet();
-		Set<? extends Object> actualKeySet = actual.keySet();
-		assertSameSet(msg, expectedKeySet, actualKeySet);
-		for (Object key : expectedKeySet) {
-			assertEquals(msg, expected.get(key), actual.get(key));
-		}
-	}
-
-	private void assertSameSet(String msg, Set<? extends Object> expected,
-			Set<? extends Object> actual) {
-		assertEquals(msg + ": The number of elements must be the same",
-				expected.size(), actual.size());
-		for (Object elm : expected) {
-			assertTrue(msg + ": expected element " + elm + " not found",
-					actual.contains(elm));
-		}
-	} 
 
 }

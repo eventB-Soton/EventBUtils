@@ -8,7 +8,7 @@
  * Contributors:
  *     ETH Zurich - initial API and implementation
  *******************************************************************************/
-package ch.ethz.eventb.internal.utils.tests;
+package ch.ethz.eventb.utils.tests;
 
 import org.eventb.core.IAction;
 import org.eventb.core.IAxiom;
@@ -25,7 +25,6 @@ import org.eventb.core.IVariable;
 import org.eventb.core.IWitness;
 import org.junit.Before;
 
-import ch.ethz.eventb.utils.tests.AbstractEventBTests;
 
 /**
  * @author htson
@@ -40,14 +39,14 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 	 * Some predefined projects.
 	 */
 	String channelPrjName = "Channel";
-	IEventBProject channelPrj;
+	protected IEventBProject channelPrj;
 	
 	/**
 	 * Some predefined contexts:
 	 * - message_ctx, size_ctx in channelPrj.
 	 */
 	String messageCtxName = "message_ctx";
-	IContextRoot message_ctx;
+	protected IContextRoot message_ctx;
 
 	String sizeCtxName = "size_ctx";
 	IContextRoot size_ctx;
@@ -76,13 +75,13 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 	 * - channel, EO, EOIO in project basedPrj.
 	 */
 	String channelMchName = "channel";
-	IMachineRoot channelMchRoot;
+	protected IMachineRoot channelMchRoot;
 	
 	String EOMchName = "EO";
-	IMachineRoot EOMchRoot;
+	protected IMachineRoot EOMchRoot;
 
 	String EOIOMchName = "EOIO";
-	IMachineRoot EOIOMchRoot;
+	protected IMachineRoot EOIOMchRoot;
 	
 	/**
 	 * Some variables.
@@ -153,7 +152,7 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 	 */
 	IEvent channel_init;
 	
-	IEvent channel_sends;
+	protected IEvent channel_sends;
 
 	IEvent channel_receives;
 
@@ -161,7 +160,7 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 	
 	IEvent EO_sends;
 
-	IEvent EO_receives;
+	protected IEvent EO_receives;
 
 	IEvent EOIO_init;
 	

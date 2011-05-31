@@ -40,12 +40,12 @@ import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.internal.utils.Messages;
 
-
 /**
  * @author htson
  *         <p>
  *         Utility class containing some useful methods to handle Event-B
- *         elements (<i>e.g.</i> Event-B projects, machines, contexts).
+ *         unchecked elements (<i>e.g.</i> Event-B projects, machines,
+ *         contexts).
  *         </p>
  */
 public final class EventBUtils {
@@ -79,53 +79,71 @@ public final class EventBUtils {
 
 	/**
 	 * Utility method to create a new context (*.buc) within an existing
-	 * project. The name of the new context is chosen with the specified prefix
-	 * so that there is no existing component with the same bare-name. The
-	 * default configuration is associated with the new context.
+	 * project. The name of the new context is chosen with the specified
+	 * bare-name by adding some suffix so that there is no existing component
+	 * with the same bare-name. The default configuration is associated with the
+	 * new context.
 	 * 
 	 * @param prj
 	 *            The Event-B project.
-	 * @param prefix
-	 *            Prefix for the new context name.
+	 * @param barename
+	 *            Intended bare-name for the new context.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
 	 *            user. It is the caller's responsibility to call done() on the
 	 *            given monitor. Accepts <code>null</code>, indicating that no
 	 *            progress should be reported and that the operation cannot be
 	 *            cancelled.
-	 * @return the handle to newly created context.
+	 * @return the handle to the newly created context.
 	 * @throws RodinDBException
 	 *             if there are problems accessing the database.
 	 */
-	public static IContextRoot createContext(IEventBProject prj, String prefix,
-			IProgressMonitor monitor) throws RodinDBException {
-		final SubMonitor subMonitor = SubMonitor.convert(monitor,
-				Messages.createContext, 3);
+	public static IContextRoot createContext(IEventBProject prj,
+			String barename, IProgressMonitor monitor) throws RodinDBException {
+		// Assert prediconditions.
+		Assert.isNotNull(prj, Messages.error_NullProject);
+		Assert.isTrue(prj.getRodinProject().exists(),
+				Messages.bind(Messages.error_NonExistingProject, prj));
 
-		String name = getFreeComponentName(prj, prefix, subMonitor.newChild(1));
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateContext, 3);
 
+		// 1. Get a free component name by appending some suffix.
+		subMonitor.subTask(Messages.progress_GetFreeComponentName);
+		String name = getFreeComponentName(prj, barename,
+				subMonitor.newChild(1));
 		IRodinFile context = prj.getContextFile(name);
-		Assert.isTrue(!context.exists(), Messages.bind(
-				Messages.error_existingcontext, context));
+		Assert.isNotNull(context, Messages.error_NullContext);
+		Assert.isTrue(
+				!context.exists(),
+				Messages.bind(Messages.error_ExistingContext,
+						context.getBareName()));
 
+		// 2. Create the context.
+		subMonitor.subTask(Messages.progress_CreateContextFile);
 		context.create(false, subMonitor.newChild(1));
 		IContextRoot root = (IContextRoot) context.getRoot();
 
+		// 3. Set default configuration.
+		subMonitor.subTask(Messages.progress_SetDefaultConfiguration);
 		root.setConfiguration(IConfigurationElement.DEFAULT_CONFIGURATION,
 				subMonitor.newChild(1));
+
 		return root;
 	}
 
 	/**
 	 * Utility method to create a new machine (*.bum) within an existing
-	 * project. The name of the new machine is chosen with the specified prefix
-	 * so that there is no existing component with the same bare-name. The
-	 * default configuration is associated with the new machine.
+	 * project. The name of the new machine is chosen with the specified
+	 * bare-name by appending some suffix so that there is no existing component
+	 * with the same bare-name. The default configuration is associated with the
+	 * new machine.
 	 * 
 	 * @param prj
 	 *            The Event-B project.
-	 * @param prefix
-	 *            Prefix for the new machine name.
+	 * @param barename
+	 *            The intended bare-name for the new machine.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
 	 *            user. It is the caller's responsibility to call done() on the
@@ -136,74 +154,111 @@ public final class EventBUtils {
 	 * @throws RodinDBException
 	 *             if there are problems accessing the database.
 	 */
-	public static IMachineRoot createMachine(IEventBProject prj, String prefix,
-			IProgressMonitor monitor) throws RodinDBException {
-		final SubMonitor subMonitor = SubMonitor.convert(monitor,
-				Messages.createContext, 3);
+	public static IMachineRoot createMachine(IEventBProject prj,
+			String barename, IProgressMonitor monitor) throws RodinDBException {
+		// Assert preconditions.
+		Assert.isNotNull(prj, Messages.error_NullProject);
+		Assert.isTrue(prj.getRodinProject().exists(),
+				Messages.bind(Messages.error_NonExistingProject, prj));
 
-		String name = getFreeComponentName(prj, prefix, subMonitor.newChild(1));
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateMachine, 3);
 
+		// 1. Get a free component name by appending some suffix.
+		subMonitor.subTask(Messages.progress_GetFreeComponentName);
+		String name = getFreeComponentName(prj, barename,
+				subMonitor.newChild(1));
 		IRodinFile machine = prj.getMachineFile(name);
-		Assert.isTrue(!machine.exists(), Messages.bind(
-				Messages.error_existingmachine, machine));
+		Assert.isNotNull(machine, Messages.error_NullMachine);
+		Assert.isTrue(!machine.exists(),
+				Messages.bind(Messages.error_ExistingMachine, machine));
 
+		// 2. Create the machine.
+		subMonitor.subTask(Messages.progress_CreateMachineFile);
 		machine.create(false, subMonitor.newChild(1));
 		IMachineRoot root = (IMachineRoot) machine.getRoot();
 
+		// 3. Set default configuration.
+		subMonitor.subTask(Messages.progress_SetDefaultConfiguration);
 		root.setConfiguration(IConfigurationElement.DEFAULT_CONFIGURATION,
 				subMonitor.newChild(1));
 		return root;
 	}
 
-	/*
+	/**
 	 * Get a free component name within a project. A component name is free when
-	 * there are no machine or context with the same name already existed.
+	 * there are no existing machine or context with the same name.
 	 * 
-	 * @param prj an Event-B project.
+	 * @param prj
+	 *            an Event-B project.
 	 * 
-	 * @param monitor a progress monitor.
+	 * @param monitor
+	 *            a progress monitor or <code>null</code> indicating no need for
+	 *            progress reporting.
 	 * 
 	 * @return a free component name with a project.
 	 */
 	private static String getFreeComponentName(IEventBProject prj,
 			String prefix, IProgressMonitor monitor) {
+		if (monitor != null)
+			monitor.beginTask(Messages.progress_GetFreeComponentName, 1);
 		int index = 0;
 		String name = prefix;
-		while (checkFreeComponentName(prj, name, monitor)) {
-			name = prefix + "_" + index;
+		while (!checkFreeComponentName(prj, name, monitor)) {
+			name = prefix + "_" + index; //$NON-NLS-1$
 			index++;
+		}
+		if (monitor != null) {
+			monitor.worked(1);
+			monitor.done();
 		}
 		return name;
 	}
 
-	/*
+	/**
 	 * Check if a component name is a free to be used within a project.
 	 * 
-	 * @param prj an Event-B project
+	 * @param prj
+	 *            an Event-B project
 	 * 
-	 * @param name a given component name.
+	 * @param name
+	 *            a given component name.
 	 * 
-	 * @param monitor a progress monitor.
+	 * @param monitor
+	 *            the progress monitor to use for reporting progress to the
+	 *            user. It is the caller's responsibility to call done() on the
+	 *            given monitor. Accepts <code>null</code>, indicating that no
+	 *            progress should be reported and that the operation cannot be
+	 *            cancelled.
 	 * 
-	 * @return <code>true</code> if the component name is NOT free,
-	 * <code>false</code> otherwise.
+	 * @return <code>true</code> if the component name is free,
+	 *         <code>false</code> otherwise.
 	 */
 	private static boolean checkFreeComponentName(IEventBProject prj,
 			String name, IProgressMonitor monitor) {
+
+		if (monitor != null)
+			monitor.beginTask(Messages.progress_GetFreeComponentName, 1);
+		boolean result = true;
 		IRodinFile contextFile = prj.getContextFile(name);
 		if (contextFile.exists())
-			return true;
-
-		IRodinFile machineFile = prj.getMachineFile(name);
-		if (machineFile.exists())
-			return true;
-
-		return false;
+			result = false;
+		else {
+			IRodinFile machineFile = prj.getMachineFile(name);
+			if (machineFile.exists())
+				result = false;
+		}
+		if (monitor != null) {
+			monitor.worked(1);
+			monitor.done();
+		}
+		return result;
 	}
 
 	/**
-	 * Creates a new Extends Context clause with the given context name, in the
-	 * given context root.
+	 * Creates a new Extends Context clause with the given abstract context
+	 * name, in an EXISTING context root.
 	 * 
 	 * @param ctx
 	 *            a context root
@@ -214,32 +269,43 @@ public final class EventBUtils {
 	 *            <code>null</code> to create it at the last position
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database
 	 */
 	public static IExtendsContext createExtendsClause(IContextRoot ctx,
 			String absCtxName, IInternalElement nextSibling,
 			IProgressMonitor monitor) throws RodinDBException {
-		final SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-		final IExtendsContext extendCtx = ctx.createChild(
-				IExtendsContext.ELEMENT_TYPE, nextSibling, subMonitor
-						.newChild(1));
+		// Assert preconditions.
+		Assert.isNotNull(ctx, Messages.error_NullContext);
+		Assert.isTrue(ctx.exists(), Messages.bind(
+				Messages.error_NonExistingContext, ctx.getRodinFile()
+						.getBareName()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateExtendsContextClause, 2);
+
+		// 1. Create the extends clause.
+		subMonitor.subTask(Messages.progress_CreateExtendsContextElement);
+		IExtendsContext extendCtx = ctx.createChild(
+				IExtendsContext.ELEMENT_TYPE, nextSibling,
+				subMonitor.newChild(1));
+
+		// 2. Set the abstract context name.
+		subMonitor.subTask(Messages.progress_SetAbstractContextName);
 		extendCtx.setAbstractContextName(absCtxName, subMonitor.newChild(1));
+
 		return extendCtx;
 	}
 
-
-
 	/**
-	 * Creates an axiom in the given context with the provided information:
+	 * Creates an axiom in an EXISTING context with the provided information:
 	 * label, predicate string, is Theorem.
 	 * 
 	 * @param ctx
-	 *            a context root.
+	 *            an EXISTING context root.
 	 * @param label
 	 *            the label of the axiom.
 	 * @param predicate
@@ -249,10 +315,8 @@ public final class EventBUtils {
 	 *            <code>false</code>.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @return the newly created axiom.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
@@ -260,54 +324,89 @@ public final class EventBUtils {
 	public static IAxiom createAxiom(IContextRoot ctx, String label,
 			String predicate, boolean isTheorem, IProgressMonitor monitor)
 			throws RodinDBException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
-		IAxiom axm = ctx.createChild(IAxiom.ELEMENT_TYPE, null, subMonitor
-				.newChild(1));
+		// Assert preconditions.
+		Assert.isNotNull(ctx, Messages.error_NullContext);
+		Assert.isTrue(ctx.exists(), Messages.bind(
+				Messages.error_NonExistingContext, ctx.getRodinFile()
+						.getBareName()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateAxiom, 4);
+
+		// 1. Create the element.
+		subMonitor.subTask(Messages.progress_CreateAxiomElement);
+		IAxiom axm = ctx.createChild(IAxiom.ELEMENT_TYPE, null,
+				subMonitor.newChild(1));
+
+		// 2. Set the label.
+		subMonitor.subTask(Messages.progress_SetAxiomLabel);
 		axm.setLabel(label, subMonitor.newChild(1));
+
+		// 3. Set predicate string.
+		subMonitor.subTask(Messages.progress_SetAxiomPredicateString);
 		axm.setPredicateString(predicate, subMonitor.newChild(1));
+
+		// 4. Set isTheorem attribute.
+		subMonitor.subTask(Messages.progress_SetAxiomIsTheorem);
 		axm.setTheorem(isTheorem, subMonitor.newChild(1));
+
 		return axm;
 	}
 
 	/**
-	 * Creates a REFINES clause in the given machine with the provided
+	 * Creates a REFINES clause in an EXISTING machine with the provided
 	 * information: the abstract machine name.
 	 * 
 	 * @param mch
-	 *            a machine root.
+	 *            an EXISTING machine root.
 	 * @param name
-	 *            the abstract machine name of the SEES clause.
+	 *            the abstract machine name of the REFINES clause.
 	 * @param nextSibling
 	 *            sibling before which the child should be created (must have
 	 *            this element as parent), or <code>null</code> to create the
 	 *            child in the last position.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @return the newly created REFINES clause.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
 	 */
 	public static IRefinesMachine createRefinesClause(IMachineRoot mch,
-			String name, IInternalElement nextSibling,
-			IProgressMonitor monitor) throws RodinDBException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+			String name, IInternalElement nextSibling, IProgressMonitor monitor)
+			throws RodinDBException {
+		// Assert preconditions.
+		Assert.isNotNull(mch, Messages.error_NullMachine);
+		Assert.isTrue(mch.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mch.getRodinFile()
+						.getBareName()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateRefinesMachineClause, 2);
+
+		// 1. Create the element.
+		subMonitor.subTask(Messages.progress_CreateRefinesMachineElement);
 		IRefinesMachine refinesMch = mch.createChild(
-				IRefinesMachine.ELEMENT_TYPE, nextSibling, subMonitor
-						.newChild(1));
+				IRefinesMachine.ELEMENT_TYPE, nextSibling,
+				subMonitor.newChild(1));
+
+		// 2. Set the abstract machine name.
+		subMonitor
+				.subTask(Messages.progress_SetRefinesMachineAbstractMachineName);
 		refinesMch.setAbstractMachineName(name, subMonitor.newChild(1));
+
 		return refinesMch;
 	}
 
 	/**
-	 * Creates a SEES clause in the given machine with the provided information:
-	 * the seen context name.
+	 * Creates a SEES clause in an EXISTING machine with the provided
+	 * information: the seen context name.
 	 * 
 	 * @param mch
-	 *            a machine root.
+	 *            an EXISTING machine root.
 	 * @param name
 	 *            the seen context name of the SEES clause.
 	 * @param nextSibling
@@ -316,10 +415,8 @@ public final class EventBUtils {
 	 *            child in the last position.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @return the newly created SEES clause.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
@@ -327,46 +424,74 @@ public final class EventBUtils {
 	public static ISeesContext createSeesClause(IMachineRoot mch, String name,
 			IInternalElement nextSibling, IProgressMonitor monitor)
 			throws RodinDBException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+		// Assert preconditions.
+		Assert.isNotNull(mch, Messages.error_NullMachine);
+		Assert.isTrue(mch.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mch.getRodinFile()
+						.getBareName()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateSeesContextClause, 2);
+
+		// 1. Create the element.
+		subMonitor.subTask(Messages.progress_CreateSeesContextElement);
 		ISeesContext seesCtx = mch.createChild(ISeesContext.ELEMENT_TYPE,
 				nextSibling, subMonitor.newChild(1));
+
+		// 2. Set seen context name.
+		subMonitor.subTask(Messages.progress_SetSeenContextName);
 		seesCtx.setSeenContextName(name, subMonitor.newChild(1));
+
 		return seesCtx;
 	}
 
 	/**
-	 * Creates a new variable in the given machine with the provided
+	 * Creates a new variable in an EXISTING machine with the provided
 	 * information: the identifier string.
 	 * 
 	 * @param mch
-	 *            a machine root.
+	 *            an EXISTING machine root.
 	 * @param identifier
 	 *            the identifier of the new variable.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @return the newly created variable.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
 	 */
 	public static IVariable createVariable(IMachineRoot mch, String identifier,
 			IProgressMonitor monitor) throws RodinDBException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+		// Assert preconditions.
+		Assert.isNotNull(mch, Messages.error_NullMachine);
+		Assert.isTrue(mch.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mch.getRodinFile()
+						.getBareName()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateVariable, 2);
+
+		// 1. Create the element.
+		subMonitor.subTask(Messages.progress_CreateVariableElement);
 		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null,
 				subMonitor.newChild(1));
+
+		// 2. Set the identifier string.
+		subMonitor.subTask(Messages.progress_SetVariableIdentifierString);
 		var.setIdentifierString(identifier, subMonitor.newChild(1));
+
 		return var;
 	}
 
 	/**
-	 * Creates a new invariant in the given machine with the provided
+	 * Creates a new invariant in an EXISTING machine with the provided
 	 * information: the label, the predicate string and boolean flag isThm.
 	 * 
 	 * @param mch
-	 *            a machine root.
+	 *            an EXISTING machine root.
 	 * @param label
 	 *            the label of the new invariant.
 	 * @param predicate
@@ -376,10 +501,8 @@ public final class EventBUtils {
 	 *            otherwise <code>false</code>.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @return the newly created invariant.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
@@ -387,21 +510,42 @@ public final class EventBUtils {
 	public static IInvariant createInvariant(IMachineRoot mch, String label,
 			String predicate, boolean thm, IProgressMonitor monitor)
 			throws RodinDBException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
+		// Assert preconditions.
+		Assert.isNotNull(mch, Messages.error_NullMachine);
+		Assert.isTrue(mch.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mch.getRodinFile()
+						.getBareName()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateInvariant, 4);
+
+		// 1. Create the element.
+		subMonitor.subTask(Messages.progress_CreateInvariantElement);
 		IInvariant inv = mch.createChild(IInvariant.ELEMENT_TYPE, null,
 				subMonitor.newChild(1));
+
+		// 2. Set invariant label.
+		subMonitor.subTask(Messages.progress_SetInvariantLabel);
 		inv.setLabel(label, subMonitor.newChild(1));
+
+		// 3. Set invariant predicate string.
+		subMonitor.subTask(Messages.progress_SetInvariantPredicateString);
 		inv.setPredicateString(predicate, subMonitor.newChild(1));
+
+		// 4. Set invariant isTheorem attribute
+		subMonitor.subTask(Messages.progress_SetInvariantIsTheorem);
 		inv.setTheorem(thm, subMonitor.newChild(1));
+
 		return inv;
 	}
 
 	/**
-	 * Creates a new event in the given machine with the provided information:
+	 * Creates a new event in an EXISTING machine with the provided information:
 	 * the label, convergence, extended flag.
 	 * 
 	 * @param mch
-	 *            a machine root.
+	 *            an EXISTING machine root.
 	 * @param label
 	 *            the label of the new event.
 	 * @param convergence
@@ -410,10 +554,8 @@ public final class EventBUtils {
 	 *            the extended flag of the new event.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @return the newly created event.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
@@ -421,48 +563,81 @@ public final class EventBUtils {
 	public static IEvent createEvent(IMachineRoot mch, String label,
 			Convergence convergence, boolean extended, IProgressMonitor monitor)
 			throws RodinDBException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
-		IEvent evt = mch.createChild(IEvent.ELEMENT_TYPE, null, subMonitor
-				.newChild(1));
+		// Assert preconditions.
+		Assert.isNotNull(mch, Messages.error_NullMachine);
+		Assert.isTrue(mch.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mch.getRodinFile()
+						.getBareName()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateEvent, 4);
+		
+		// 1. Create the element.
+		subMonitor.subTask(Messages.progress_CreateEventElement);
+		IEvent evt = mch.createChild(IEvent.ELEMENT_TYPE, null,
+				subMonitor.newChild(1));
+		
+		// 2. Set event label.
+		subMonitor.subTask(Messages.progress_SetEventLabel);
 		evt.setLabel(label, subMonitor.newChild(1));
+		
+		// 3. Set event convergence attribute.
+		subMonitor.subTask(Messages.progress_SetEventConvergence);
 		evt.setConvergence(convergence, subMonitor.newChild(1));
+		
+		// 4. Set event extended attribute.
+		subMonitor.subTask(Messages.progress_SetEventExtended);
 		evt.setExtended(extended, subMonitor.newChild(1));
+		
 		return evt;
 	}
 
 	/**
-	 * Creates a new parameter in the given event with the provided information:
-	 * the identifier string.
+	 * Creates a new parameter in an EXISTING event with the provided
+	 * information: the identifier string.
 	 * 
 	 * @param evt
-	 *            an event.
+	 *            an EXISTING event.
 	 * @param identifier
 	 *            the identifier of the new parameter.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @return the newly created parameter.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
 	 */
 	public static IParameter createParameter(IEvent evt, String identifier,
 			IProgressMonitor monitor) throws RodinDBException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+		// Assert preconditions.
+		Assert.isNotNull(evt, Messages.error_NullEvent);
+		Assert.isTrue(evt.exists(), Messages.bind(
+				Messages.error_NonExistingEvent, evt.getLabel()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateParameter, 2);
+		
+		// 1. Create the element.
+		subMonitor.subTask(Messages.progress_CreateParameterElement);
 		IParameter par = evt.createChild(IParameter.ELEMENT_TYPE, null,
 				subMonitor.newChild(1));
+		
+		// 2. Set parameter identifier string.
+		subMonitor.subTask(Messages.progress_SetParameterIdentifierString);
 		par.setIdentifierString(identifier, subMonitor.newChild(1));
+
 		return par;
 	}
 
 	/**
-	 * Creates a new guard in the given event with the provided information: the
-	 * label, the predicate string, the isThm flag.
+	 * Creates a new guard in an EXISTING event with the provided information:
+	 * the label, the predicate string, the isThm flag.
 	 * 
 	 * @param evt
-	 *            an event.
+	 *            an EXISTING event.
 	 * @param label
 	 *            the label of the new guard.
 	 * @param predicate
@@ -472,10 +647,8 @@ public final class EventBUtils {
 	 *            <code>false</code>.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @return the newly created guard.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
@@ -483,28 +656,49 @@ public final class EventBUtils {
 	public static IGuard createGuard(IEvent evt, String label,
 			String predicate, boolean thm, IProgressMonitor monitor)
 			throws RodinDBException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
-		IGuard grd = evt.createChild(IGuard.ELEMENT_TYPE, null, subMonitor
-				.newChild(1));
+		// Assert preconditions.
+		Assert.isNotNull(evt, Messages.error_NullEvent);
+		Assert.isTrue(evt.exists(), Messages.bind(
+				Messages.error_NonExistingEvent, evt.getLabel()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateGuard, 4);
+		
+		// 1. Create the element.
+		subMonitor.subTask(Messages.progress_CreateGuardElement);
+		IGuard grd = evt.createChild(IGuard.ELEMENT_TYPE, null,
+				subMonitor.newChild(1));
+		
+		// 2. Set guard label.
+		subMonitor.subTask(Messages.progress_SetGuardLabel);
 		grd.setLabel(label, subMonitor.newChild(1));
+		
+		// 3. Set guard predicate string.
+		subMonitor.subTask(Messages.progress_SetGuardPredicateString);
 		grd.setPredicateString(predicate, subMonitor.newChild(1));
+		
+		// 4. Set guard isTheorem attribute.
+		subMonitor.subTask(Messages.progress_SetGuardIsTheorem);
 		grd.setTheorem(thm, subMonitor.newChild(1));
+
 		return grd;
 	}
 
 	/**
-	 * Creates a new action in the given event with the provided information: the
-	 * label, the assignment string.
+	 * Creates a new action in an EXISTING event with the provided information:
+	 * the label, the assignment string.
 	 * 
-	 * @param evt an event.
-	 * @param label the label of the new action.
-	 * @param assignment the assignment string of the new action.
+	 * @param evt
+	 *            an EXISTING event.
+	 * @param label
+	 *            the label of the new action.
+	 * @param assignment
+	 *            the assignment string of the new action.
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the
-	 *            user. It is the caller's responsibility to call done() on the
-	 *            given monitor. Accepts <code>null</code>, indicating that no
-	 *            progress should be reported and that the operation cannot be
-	 *            cancelled.
+	 *            user. Accepts <code>null</code>, indicating that no progress
+	 *            should be reported and that the operation cannot be cancelled.
 	 * @return the newly created action.
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
@@ -512,23 +706,63 @@ public final class EventBUtils {
 	public static IAction createAction(IEvent evt, String label,
 			String assignment, IProgressMonitor monitor)
 			throws RodinDBException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
-		IAction act = evt.createChild(IAction.ELEMENT_TYPE, null, subMonitor
-				.newChild(1));
+		// Assert preconditions.
+		Assert.isNotNull(evt, Messages.error_NullEvent);
+		Assert.isTrue(evt.exists(), Messages.bind(
+				Messages.error_NonExistingEvent, evt.getLabel()));
+
+		// Split the progress monitor.
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.progress_CreateAction, 3);
+		
+		// 1. Create the element.
+		subMonitor.subTask(Messages.progress_CreateActionElement);
+		IAction act = evt.createChild(IAction.ELEMENT_TYPE, null,
+				subMonitor.newChild(1));
+		
+		// 2. Set action label.
+		subMonitor.subTask(Messages.progress_SetActionLabel);
 		act.setLabel(label, subMonitor.newChild(1));
+		
+		// 3. Set action assignment string.
+		subMonitor.subTask(Messages.progress_SetActionAssignmentString);
 		act.setAssignmentString(assignment, subMonitor.newChild(1));
+		
 		return act;
 	}
 
-	public static IEvent getEvent(IMachineRoot mchRoot, String evtLabel)
+	/**
+	 * Gets an event with a given event label within an EXISTING machine.
+	 * 
+	 * @param mch
+	 *            an EXISTING machine root.
+	 * @param evtLabel
+	 *            the event label.
+	 * @return The first event with a given input label or <code>null</code> if
+	 *         there are no events with the given input label. The order of the
+	 *         events are the order returned by {@link IMachineRoot#getEvents()}
+	 * @see IMachineRoot#getEvents()
+	 * @throws RodinDBException
+	 *             if a problem occurs while accessing the database.
+	 */
+	public static IEvent getEvent(IMachineRoot mch, String evtLabel)
 			throws RodinDBException {
-		if (mchRoot == null)
-			return null;
-		IEvent[] evts = mchRoot.getEvents();
+		// Assert preconditions.
+		Assert.isNotNull(mch, Messages.error_NullMachine);
+		Assert.isTrue(mch.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mch.getRodinFile()
+						.getBareName()));
+		
+		// Get the list of events and check their labels.
+		IEvent[] evts = mch.getEvents();
 		for (IEvent evt : evts) {
+			// Return the event if its label is the same as the input label.
 			if (evt.getLabel().equals(evtLabel))
 				return evt;
 		}
+
+		// Return <code>null</code> in the case where no matching events are
+		// found.
 		return null;
 	}
 
