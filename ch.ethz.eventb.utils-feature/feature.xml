@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="ch.ethz.eventb.utils"
+      label="%featureName"
+      version="0.1.1.qualifier"
+      provider-name="%providerName">
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <requires>
+      <import feature="org.eventb.ide" version="2.1.0.0" match="compatible"/>
+   </requires>
+
+   <plugin
+         id="ch.ethz.eventb.utils"
+         download-size="0"
+         install-size="0"
+         version="0.1.1.qualifier"
+         unpack="false"/>
+
+</feature>
