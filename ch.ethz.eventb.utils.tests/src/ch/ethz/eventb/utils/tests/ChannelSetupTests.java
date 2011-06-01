@@ -38,7 +38,7 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 	/**
 	 * Some predefined projects.
 	 */
-	String channelPrjName = "Channel";
+	protected String channelPrjName = "Channel";
 	protected IEventBProject channelPrj;
 	
 	/**
@@ -54,12 +54,12 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 	/**
 	 * Some carrier sets.
 	 */
-	ICarrierSet MESSAGE;
+	protected ICarrierSet MESSAGE;
 	
 	/**
 	 * Some constants.
 	 */
-	IConstant max_size;
+	protected IConstant max_size;
 		
 	/**
 	 * Some axioms and theorems.
@@ -74,13 +74,13 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 	 * Some predefined machines.
 	 * - channel, EO, EOIO in project basedPrj.
 	 */
-	String channelMchName = "channel";
+	protected String channelMchName = "channel";
 	protected IMachineRoot channelMchRoot;
 	
-	String EOMchName = "EO";
+	protected String EOMchName = "EO";
 	protected IMachineRoot EOMchRoot;
 
-	String EOIOMchName = "EOIO";
+	protected String EOIOMchName = "EOIO";
 	protected IMachineRoot EOIOMchRoot;
 	
 	/**
