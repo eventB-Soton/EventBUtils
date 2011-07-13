@@ -100,7 +100,7 @@ public final class EventBUtils {
 	 */
 	public static IContextRoot createContext(IEventBProject prj,
 			String barename, IProgressMonitor monitor) throws RodinDBException {
-		// Assert prediconditions.
+		// Assert preconditions.
 		Assert.isNotNull(prj, Messages.error_NullProject);
 		Assert.isTrue(prj.getRodinProject().exists(),
 				Messages.bind(Messages.error_NonExistingProject, prj));
