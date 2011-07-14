@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="ch.ethz.eventb.utils"
+      id="ch.ethz.eventb.utils_feature"
       label="%featureName"
       version="0.1.1.qualifier"
       provider-name="%providerName">
