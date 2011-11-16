@@ -4,7 +4,7 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: ch.ethz.eventb.utils
 Bundle-Localization: plugin
 Bundle-Version: 0.1.2
-Bundle-Vendor: %provideName
+Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eventb.core,
  org.eclipse.core.runtime
