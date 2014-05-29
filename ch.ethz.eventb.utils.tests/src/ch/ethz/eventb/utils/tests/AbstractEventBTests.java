@@ -989,7 +989,7 @@ public abstract class AbstractEventBTests extends AbstractTests {
 			assertEquals(message + ": Incorrect event", expected, evt
 					.getLabel()
 					+ ":" + evt.getConvergence() + ":" + evt.isExtended());
-		} catch (RodinDBException e) {
+		} catch (CoreException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
 			return;
