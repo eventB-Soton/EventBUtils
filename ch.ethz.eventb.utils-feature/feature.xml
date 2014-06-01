@@ -2,7 +2,7 @@
 <feature
       id="ch.ethz.eventb.utils_feature"
       label="%featureName"
-      version="0.1.3.qualifier"
+      version="0.1.4.qualifier"
       provider-name="%providerName">
 
    <description>
@@ -18,14 +18,16 @@
    </license>
 
    <requires>
-      <import feature="org.eventb.ide" version="2.1.0.0" match="compatible"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.rodinp.core" version="1.7.0" match="greaterOrEqual"/>
+      <import plugin="org.eventb.core" version="3.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
          id="ch.ethz.eventb.utils"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="0.1.4"
          unpack="false"/>
 
 </feature>

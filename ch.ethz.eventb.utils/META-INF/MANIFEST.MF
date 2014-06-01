@@ -3,10 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: ch.ethz.eventb.utils
 Bundle-Localization: plugin
-Bundle-Version: 0.1.3
+Bundle-Version: 0.1.4
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.core.runtime,
- org.rodinp.core;bundle-version="1.7.0",
+ org.rodinp.core,
  org.eventb.core
 Export-Package: ch.ethz.eventb.utils
