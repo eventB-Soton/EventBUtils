@@ -27,7 +27,7 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 		super.setUp();
 
 		// Fully build the project.
-		workspace.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+		workspace.build(IncrementalProjectBuilder.FULL_BUILD, nullMonitor);
 	}
 
 	/**

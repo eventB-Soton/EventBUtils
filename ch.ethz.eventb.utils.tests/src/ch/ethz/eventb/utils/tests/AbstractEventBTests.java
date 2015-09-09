@@ -12,24 +12,18 @@
 
 package ch.ethz.eventb.utils.tests;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eventb.core.EventBPlugin;
 import org.eventb.core.IAction;
 import org.eventb.core.IAxiom;
 import org.eventb.core.ICarrierSet;
-import org.eventb.core.IConfigurationElement;
 import org.eventb.core.IConstant;
 import org.eventb.core.IContextRoot;
-import org.eventb.core.IConvergenceElement.Convergence;
 import org.eventb.core.IEvent;
-import org.eventb.core.IEventBProject;
 import org.eventb.core.IExtendsContext;
 import org.eventb.core.IGuard;
 import org.eventb.core.IInvariant;
@@ -43,9 +37,6 @@ import org.eventb.core.IWitness;
 import org.eventb.core.ast.FormulaFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.rodinp.core.IRodinFile;
-import org.rodinp.core.IRodinProject;
-import org.rodinp.core.RodinCore;
 import org.rodinp.core.RodinDBException;
 import org.rodinp.internal.core.debug.DebugHelpers;
 
@@ -55,12 +46,13 @@ import org.rodinp.internal.core.debug.DebugHelpers;
  *         Abstract class for Event-B tests.
  *         </p>
  */
+@SuppressWarnings("restriction")
 public abstract class AbstractEventBTests extends AbstractTests {
 
 	/**
-	 * The null progress monitor. 
+	 * The null progress monitor.
 	 */
-	protected static final IProgressMonitor monitor = new NullProgressMonitor();
+	protected static final IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 	/**
 	 * The testing workspace.
@@ -68,19 +60,19 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	protected IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
 	/**
-	 * The formula factory used to create formulae. 
+	 * The formula factory used to create formulae.
 	 */
 	protected static final FormulaFactory ff = FormulaFactory.getDefault();
-	
+
 	/**
-	 * Constructor: Create max_size test case.
+	 * Constructor: Create a test case.
 	 */
 	public AbstractEventBTests() {
 		super();
 	}
 
 	/**
-	 * Constructor: Create max_size test case with the given name.
+	 * Constructor: Create a test case with the given name.
 	 * 
 	 * @param name
 	 *            the name of test
@@ -127,373 +119,6 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	}
 
 	// =========================================================================
-	// Utility methods for creating various Event-B elements.
-	// =========================================================================
-
-	/**
-	 * Utility method to create an Event-B project with given name.
-	 * 
-	 * @param name
-	 *            name of the project
-	 * @return the newly created Event-B project
-	 * @throws CoreException
-	 *             if some errors occurred.
-	 */
-	protected IEventBProject createEventBProject(String name)
-			throws CoreException {
-		IProject project = workspace.getRoot().getProject(name);
-		project.create(null);
-		project.open(null);
-		IProjectDescription pDescription = project.getDescription();
-		pDescription.setNatureIds(new String[] { RodinCore.NATURE_ID });
-		project.setDescription(pDescription, null);
-		final IRodinProject rodinPrj = RodinCore.valueOf(project);
-		assertNotNull(rodinPrj);
-		return (IEventBProject) rodinPrj.getAdapter(IEventBProject.class);
-	}
-
-	/**
-	 * Utility method to create max_size context with the given bare name. The context
-	 * is created as max_size child of the input Event-B project.
-	 * 
-	 * @param project
-	 *            an Event-B project.
-	 * @param bareName
-	 *            the bare name (without the extension .buc) of the context
-	 * @return the newly created context.
-	 * @throws RodinDBException
-	 *             if some problems occur.
-	 */
-	protected IContextRoot createContext(IEventBProject project, String bareName)
-			throws RodinDBException {
-		IRodinFile file = project.getContextFile(bareName);
-		file.create(true, null);
-		IContextRoot result = (IContextRoot) file.getRoot();
-		result.setConfiguration(IConfigurationElement.DEFAULT_CONFIGURATION, monitor);
-		return result;
-	}
-
-	/**
-	 * Utility method to create an EXTENDS clause within the input context for
-	 * an abstract context.
-	 * 
-	 * @param ctx
-	 *            max_size context.
-	 * @param absCtxName
-	 *            the abstract context label.
-	 * @return the newly created extends clause.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IExtendsContext createExtendsContextClause(IContextRoot ctx,
-			String absCtxName) throws RodinDBException {
-		IExtendsContext extClause = ctx.createChild(
-				IExtendsContext.ELEMENT_TYPE, null, monitor);
-		extClause.setAbstractContextName(EventBPlugin
-				.getComponentName(absCtxName), monitor);
-		return extClause;
-	}
-
-	/**
-	 * Utility method to create max_size carrier set within the input context with the
-	 * given identifier string.
-	 * 
-	 * @param ctx
-	 *            max_size context.
-	 * @param identifierString
-	 *            the identifier string.
-	 * @return the newly created carrier set.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected ICarrierSet createCarrierSet(IContextRoot ctx,
-			String identifierString) throws RodinDBException {
-		ICarrierSet set = ctx.createChild(ICarrierSet.ELEMENT_TYPE, null,
-				monitor);
-		set.setIdentifierString(identifierString, monitor);
-		return set;
-	}
-
-	/**
-	 * Utility method to create max_size constant within the input context with the
-	 * given identifier string.
-	 * 
-	 * @param ctx
-	 *            max_size context.
-	 * @param identifierString
-	 *            the identifier string.
-	 * @return the newly created constant.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IConstant createConstant(IContextRoot ctx, String identifierString)
-			throws RodinDBException {
-		IConstant cst = ctx.createChild(IConstant.ELEMENT_TYPE, null, monitor);
-		cst.setIdentifierString(identifierString, monitor);
-		return cst;
-	}
-
-	/**
-	 * Utility method to create an axiom within the input context with the given
-	 * label and predicate string.
-	 * 
-	 * @param ctx
-	 *            max_size context.
-	 * @param label
-	 *            the label.
-	 * @param predStr
-	 *            the predicate string.
-	 * @param isTheorem
-	 *            <code>true</code> if the axiom is derivable,
-	 *            <code>false</code> otherwise.
-	 * @return the newly created axiom.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IAxiom createAxiom(IContextRoot ctx, String label,
-			String predStr, boolean isTheorem) throws RodinDBException {
-		IAxiom axm = ctx.createChild(IAxiom.ELEMENT_TYPE, null, monitor);
-		axm.setLabel(label, monitor);
-		axm.setPredicateString(predStr, monitor);
-		axm.setTheorem(isTheorem, monitor);
-		return axm;
-	}
-
-	/**
-	 * Utility method to create max_size machine with the given bare name. The machine
-	 * is created as max_size child of the input Event-B project.
-	 * 
-	 * @param bareName
-	 *            the bare name (without the extension .bum) of the context
-	 * @return the newly created context.
-	 * @throws RodinDBException
-	 *             if some problems occur.
-	 */
-	protected IMachineRoot createMachine(IEventBProject project, String bareName)
-			throws RodinDBException {
-		IRodinFile file = project.getMachineFile(bareName);
-		file.create(true, null);
-		IMachineRoot result = (IMachineRoot) file.getRoot();
-		result.setConfiguration(IConfigurationElement.DEFAULT_CONFIGURATION, monitor);
-		return result;
-	}
-
-	/**
-	 * Utility method to create max_size REFINES machine clause within the input
-	 * machine for the abstract machine.
-	 * 
-	 * @param mch
-	 *            max_size machine.
-	 * @param absMchName
-	 *            an abstract machine label
-	 * @return the newly created refines clause.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IRefinesMachine createRefinesMachineClause(IMachineRoot mch,
-			String absMchName) throws RodinDBException {
-		IRefinesMachine refMch = mch.createChild(IRefinesMachine.ELEMENT_TYPE,
-				null, monitor);
-		refMch.setAbstractMachineName(
-				EventBPlugin.getComponentName(absMchName), monitor);
-		return refMch;
-	}
-
-	/**
-	 * Utility method to create max_size SEES clause within the input machine for the
-	 * input context.
-	 * 
-	 * @param mch
-	 *            max_size machine.
-	 * @param ctxName
-	 *            max_size context.
-	 * @return the newly created sees clause ({@link ISeesContext}.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected ISeesContext createSeesContextClause(IMachineRoot mch,
-			String ctxName) throws RodinDBException {
-		ISeesContext seesContext = mch.createChild(ISeesContext.ELEMENT_TYPE,
-				null, monitor);
-		seesContext.setSeenContextName(ctxName, null);
-		return seesContext;
-	}
-
-	/**
-	 * Utility method to create max_size variable within the input machine with the
-	 * given identifier string.
-	 * 
-	 * @param mch
-	 *            max_size machine.
-	 * @param identifierString
-	 *            the identifier string.
-	 * @return the newly created variable.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IVariable createVariable(IMachineRoot mch, String identifierString)
-			throws RodinDBException {
-		IVariable var = mch.createChild(IVariable.ELEMENT_TYPE, null, monitor);
-		var.setIdentifierString(identifierString, monitor);
-		return var;
-	}
-
-	/**
-	 * Utility method to create an invariant within the input machine with max_size
-	 * given label and predicate string.
-	 * 
-	 * @param mch
-	 *            max_size machine.
-	 * @param label
-	 *            the label of the invariant.
-	 * @param predicate
-	 *            the predicate string of the invariant.
-	 * @return the newly created invariant.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IInvariant createInvariant(IMachineRoot mch, String label,
-			String predicate, boolean isTheorem) throws RodinDBException {
-		IInvariant inv = mch
-				.createChild(IInvariant.ELEMENT_TYPE, null, monitor);
-		inv.setLabel(label, monitor);
-		inv.setPredicateString(predicate, monitor);
-		inv.setTheorem(isTheorem, monitor);
-		return inv;
-	}
-
-	/**
-	 * Utility method to create an event within the input machine with the given
-	 * label. By default, the extended attribute of the event is set to
-	 * <code>false</code>. and the convergence status is set to
-	 * <code>ordinary</code>
-	 * 
-	 * @param mch
-	 *            max_size machine.
-	 * @param label
-	 *            the label of the event.
-	 * @return the newly created event.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IEvent createEvent(IMachineRoot mch, String label)
-			throws RodinDBException {
-		IEvent event = mch.createChild(IEvent.ELEMENT_TYPE, null, monitor);
-		event.setLabel(label, monitor);
-		event.setExtended(false, monitor);
-		event.setConvergence(Convergence.ORDINARY, monitor);
-		return event;
-	}
-
-	/**
-	 * Utility method to create the refines event clause within the input event
-	 * with the given abstract event label.
-	 * 
-	 * @param evt
-	 *            an event.
-	 * @param absEvtLabel
-	 *            the abstract event label.
-	 * @return the newly created refines event clause.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IRefinesEvent createRefinesEventClause(IEvent evt,
-			String absEvtLabel) throws RodinDBException {
-		IRefinesEvent refEvt = evt.createChild(IRefinesEvent.ELEMENT_TYPE,
-				null, monitor);
-		refEvt.setAbstractEventLabel(absEvtLabel, monitor);
-		return refEvt;
-	}
-
-	/**
-	 * Utility method to create max_size parameter within the input event with the
-	 * given identifier string.
-	 * 
-	 * @param evt
-	 *            an event.
-	 * @param identifierString
-	 *            the identifier string.
-	 * @return the newly created parameter.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IParameter createParameter(IEvent evt, String identifierString)
-			throws RodinDBException {
-		IParameter param = evt.createChild(IParameter.ELEMENT_TYPE, null,
-				monitor);
-		param.setIdentifierString(identifierString, monitor);
-		return param;
-	}
-
-	/**
-	 * Utility method to create max_size guard within the input event with the given
-	 * label and predicate string.
-	 * 
-	 * @param evt
-	 *            an event.
-	 * @param label
-	 *            the label of the guard.
-	 * @param predicateString
-	 *            the predicate string of the guard.
-	 * @param b 
-	 * @return the newly created guard.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IGuard createGuard(IEvent evt, String label,
-			String predicateString, boolean thm) throws RodinDBException {
-		IGuard grd = evt.createChild(IGuard.ELEMENT_TYPE, null, monitor);
-		grd.setLabel(label, monitor);
-		grd.setPredicateString(predicateString, monitor);
-		grd.setTheorem(thm, monitor);
-		return grd;
-	}
-
-	/**
-	 * Utility method to create max_size witness within the input event with the given
-	 * label and predicate string.
-	 * 
-	 * @param evt
-	 *            an event.
-	 * @param label
-	 *            the label of the witness.
-	 * @param predicateString
-	 *            the predicate string of the witness.
-	 * @return the newly created witness.
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IWitness createWitness(IEvent evt, String label,
-			String predicateString) throws RodinDBException {
-		IWitness wit = evt.createChild(IWitness.ELEMENT_TYPE, null, monitor);
-		wit.setLabel(label, monitor);
-		wit.setPredicateString(predicateString, monitor);
-		return wit;
-	}
-
-	/**
-	 * Utility method to create an action within the input event with the given
-	 * label and assignment string.
-	 * 
-	 * @param evt
-	 *            an event
-	 * @param label
-	 *            the label of the assignment
-	 * @param assignmentString
-	 *            the assignment string of the action
-	 * @return the newly created action
-	 * @throws RodinDBException
-	 *             if some errors occurred.
-	 */
-	protected IAction createAction(IEvent evt, String label,
-			String assignmentString) throws RodinDBException {
-		IAction act = evt.createChild(IAction.ELEMENT_TYPE, null, monitor);
-		act.setLabel(label, monitor);
-		act.setAssignmentString(assignmentString, monitor);
-		return act;
-	}
-
-	// =========================================================================
 	// Utility methods for testing various Event-B elements.
 	// =========================================================================
 
@@ -535,8 +160,8 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 * @param expected
 	 *            the expected abstract context name.
 	 */
-	protected void testExtendsClause(String message,
-			IExtendsContext extendCtx, String expected) {
+	protected void testExtendsClause(String message, IExtendsContext extendCtx,
+			String expected) {
 		try {
 			assertEquals(message + ": Incorrect EXTENDS clause", expected,
 					extendCtx.getAbstractContextName());
@@ -588,8 +213,8 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	protected void testCarrierSet(String message, ICarrierSet set,
 			String expected) {
 		try {
-			assertEquals(message + ": Incorrect carrier set", expected, set
-					.getIdentifierString());
+			assertEquals(message + ": Incorrect carrier set", expected,
+					set.getIdentifierString());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -605,9 +230,8 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 * @param ctx
 	 *            a context whose constants will be tested.
 	 * @param expected
-	 *            an array of expected constants. Each constant is
-	 *            represented by its identifier. The order of the constants
-	 *            is important.
+	 *            an array of expected constants. Each constant is represented
+	 *            by its identifier. The order of the constants is important.
 	 */
 	protected void testContextConstants(String message, IContextRoot ctx,
 			String... expected) {
@@ -624,7 +248,7 @@ public abstract class AbstractEventBTests extends AbstractTests {
 			return;
 		}
 	}
-	
+
 	/**
 	 * Utility method for testing a constant.
 	 * 
@@ -635,11 +259,10 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 * @param expected
 	 *            the expected identifier of the constant.
 	 */
-	protected void testConstant(String message, IConstant cst,
-			String expected) {
+	protected void testConstant(String message, IConstant cst, String expected) {
 		try {
-			assertEquals(message + ": Incorrect constant", expected, cst
-					.getIdentifierString());
+			assertEquals(message + ": Incorrect constant", expected,
+					cst.getIdentifierString());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -689,17 +312,14 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 */
 	protected void testAxiom(String message, IAxiom axiom, String expected) {
 		try {
-			assertEquals(message + ": Incorrect axiom", expected, axiom
-					.getLabel()
-					+ ":"
-					+ axiom.getPredicateString()
-					+ ":"
-					+ axiom.isTheorem());
+			assertEquals(message + ": Incorrect axiom", expected,
+					axiom.getLabel() + ":" + axiom.getPredicateString() + ":"
+							+ axiom.isTheorem());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
 			return;
-		}		
+		}
 	}
 
 	/**
@@ -715,7 +335,7 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 *            REFINES clauses is important.
 	 */
 	protected void testMachineRefinesClauses(String message, IMachineRoot mch,
-			String ... expected) {
+			String... expected) {
 		try {
 			IRefinesMachine[] refinesClauses = mch.getRefinesClauses();
 			assertEquals(message + ": Incorrect number of REFINES clauses",
@@ -767,7 +387,7 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 *            clauses is important.
 	 */
 	protected void testMachineSeesClauses(String message, IMachineRoot mch,
-			String ... expected) {
+			String... expected) {
 		try {
 			ISeesContext[] seesClauses = mch.getSeesClauses();
 			assertEquals(message + ": Incorrect number of SEES clauses",
@@ -795,8 +415,8 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	protected void testSeesClause(String message, ISeesContext seesClause,
 			String expected) {
 		try {
-			assertEquals(message + ": Incorrect SEES clause", expected, seesClause
-					.getSeenContextName());
+			assertEquals(message + ": Incorrect SEES clause", expected,
+					seesClause.getSeenContextName());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -840,10 +460,11 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 *            the machine root whose variables will be tested.
 	 * @param expected
 	 *            an array of expected variables. Each variable is represented
-	 *            by its identifier. The order of the variables is NOT important.
+	 *            by its identifier. The order of the variables is NOT
+	 *            important.
 	 */
-	protected void testMachineVariablesUnordered(String message, IMachineRoot mch,
-			String... expected) {
+	protected void testMachineVariablesUnordered(String message,
+			IMachineRoot mch, String... expected) {
 		try {
 			IVariable[] vars = mch.getVariables();
 			assertEquals(message + ": Incorrect number of variables",
@@ -866,7 +487,7 @@ public abstract class AbstractEventBTests extends AbstractTests {
 			return;
 		}
 	}
-	
+
 	/**
 	 * Utility method for testing a variable.
 	 * 
@@ -877,11 +498,10 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 * @param expected
 	 *            the expected identifier of the variable.
 	 */
-	protected void testVariable(String message, IVariable var,
-			String expected) {
+	protected void testVariable(String message, IVariable var, String expected) {
 		try {
-			assertEquals(message + ": Incorrect variable", expected, var
-					.getIdentifierString());
+			assertEquals(message + ": Incorrect variable", expected,
+					var.getIdentifierString());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -932,9 +552,11 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 */
 	protected void testInvariant(String message, IInvariant inv, String expected) {
 		try {
-			assertEquals(message + ": Incorrect invariant", expected, inv
-					.getLabel()
-					+ ":" + inv.getPredicateString() + ":" + inv.isTheorem());
+			assertEquals(
+					message + ": Incorrect invariant",
+					expected,
+					inv.getLabel() + ":" + inv.getPredicateString() + ":"
+							+ inv.isTheorem());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -986,9 +608,11 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	protected void testEvent(String message, IEvent evt, String expected) {
 		try {
 			assertNotNull(message + ": The event must not be null", evt);
-			assertEquals(message + ": Incorrect event", expected, evt
-					.getLabel()
-					+ ":" + evt.getConvergence() + ":" + evt.isExtended());
+			assertEquals(
+					message + ": Incorrect event",
+					expected,
+					evt.getLabel() + ":" + evt.getConvergence() + ":"
+							+ evt.isExtended());
 		} catch (CoreException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -1085,8 +709,8 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 */
 	protected void testParameter(String message, IParameter par, String expected) {
 		try {
-			assertEquals(message + ": Incorrect parameter", expected, par
-					.getIdentifierString());
+			assertEquals(message + ": Incorrect parameter", expected,
+					par.getIdentifierString());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -1136,9 +760,11 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 */
 	protected void testGuard(String message, IGuard grd, String expected) {
 		try {
-			assertEquals(message + ": Incorrect guard", expected, grd
-					.getLabel()
-					+ ":" + grd.getPredicateString() + ":" + grd.isTheorem());
+			assertEquals(
+					message + ": Incorrect guard",
+					expected,
+					grd.getLabel() + ":" + grd.getPredicateString() + ":"
+							+ grd.isTheorem());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -1187,8 +813,8 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 */
 	protected void testWitness(String message, IWitness wit, String expected) {
 		try {
-			assertEquals(message + ": Incorrect witness", expected, wit.getLabel()
-					+ ":" + wit.getPredicateString());
+			assertEquals(message + ": Incorrect witness", expected,
+					wit.getLabel() + ":" + wit.getPredicateString());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
@@ -1237,9 +863,8 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	 */
 	protected void testAction(String message, IAction act, String expected) {
 		try {
-			assertEquals(message + ": Incorrect action", expected, act
-					.getLabel()
-					+ ":" + act.getAssignmentString());
+			assertEquals(message + ": Incorrect action", expected,
+					act.getLabel() + ":" + act.getAssignmentString());
 		} catch (RodinDBException e) {
 			e.printStackTrace();
 			fail("There should be no exception");
