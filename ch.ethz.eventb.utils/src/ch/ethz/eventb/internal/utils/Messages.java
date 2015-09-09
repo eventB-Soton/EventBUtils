@@ -14,8 +14,15 @@ import org.eclipse.osgi.util.NLS;
 
 public final class Messages extends NLS {
 	private static final String BUNDLE_NAME = "ch.ethz.eventb.internal.utils.messages"; //$NON-NLS-1$
+
+
 	
 	// Progress monitor strings
+	public static String progress_CreateEventBProject;
+	public static String progress_CreateProject;
+	public static String progress_OpenProject;
+	public static String progress_SetRodinProjectNature;
+	
 	public static String progress_CreateContext;
 	public static String progress_CreateContextFile;
 	public static String progress_GetFreeComponentName;
@@ -27,6 +34,14 @@ public final class Messages extends NLS {
 	public static String progress_CreateExtendsContextElement;
 	public static String progress_SetAbstractContextName;
 	
+	public static String progress_CreateCarrierSet;
+	public static String progress_CreateCarrierSetElement;
+	public static String progress_SetCarrierSetIdentifierString;
+
+	public static String progress_CreateConstant;
+	public static String progress_CreateConstantElement;
+	public static String progress_SetConstantIdentifierString;
+
 	public static String progress_CreateAxiom;
 	public static String progress_CreateAxiomElement;
 	public static String progress_SetAxiomLabel;
@@ -57,6 +72,10 @@ public final class Messages extends NLS {
 	public static String progress_SetEventConvergence;
 	public static String progress_SetEventExtended;
 
+	public static String progress_CreateRefinesEventClause;
+	public static String progress_CreateRefinesEventElement;
+	public static String progress_SetAbstractEventLabel;
+
 	public static String progress_CreateParameter;
 	public static String progress_CreateParameterElement;
 	public static String progress_SetParameterIdentifierString;
@@ -67,6 +86,11 @@ public final class Messages extends NLS {
 	public static String progress_SetGuardPredicateString;
 	public static String progress_SetGuardIsTheorem;
 	
+	public static String progress_CreateWitness;
+	public static String progress_CreateWitnessElement;
+	public static String progress_SetWitnessLabel;
+	public static String progress_SetWitnessPredicateString;
+
 	public static String progress_CreateAction;
 	public static String progress_CreateActionElement;
 	public static String progress_SetActionLabel;
