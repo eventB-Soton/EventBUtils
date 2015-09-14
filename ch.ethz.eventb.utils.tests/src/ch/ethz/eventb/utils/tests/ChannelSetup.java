@@ -1,15 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Zurich and others.
+ * Copyright (c) 2015 University of Southampton.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     ETH Zurich - initial API and implementation
+ *     University of Southampton - initial API and implementation
  *******************************************************************************/
+
 package ch.ethz.eventb.utils.tests;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eventb.core.IAction;
 import org.eventb.core.IAxiom;
 import org.eventb.core.ICarrierSet;
@@ -24,220 +28,226 @@ import org.eventb.core.IMachineRoot;
 import org.eventb.core.IParameter;
 import org.eventb.core.IVariable;
 import org.eventb.core.IWitness;
-import org.junit.Before;
-import org.junit.Test;
-import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.utils.EventBUtils;
 
 /**
+ * <p>
+ * This utility class is for creating a test "Channel" project.
+ * </p>
+ *
  * @author htson
- *         <p>
- *         Abstract class to test handling of Event-B elements. A simple model
- *         of a channel is created by the setup method {@link #setUp()}.
- *         </p>
+ * @version 0.1.0
+ * @see EventBUtils
+ * @since 0.2.1
  */
-public abstract class ChannelSetupTests extends AbstractEventBTests {
+public class ChannelSetup {
 
 	/**
 	 * Some predefined projects.
 	 */
-	protected String channelPrjName = "Channel";
-	protected IEventBProject channelPrj;
+	private final static String channelPrjName = "Channel";
+	private static IEventBProject channelPrj;
 
 	/**
 	 * Some predefined contexts: - message_ctx, size_ctx in channelPrj.
 	 */
-	String messageCtxName = "message_ctx";
-	protected IContextRoot message_ctx;
+	private final static String messageCtxName = "message_ctx";
+	private static IContextRoot messageCtxRoot;
 
-	String sizeCtxName = "size_ctx";
-	IContextRoot size_ctx;
+	private final static String sizeCtxName = "size_ctx";
+	private static IContextRoot sizeCtxRoot;
 
 	/**
 	 * Some carrier sets.
 	 */
-	protected ICarrierSet MESSAGE;
+	private static ICarrierSet MESSAGE;
 
 	/**
 	 * Some constants.
 	 */
-	protected IConstant max_size;
+	private static IConstant max_size;
 
 	/**
 	 * Some axioms and theorems.
 	 */
-	IAxiom message_ctx_axm_1;
+	private static IAxiom message_ctx_axm_1;
 
-	IAxiom message_ctx_thm_1;
+	private static IAxiom message_ctx_thm_1;
 
-	IAxiom size_ctx_axm_1;
+	private static IAxiom size_ctx_axm_1;
 
 	/**
 	 * Some predefined machines. - channel, EO, EOIO in project basedPrj.
 	 */
-	protected String channelMchName = "channel";
-	protected IMachineRoot channelMchRoot;
+	private static String channelMchName = "channel";
+	private static IMachineRoot channelMchRoot;
 
-	protected String EOMchName = "EO";
-	protected IMachineRoot EOMchRoot;
+	private static String EOMchName = "EO";
+	private static IMachineRoot EOMchRoot;
 
-	protected String EOIOMchName = "EOIO";
-	protected IMachineRoot EOIOMchRoot;
+	private static String EOIOMchName = "EOIO";
+	private static IMachineRoot EOIOMchRoot;
 
 	/**
 	 * Some variables.
 	 */
-	IVariable channel_s_count;
+	private static IVariable channel_s_count;
 
-	IVariable channel_r_count;
+	private static IVariable channel_r_count;
 
-	IVariable EO_s_count;
+	private static IVariable EO_s_count;
 
-	IVariable EO_r_count;
+	private static IVariable EO_r_count;
 
-	IVariable EO_channel;
+	private static IVariable EO_channel;
 
-	IVariable EO_sents;
+	private static IVariable EO_sents;
 
-	IVariable EO_receiveds;
+	private static IVariable EO_receiveds;
 
-	IVariable EOIO_s_count;
+	private static IVariable EOIO_s_count;
 
-	IVariable EOIO_r_count;
+	private static IVariable EOIO_r_count;
 
-	IVariable EOIO_channel;
+	private static IVariable EOIO_channel;
 
-	IVariable EOIO_sents;
+	private static IVariable EOIO_sents;
 
-	IVariable EOIO_receiveds;
+	private static IVariable EOIO_receiveds;
 
 	/**
 	 * Some invariants within machines.
 	 */
-	IInvariant channel_inv_1;
+	private static IInvariant channel_inv_1;
 
-	IInvariant channel_inv_2;
+	private static IInvariant channel_inv_2;
 
-	IInvariant EO_inv_1;
+	private static IInvariant EO_inv_1;
 
-	IInvariant EO_inv_2;
+	private static IInvariant EO_inv_2;
 
-	IInvariant EO_inv_3;
+	private static IInvariant EO_inv_3;
 
-	IInvariant EO_thm_1;
+	private static IInvariant EO_thm_1;
 
-	IInvariant EO_inv_4;
+	private static IInvariant EO_inv_4;
 
-	IInvariant EO_inv_5;
+	private static IInvariant EO_inv_5;
 
-	IInvariant EO_thm_2;
+	private static IInvariant EO_thm_2;
 
-	IInvariant EO_inv_6;
+	private static IInvariant EO_inv_6;
 
-	IInvariant EO_thm_3;
+	private static IInvariant EO_thm_3;
 
-	IInvariant EOIO_inv_1;
+	private static IInvariant EOIO_inv_1;
 
-	IInvariant EOIO_thm_1;
+	private static IInvariant EOIO_thm_1;
 
-	IInvariant EOIO_thm_2;
+	private static IInvariant EOIO_thm_2;
 
-	IInvariant EOIO_thm_3;
+	private static IInvariant EOIO_thm_3;
 
-	IInvariant EOIO_thm_4;
+	private static IInvariant EOIO_thm_4;
 
-	IInvariant EOIO_thm_5;
+	private static IInvariant EOIO_thm_5;
 
 	/**
 	 * Some events within machines.
 	 */
-	IEvent channel_init;
+	private static IEvent channel_init;
 
-	protected IEvent channel_sends;
+	private static IEvent channel_sends;
 
-	IEvent channel_receives;
+	private static IEvent channel_receives;
 
-	IEvent EO_init;
+	private static IEvent EO_init;
 
-	IEvent EO_sends;
+	private static IEvent EO_sends;
 
-	protected IEvent EO_receives;
+	private static IEvent EO_receives;
 
-	IEvent EOIO_init;
+	private static IEvent EOIO_init;
 
-	IEvent EOIO_sends;
+	private static IEvent EOIO_sends;
 
-	IEvent EOIO_receives;
+	private static IEvent EOIO_receives;
 
 	/**
 	 * Some parameters of the events
 	 */
-	IParameter channel_sends_msg;
+	private static IParameter channel_sends_msg;
 
-	IParameter channel_receives_msg;
+	private static IParameter channel_receives_msg;
 
-	IParameter EO_receives_idx;
+	private static IParameter EO_receives_idx;
 
 	/**
 	 * Some guards within events
 	 */
-	IGuard channel_sends_grd_1;
+	private static IGuard channel_sends_grd_1;
 
-	IGuard channel_receives_grd_1;
+	private static IGuard channel_receives_grd_1;
 
-	IGuard EO_sends_grd_2;
+	private static IGuard EO_sends_grd_2;
 
-	IGuard EO_sends_thm_1;
+	private static IGuard EO_sends_thm_1;
 
-	IGuard EO_receives_grd_1;
+	private static IGuard EO_receives_grd_1;
 
-	IGuard EOIO_receives_grd_2;
+	private static IGuard EOIO_receives_grd_2;
 
 	/**
 	 * Some witnesses within events
 	 */
-	IWitness EO_receives_msg;
+	private static IWitness EO_receives_msg;
 
 	/**
 	 * Some actions within events
 	 */
-	IAction channel_init_act_1;
+	private static IAction channel_init_act_1;
 
-	IAction channel_init_act_2;
+	private static IAction channel_init_act_2;
 
-	IAction channel_sends_act_1;
+	private static IAction channel_sends_act_1;
 
-	IAction channel_receives_act_1;
+	private static IAction channel_receives_act_1;
 
-	IAction EO_init_act_3;
+	private static IAction EO_init_act_3;
 
-	IAction EO_init_act_4;
+	private static IAction EO_init_act_4;
 
-	IAction EO_init_act_5;
+	private static IAction EO_init_act_5;
 
-	IAction EO_sends_act_2;
+	private static IAction EO_sends_act_2;
 
-	IAction EO_sends_act_3;
+	private static IAction EO_sends_act_3;
 
-	IAction EO_receives_act_1;
+	private static IAction EO_receives_act_1;
 
-	IAction EO_receives_act_2;
+	private static IAction EO_receives_act_2;
 
-	IAction EO_receives_act_3;
+	private static IAction EO_receives_act_3;
 
-	@Before
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	/**
+	 * Utility method to create the "Channel" project.
+	 * 
+	 * @throws CoreException
+	 *             if some unexpected problems occur.
+	 */
+	public static void setup() throws CoreException {
+
+		IProgressMonitor nullMonitor = new NullProgressMonitor();
+
 		// Create the project
 		channelPrj = EventBUtils.createEventBProject(channelPrjName,
 				nullMonitor);
 
 		// Create some contexts inside the project
-		message_ctx = EventBUtils.createContext(channelPrj, messageCtxName,
+		messageCtxRoot = EventBUtils.createContext(channelPrj, messageCtxName,
 				nullMonitor);
-		size_ctx = EventBUtils.createContext(channelPrj, sizeCtxName,
+		sizeCtxRoot = EventBUtils.createContext(channelPrj, sizeCtxName,
 				nullMonitor);
 
 		// Create content of message_ctx.
@@ -247,13 +257,13 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 		// axm1: finite(MESSAGE)
 		// thm1: card(MESSAGE) : NAT1
 		// END
-		MESSAGE = EventBUtils.createCarrierSet(message_ctx, "MESSAGE", null,
+		MESSAGE = EventBUtils.createCarrierSet(messageCtxRoot, "MESSAGE", null,
 				nullMonitor);
-		message_ctx_axm_1 = EventBUtils.createAxiom(message_ctx, "axm1",
+		message_ctx_axm_1 = EventBUtils.createAxiom(messageCtxRoot, "axm1",
 				"finite(MESSAGE)", false, null, nullMonitor);
-		message_ctx_thm_1 = EventBUtils.createAxiom(message_ctx, "thm1",
+		message_ctx_thm_1 = EventBUtils.createAxiom(messageCtxRoot, "thm1",
 				"card(MESSAGE) ∈ ℕ1", true, null, nullMonitor);
-		message_ctx.getRodinFile().save(nullMonitor, false);
+		messageCtxRoot.getRodinFile().save(nullMonitor, false);
 
 		// Create content for size_ctx
 		// CONTEXT size_ctx
@@ -261,11 +271,11 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 		// AXIOMS
 		// axm1: max_size : NAT1
 		// END
-		max_size = EventBUtils.createConstant(size_ctx, "max_size", null,
+		max_size = EventBUtils.createConstant(sizeCtxRoot, "max_size", null,
 				nullMonitor);
-		size_ctx_axm_1 = EventBUtils.createAxiom(size_ctx, "axm1",
+		size_ctx_axm_1 = EventBUtils.createAxiom(sizeCtxRoot, "axm1",
 				"max_size ∈ ℕ1", false, null, nullMonitor);
-		size_ctx.getRodinFile().save(nullMonitor, false);
+		sizeCtxRoot.getRodinFile().save(nullMonitor, false);
 
 		// Create some machines inside the projects.
 		channelMchRoot = EventBUtils.createMachine(channelPrj, channelMchName,
@@ -563,254 +573,79 @@ public abstract class ChannelSetupTests extends AbstractEventBTests {
 
 		// Save EOIO
 		EOIOMchRoot.getRodinFile().save(nullMonitor, false);
-	}
-
-	/**
-	 * Test the generated context message_ctx.
-	 */
-	@Test
-	public void testMessageContext() {
-		testContextExtendsClauses("Incorrect EXTENDS clauses for message_ctx",
-				message_ctx);
-		testContextCarrierSets("Incorrect SETS for message_ctx", message_ctx,
-				"MESSAGE");
-		testContextConstants("Incorrect CONSTANTS for message_ctx", message_ctx);
-		testContextAxioms("Incorrect AXIOMS for message_ctx", message_ctx,
-				"axm1:finite(MESSAGE):false", "thm1:card(MESSAGE) ∈ ℕ1:true");
-	}
-
-	/**
-	 * Test the generated context size_ctx.
-	 */
-	@Test
-	public void testMaxSizeContext() {
-		testContextExtendsClauses("Incorrect EXTENDS clauses for size_ctx",
-				size_ctx);
-		testContextCarrierSets("Incorrect SETS for size_ctx", size_ctx);
-		testContextConstants("Incorrect CONSTANTS for size_ctx", size_ctx,
-				"max_size");
-		testContextAxioms("Incorrect AXIOMS for size_ctx", size_ctx,
-				"axm1:max_size ∈ ℕ1:false");
-	}
-
-	/**
-	 * Test the generated machine channel.
-	 */
-	@Test
-	public void testChannelMachine() {
-		testMachineRefinesClauses("Incorrect REFINES clauses for channel",
-				channelMchRoot);
-		testMachineSeesClauses("Incorrect SEES clauses for channel",
-				channelMchRoot, "message_ctx");
-		testMachineVariables("Incorrect VARIABLES for channel", channelMchRoot,
-				"s_count", "r_count");
-		testMachineInvariants("Incorrect INVARIANTS for channel",
-				channelMchRoot, "inv1:s_count ∈ ℕ:false",
-				"inv2:r_count ∈ ℕ:false");
-		testMachineEvents("Incorrect EVENTS for channel", channelMchRoot,
-				"INITIALISATION:ORDINARY:false", "sends:ORDINARY:false",
-				"receives:ORDINARY:false");
-		try {
-			IEvent[] events = channelMchRoot.getEvents();
-
-			// Test INITIALISATION
-			IEvent channel_init_evt = events[0];
-			testEventRefinesClauses(
-					"Incorrect REFINES clauses for INITIALISATION for channel",
-					channel_init_evt);
-			testEventParameters("Incorrect ANY for INITIALISATION for channel",
-					channel_init_evt);
-			testEventGuards("Incorrect WHERE for INITIALISATION for channel",
-					channel_init_evt);
-			testEventWitnesses(
-					"Incorrect WITNESSES for INITIALISATION for channel",
-					channel_init_evt);
-			testEventActions("Incorrect THEN for INITIALISATION for channel",
-					channel_init_evt, "act1:s_count ≔ 0", "act2:r_count ≔ 0");
-
-			// Test sends
-			IEvent channel_sends_evt = events[1];
-			testEventRefinesClauses(
-					"Incorrect REFINES clauses for sends for channel",
-					channel_sends_evt);
-			testEventParameters("Incorrect ANY for sends for channel",
-					channel_sends_evt, "msg");
-			testEventGuards("Incorrect WHERE for sends for channel",
-					channel_sends_evt, "grd1:msg ∈ MESSAGE:false");
-			testEventWitnesses("Incorrect WITNESSES for sends for channel",
-					channel_sends_evt);
-			testEventActions("Incorrect THEN for sends for channel",
-					channel_sends_evt, "act1:s_count ≔ s_count + 1");
-
-			// Test receives
-			IEvent channel_receives_evt = events[2];
-			testEventRefinesClauses(
-					"Incorrect REFINES clauses for receives for channel",
-					channel_receives_evt);
-			testEventParameters("Incorrect ANY for receives for channel",
-					channel_receives_evt, "msg");
-			testEventGuards("Incorrect WHERE for receives for channel",
-					channel_receives_evt, "grd1:msg ∈ MESSAGE:false");
-			testEventWitnesses("Incorrect WITNESSES for receives for channel",
-					channel_receives_evt);
-			testEventActions("Incorrect THEN for receives for channel",
-					channel_receives_evt, "act1:r_count ≔ r_count + 1");
-
-		} catch (RodinDBException e) {
-			fail("There should not be any RodinDB exception");
-		}
 
 	}
 
 	/**
-	 * Test the generated machine EO.
+	 * Returns the <code>Channel</code> project.
+	 * 
+	 * @return the <code>Channel</code> project.
 	 */
-	@Test
-	public void testEOMachine() {
-		testMachineRefinesClauses("Incorrect REFINES clauses for EO",
-				EOMchRoot, "channel");
-		testMachineSeesClauses("Incorrect SEES clauses for EO", EOMchRoot,
-				"message_ctx", "size_ctx");
-		testMachineVariables("Incorrect VARIABLES for EO", EOMchRoot, "s_count",
-				"r_count", "sents", "receiveds", "channel");
-		testMachineInvariants("Incorrect INVARIANTS for EO", EOMchRoot,
-				"inv1:sents ∈ 1‥s_count → MESSAGE:false",
-				"inv2:receiveds ∈ 1‥r_count ↣ 1‥s_count:false",
-				"inv3:ran(receiveds) ∪ channel = 1‥s_count:false",
-				"thm1:channel ⊆ 1‥s_count:true",
-				"inv4:ran(receiveds) ∩ channel = ∅:false",
-				"inv5:r_count + card(channel) = s_count:false",
-				"thm2:r_count ≤ s_count:true",
-				"inv6:card(channel) ≤ max_size:false",
-				"thm3:s_count ≤ r_count + max_size:true");
-		testMachineEvents("Incorrect EVENTS for EO", EOMchRoot,
-				"INITIALISATION:ORDINARY:true", "sends:ORDINARY:true",
-				"receives:ORDINARY:false");
-		try {
-			IEvent[] events = EOMchRoot.getEvents();
-
-			// Test INITIALISATION
-			IEvent EO_init_evt = events[0];
-			testEventRefinesClauses(
-					"Incorrect REFINES clauses for INITIALISATION for EO",
-					EO_init_evt);
-			testEventParameters("Incorrect ANY for INITIALISATION for EO",
-					EO_init_evt);
-			testEventGuards("Incorrect WHERE for INITIALISATION for EO",
-					EO_init_evt);
-			testEventWitnesses("Incorrect WITNESSES for INITIALISATION for EO",
-					EO_init_evt);
-			testEventActions("Incorrect THEN for INITIALISATION for EO",
-					EO_init_evt, "act3:sents ≔ ∅", "act4:receiveds ≔ ∅",
-					"act5:channel ≔ ∅");
-
-			// Test sends
-			IEvent EO_sends_evt = events[1];
-			testEventRefinesClauses(
-					"Incorrect REFINES clauses for sends for EO", EO_sends_evt,
-					"sends");
-			testEventParameters("Incorrect ANY for sends for EO", EO_sends_evt);
-			testEventGuards("Incorrect WHERE for sends for EO", EO_sends_evt,
-					"grd2:card(channel) ≠ max_size:false",
-					"thm1:{s_count + 1 ↦ msg} ∈ 1 ‥ s_count + 1 ⇸ MESSAGE:true");
-			testEventWitnesses("Incorrect WITNESSES for sends for EO",
-					EO_sends_evt);
-			testEventActions("Incorrect THEN for sends for EO", EO_sends_evt,
-					"act2:sents(s_count + 1) ≔ msg",
-					"act3:channel ≔ channel ∪ {s_count + 1}");
-
-			// Test receives
-			IEvent EO_receives_evt = events[2];
-			testEventRefinesClauses(
-					"Incorrect REFINES clauses for receives for EO",
-					EO_receives_evt, "receives");
-			testEventParameters("Incorrect ANY for receives for EO",
-					EO_receives_evt, "idx");
-			testEventGuards("Incorrect WHERE for receives for EO",
-					EO_receives_evt, "grd1:idx ∈ channel:false");
-			testEventWitnesses("Incorrect WITNESSES for receives for EO",
-					EO_receives_evt, "msg:msg = sents(idx)");
-			testEventActions("Incorrect THEN for receives for EO",
-					EO_receives_evt, "act1:r_count ≔ r_count + 1",
-					"act2:channel ≔ channel ∖ {idx}",
-					"act3:receiveds(r_count + 1) ≔ idx");
-		} catch (RodinDBException e) {
-			fail("There should not be any RodinDB exception");
-		}
-
+	public static IEventBProject getChannelProject() {
+		return channelPrj;
 	}
 
 	/**
-	 * Test the generated machine EOIO.
+	 * Returns the <code>message_ctx</code> context root.
+	 * 
+	 * @return the <code>message_ctx</code> context root.
 	 */
-	@Test
-	public void testEOIOMachine() {
-		testMachineRefinesClauses("Incorrect REFINES clauses for EOIO", EOIOMchRoot,
-				"EO");
-		testMachineSeesClauses("Incorrect SEES clauses for EOIO", EOIOMchRoot,
-				"message_ctx", "size_ctx");
-		testMachineVariables("Incorrect VARIABLES for EOIO", EOIOMchRoot, "s_count",
-				"r_count", "sents", "receiveds", "channel");
-		testMachineInvariants("Incorrect INVARIANTS for EOIO", EOIOMchRoot,
-				"inv1:ran(receiveds) = 1‥r_count:false",
-				"thm1:r_count ∈ ℕ:true",
-				"thm2:ran(receiveds) ∪ channel = 1‥s_count:true",
-				"thm3:ran(receiveds) ∩ channel = ∅:true",
-				"thm4:ran(receiveds) = 1‥r_count:true",
-				"thm5:channel = r_count + 1 ‥ s_count:true");
-		testMachineEvents("Incorrect EVENTS for EOIO", EOIOMchRoot,
-				"INITIALISATION:ORDINARY:true", "sends:ORDINARY:true",
-				"receives:ORDINARY:true");
+	public static IContextRoot getMessageContextRoot() {
+		return messageCtxRoot;
+	}
 
-		try {
-			IEvent[] events = EOIOMchRoot.getEvents();
+	/**
+	 * Returns the <code>size_ctx</code> context root.
+	 * 
+	 * @return the <code>size_ctx</code> context root.
+	 */
+	public static IContextRoot getSizeContextRoot() {
+		return sizeCtxRoot;
+	}
 
-			// Test INITIALISATION
-			IEvent EOIO_init_evt = events[0];
-			testEventRefinesClauses(
-					"Incorrect REFINES clauses for INITIALISATION for EOIO",
-					EOIO_init_evt);
-			testEventParameters("Incorrect ANY for INITIALISATION for EOIO",
-					EOIO_init_evt);
-			testEventGuards("Incorrect WHERE for INITIALISATION for EOIO",
-					EOIO_init_evt);
-			testEventWitnesses(
-					"Incorrect WITNESSES for INITIALISATION for EOIO",
-					EOIO_init_evt);
-			testEventActions("Incorrect THEN for INITIALISATION for EOIO",
-					EOIO_init_evt);
+	/**
+	 * Returns the <code>Channel</code> machine root.
+	 * 
+	 * @return the <code>Channel</code> machine root.
+	 */
+	public static IMachineRoot getChannelMachineRoot() {
+		return channelMchRoot;
+	}
 
-			// Test sends
-			IEvent EOIO_sends_evt = events[1];
-			testEventRefinesClauses(
-					"Incorrect REFINES clauses for sends for EOIO",
-					EOIO_sends_evt, "sends");
-			testEventParameters("Incorrect ANY for sends for EOIO",
-					EOIO_sends_evt);
-			testEventGuards("Incorrect WHERE for sends for EOIO",
-					EOIO_sends_evt);
-			testEventWitnesses("Incorrect WITNESSES for sends for EOIO",
-					EOIO_sends_evt);
-			testEventActions("Incorrect THEN for sends for EOIO",
-					EOIO_sends_evt);
+	/**
+	 * Returns the <code>EO</code> machine root.
+	 * 
+	 * @return the <code>EO</code> machine root.
+	 */
+	public static IMachineRoot getEOMachineRoot() {
+		return EOMchRoot;
+	}
 
-			// Test receives
-			IEvent EOIO_receives_evt = events[2];
-			testEventRefinesClauses(
-					"Incorrect REFINES clauses for receives for EOIO",
-					EOIO_receives_evt, "receives");
-			testEventParameters("Incorrect ANY for receives for EOIO",
-					EOIO_receives_evt);
-			testEventGuards("Incorrect WHERE for receives for EOIO",
-					EOIO_receives_evt, "grd2:idx = r_count + 1:false");
-			testEventWitnesses("Incorrect WITNESSES for receives for EOIO",
-					EOIO_receives_evt);
-			testEventActions("Incorrect THEN for receives for EOIO",
-					EOIO_receives_evt);
+	/**
+	 * Returns the <code>EOIO</code> machine root.
+	 * 
+	 * @return the <code>EOIO</code> machine root.
+	 */
+	public static IMachineRoot getEOIOMachineRoot() {
+		return EOIOMchRoot;
+	}
 
-		} catch (RodinDBException e) {
-			fail("There should not be any RodinDB exception");
-		}
+	/**
+	 * Returns the <code>Channel</code>'s <code>sends</code> event.
+	 * 
+	 * @return the <code>Channel</code>'s <code>sends</code> event.
+	 */
+	public static IEvent getChannelSendsEvent() {
+		return channel_sends;
+	}
+
+	/**
+	 * Returns the <code>EO</code>'s <code>receives</code> event.
+	 * 
+	 * @return the <code>EO</code>'s <code>receives</code> event.
+	 */
+	public static IEvent getEOReceivesEvent() {
+		return EO_receives;
 	}
 
 }

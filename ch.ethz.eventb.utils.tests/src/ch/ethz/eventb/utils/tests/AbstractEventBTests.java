@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2011 ETH Zurich and others.
+ * Copyright (c) 2009--2011 ETH Zurich and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -40,24 +40,30 @@ import org.junit.Before;
 import org.rodinp.core.RodinDBException;
 import org.rodinp.internal.core.debug.DebugHelpers;
 
+import ch.ethz.eventb.utils.EventBUtils;
+
 /**
+ * <p>
+ * Abstract class for testing Event-B models.
+ * </p>
+ *
  * @author htson
- *         <p>
- *         Abstract class for Event-B tests.
- *         </p>
+ * @version 0.1.3
+ * @see EventBUtils
+ * @since 0.1.3
  */
 @SuppressWarnings("restriction")
 public abstract class AbstractEventBTests extends AbstractTests {
 
 	/**
-	 * The null progress monitor.
+	 *  The null progress monitor for testing.
 	 */
-	protected static final IProgressMonitor nullMonitor = new NullProgressMonitor();
+	public IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 	/**
 	 * The testing workspace.
 	 */
-	protected IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	public IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
 	/**
 	 * The formula factory used to create formulae.
@@ -81,10 +87,15 @@ public abstract class AbstractEventBTests extends AbstractTests {
 		super(name);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * <ol>
+	 * <li>Super method.</li>
+	 * <li>Turn off auto-building.</li>
+	 * <li>Disable Rodin indexing.</li>
+	 * <li>Delete the old workspace.</li>
+	 * </ol>
 	 * 
-	 * @see junit.framework.TestCase#setUp()
+	 * @see AbstractEventBTests#setUp()
 	 */
 	@Before
 	@Override
@@ -106,8 +117,11 @@ public abstract class AbstractEventBTests extends AbstractTests {
 
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * <ol>
+	 * <li>Delete the old workspace.</li>
+	 * <li>Super method.</li>
+	 * </ol>
 	 * 
 	 * @see junit.framework.TestCase#tearDown()
 	 */

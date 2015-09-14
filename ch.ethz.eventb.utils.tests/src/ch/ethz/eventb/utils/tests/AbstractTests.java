@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 ETH Zurich and others.
+ * Copyright (c) 2011--2015 ETH Zurich and others.
 
  * 
  * All rights reserved. This program and the accompanying materials
@@ -20,22 +20,26 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
+ * <p>
+ * This abstract class contains utility methods supporting testing.
+ * </p>
+ * 
  * @author htson
- *         <p>
- *         This abstract class contains utility methods supporting testing.
- *         </p>
+ * @version 0.2.0
+ * @see TestCase
+ * @since 0.2.0
  */
 public abstract class AbstractTests extends TestCase {
 
 	/**
-	 * Constructor: Create max_size test case.
+	 * Constructor: Create a test case.
 	 */
 	public AbstractTests() {
 		super();
 	}
 
 	/**
-	 * Constructor: Create max_size test case with the given name.
+	 * Constructor: Create a test case with the given name.
 	 * 
 	 * @param name
 	 *            the name of test

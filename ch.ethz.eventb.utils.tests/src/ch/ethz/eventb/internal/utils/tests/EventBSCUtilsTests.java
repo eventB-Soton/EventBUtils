@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2009--2015 ETH Zurich and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     ETH Zurich - initial API and implementation
+ *******************************************************************************/
+
 package ch.ethz.eventb.internal.utils.tests;
 
 import java.util.Collection;
@@ -12,20 +23,36 @@ import org.junit.Test;
 import org.rodinp.core.RodinDBException;
 
 import ch.ethz.eventb.utils.EventBSCUtils;
-import ch.ethz.eventb.utils.tests.ChannelSetupTests;
+import ch.ethz.eventb.utils.tests.AbstractEventBTests;
+import ch.ethz.eventb.utils.tests.ChannelSetup;
 
-public class EventBSCUtilsTests extends ChannelSetupTests {
+/**
+ * <p>
+ * Tests for EventB SC Utilities.
+ * </p>
+ *
+ * @author htson
+ * @version 0.1.3
+ * @see EventBSCUtils
+ * @since 0.1.3
+ */
+public class EventBSCUtilsTests extends AbstractEventBTests {
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * <ol>
+	 * <li>Setup the <code>Channel</code> project.</li>
+	 * <li>Build the workspace.</li>
+	 * </ol>
 	 * 
-	 * @see ch.ethz.eventb.internal.inst.tests.ChannelSetupTests#setUp()
+	 * @see AbstractEventBTests#setUp()
 	 */
 	@Before
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
+		ChannelSetup.setup();
+		
 		// Fully build the project.
 		workspace.build(IncrementalProjectBuilder.FULL_BUILD, nullMonitor);
 	}
@@ -40,6 +67,7 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 			Map<String, String> expected;
 			Map<String, String> scSeenAxms;
 
+			IMachineRoot channelMchRoot = ChannelSetup.getChannelMachineRoot();
 			scSeenAxms = EventBSCUtils.getSCSeenAxioms(channelMchRoot, false);
 			expected = new HashMap<String, String>();
 			expected.put("message_ctx/axm1", "finite(MESSAGE)");
@@ -52,6 +80,7 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 			assertSameMap("Test get seen statically checked theorems channel",
 					expected, scSeenAxms);
 
+			IMachineRoot EOMchRoot = ChannelSetup.getEOIOMachineRoot();
 			scSeenAxms = EventBSCUtils.getSCSeenAxioms(EOMchRoot, false);
 			expected = new HashMap<String, String>();
 			expected.put("message_ctx/axm1", "finite(MESSAGE)");
@@ -65,6 +94,7 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 			assertSameMap("Test get seen statically checked theorems EO",
 					expected, scSeenAxms);
 
+			IMachineRoot EOIOMchRoot = ChannelSetup.getEOIOMachineRoot();
 			scSeenAxms = EventBSCUtils.getSCSeenAxioms(EOIOMchRoot, false);
 			expected = new HashMap<String, String>();
 			expected.put("message_ctx/axm1", "finite(MESSAGE)");
@@ -92,14 +122,19 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testGetSCSeenCarrierSetIdentifierStrings() {
 		try {
+			IMachineRoot channelMchRoot = ChannelSetup.getChannelMachineRoot();
 			Collection<String> seenSCSetIdentStrs = EventBSCUtils
 					.getSCSeenCarrierSetIdentifierStrings(channelMchRoot);
 			assertSameStrings("Machine channel: seen SC carrier sets",
 					seenSCSetIdentStrs, "MESSAGE");
+			
+			IMachineRoot EOMchRoot = ChannelSetup.getEOMachineRoot();
 			seenSCSetIdentStrs = EventBSCUtils
 					.getSCSeenCarrierSetIdentifierStrings(EOMchRoot);
 			assertSameStrings("Machine EO: seen SC carrier sets",
 					seenSCSetIdentStrs, "MESSAGE");
+			
+			IMachineRoot EOIOMchRoot = ChannelSetup.getEOIOMachineRoot();
 			seenSCSetIdentStrs = EventBSCUtils
 					.getSCSeenCarrierSetIdentifierStrings(EOIOMchRoot);
 			assertSameStrings("Machine EO: seen SC carrier sets",
@@ -119,16 +154,21 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testGetSCSeenCarrierSetIdentifierStringsSC() {
 		try {
+			IMachineRoot channelMchRoot = ChannelSetup.getChannelMachineRoot();
 			Collection<String> seenSCSetIdentStrs = EventBSCUtils
 					.getSCSeenCarrierSetIdentifierStrings(channelMchRoot
 							.getSCMachineRoot());
 			assertSameStrings("Machine channel: seen SC carrier sets",
 					seenSCSetIdentStrs, "MESSAGE");
+			
+			IMachineRoot EOMchRoot = ChannelSetup.getEOMachineRoot();
 			seenSCSetIdentStrs = EventBSCUtils
 					.getSCSeenCarrierSetIdentifierStrings(EOMchRoot
 							.getSCMachineRoot());
 			assertSameStrings("Machine EO: seen SC carrier sets",
 					seenSCSetIdentStrs, "MESSAGE");
+			
+			IMachineRoot EOIOMchRoot = ChannelSetup.getEOIOMachineRoot();
 			seenSCSetIdentStrs = EventBSCUtils
 					.getSCSeenCarrierSetIdentifierStrings(EOIOMchRoot
 							.getSCMachineRoot());
@@ -148,14 +188,19 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testGetSCSeenConstantIdentifierStrings() {
 		try {
+			IMachineRoot channelMchRoot = ChannelSetup.getChannelMachineRoot();
 			Collection<String> seenSCCstIdentStrs = EventBSCUtils
 					.getSCSeenConstantIdentifierStrings(channelMchRoot);
 			assertSameStrings("Machine channel: seen SC constants",
 					seenSCCstIdentStrs);
+			
+			IMachineRoot EOMchRoot = ChannelSetup.getEOMachineRoot();
 			seenSCCstIdentStrs = EventBSCUtils
 					.getSCSeenConstantIdentifierStrings(EOMchRoot);
 			assertSameStrings("Machine EO: seen SC constants",
 					seenSCCstIdentStrs, "max_size");
+			
+			IMachineRoot EOIOMchRoot = ChannelSetup.getEOIOMachineRoot();
 			seenSCCstIdentStrs = EventBSCUtils
 					.getSCSeenConstantIdentifierStrings(EOIOMchRoot);
 			assertSameStrings("Machine EO: seen SC constants",
@@ -174,16 +219,21 @@ public class EventBSCUtilsTests extends ChannelSetupTests {
 	@Test
 	public void testGetSCSeenConstantIdentifierStringsSC() {
 		try {
+			IMachineRoot channelMchRoot = ChannelSetup.getChannelMachineRoot();
 			Collection<String> seenSCCstIdentStrs = EventBSCUtils
 					.getSCSeenConstantIdentifierStrings(channelMchRoot
 							.getSCMachineRoot());
 			assertSameStrings("Machine channel: seen SC constants",
 					seenSCCstIdentStrs);
+			
+			IMachineRoot EOMchRoot = ChannelSetup.getEOMachineRoot();
 			seenSCCstIdentStrs = EventBSCUtils
 					.getSCSeenConstantIdentifierStrings(EOMchRoot
 							.getSCMachineRoot());
 			assertSameStrings("Machine EO: seen SC constants",
 					seenSCCstIdentStrs, "max_size");
+			
+			IMachineRoot EOIOMchRoot = ChannelSetup.getEOIOMachineRoot();
 			seenSCCstIdentStrs = EventBSCUtils
 					.getSCSeenConstantIdentifierStrings(EOIOMchRoot
 							.getSCMachineRoot());
