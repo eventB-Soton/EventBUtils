@@ -1,6 +1,5 @@
 /*******************************************************************************
  * Copyright (c) 2011--2015 ETH Zurich and others.
-
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,6 +8,7 @@
  *
  * Contributors:
  *     ETH Zurich - initial API and implementation
+ *     University of Southampton - added failUnexpectedException(Exception).
  *******************************************************************************/
 
 package ch.ethz.eventb.utils.tests;
@@ -157,4 +157,13 @@ public abstract class AbstractTests extends TestCase {
 		}
 	}
 
+	/**
+	 * Utility method to fail when there is an exception.
+	 * 
+	 * @param e
+	 *            the exception causing the failure.
+	 */
+	protected void failUnexpectedException(Exception e) {
+		fail("There should be no exception: " + e.getMessage());
+	}
 }
