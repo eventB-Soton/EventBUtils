@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009--2011 ETH Zurich and others.
+ * Copyright (c) 2009--2015 ETH Zurich and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,6 +8,8 @@
  *
  * Contributors:
  *     ETH Zurich - initial API and implementation
+ *     University of Southampton - added testMachineVariants(...) 
+ *                                   and testVariant(...)
  *******************************************************************************/
 
 package ch.ethz.eventb.utils.tests;
@@ -33,6 +35,7 @@ import org.eventb.core.IRefinesEvent;
 import org.eventb.core.IRefinesMachine;
 import org.eventb.core.ISeesContext;
 import org.eventb.core.IVariable;
+import org.eventb.core.IVariant;
 import org.eventb.core.IWitness;
 import org.eventb.core.ast.FormulaFactory;
 import org.junit.After;
@@ -56,7 +59,7 @@ import ch.ethz.eventb.utils.EventBUtils;
 public abstract class AbstractEventBTests extends AbstractTests {
 
 	/**
-	 *  The null progress monitor for testing.
+	 * The null progress monitor for testing.
 	 */
 	public IProgressMonitor nullMonitor = new NullProgressMonitor();
 
@@ -524,7 +527,7 @@ public abstract class AbstractEventBTests extends AbstractTests {
 	}
 
 	/**
-	 * Utility method for testing the invariants of a context.
+	 * Utility method for testing the invariants of a machine.
 	 * 
 	 * @param message
 	 *            a message for debugging.
@@ -575,6 +578,53 @@ public abstract class AbstractEventBTests extends AbstractTests {
 			e.printStackTrace();
 			fail("There should be no exception");
 			return;
+		}
+	}
+
+	/**
+	 * Utility method for testing the variants of a machine.
+	 * 
+	 * @param message
+	 *            a message for debugging.
+	 * @param mch
+	 *            a machine root whose variants will be tested.
+	 * @param expected
+	 *            the expected pretty-print variants. The variants are
+	 *            "pretty-printed" as follows: "expressionString". The order of
+	 *            the variants is important.
+	 */
+	protected void testMachineVariants(String message, IMachineRoot mch,
+			String... expected) {
+		try {
+			IVariant[] variants = mch.getVariants();
+			assertEquals(message + ": Incorrect number of variants",
+					variants.length, expected.length);
+			for (int i = 0; i < expected.length; i++) {
+				testVariant(message, variants[i], expected[i]);
+			}
+		} catch (RodinDBException e) {
+			failUnexpectedException(e);
+		}
+
+	}
+
+	/**
+	 * Utility method for testing a variant.
+	 * 
+	 * @param message
+	 *            a message for debugging
+	 * @param var
+	 *            the variant to be tested
+	 * @param expected
+	 *            the expected pretty-print variant. The variant are
+	 *            "pretty-printed" as follows: "expressionString".
+	 */
+	protected void testVariant(String message, IVariant var, String expected) {
+		try {
+			assertEquals(message + ": Incorrect expression string", expected,
+					var.getExpressionString());
+		} catch (RodinDBException e) {
+			failUnexpectedException(e);
 		}
 	}
 
