@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.rodinp.license"
+      label="%rodinpLicenseFeatureName"
+      version="1.0.0.qualifier"
+      provider-name="%rodinpLicenseFeatureVendor">
+
+   <description>
+      %rodinpLicenseDescription
+   </description>
+
+   <copyright>
+      %rodinpLicenseCopyright
+   </copyright>
+
+   <license url="%rodinpLicenseURL">
+      %rodinpLicense
+   </license>
+
+   <url>
+      <update label="%rodinpLicenseUpdateSiteName" url="http://rodin-b-sharp.sourceforge.net/updates"/>
+   </url>
+
+</feature>
