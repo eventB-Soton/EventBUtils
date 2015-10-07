@@ -2,8 +2,10 @@
 <feature
       id="ch.ethz.eventb.utils_feature"
       label="%featureName"
-      version="0.2.0.qualifier"
-      provider-name="%featureVendor">
+      version="0.2.1.qualifier"
+      provider-name="%featureVendor"
+      license-feature="org.rodinp.license"
+      license-feature-version="1.0.0.qualifier">
 
    <description>
       %description
@@ -16,6 +18,10 @@
    <license url="%licenseURL">
       %license
    </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://rodin-b-sharp.sourceforge.net/updates"/>
+   </url>
 
    <requires>
       <import plugin="org.eclipse.core.runtime" version="3.10.0" match="compatible"/>
