@@ -11,7 +11,13 @@ The complete source code of the package can be downloaded as a zip file *ch.ethz
 Change Logs
 ===========
 
+Version 0.2.2
+-------------
+
+- Added utilitities related to Event-B UI: Event-B content provider, Event-B label
+  provider, Event-B viewer filter.
+
 Version 0.2.1
 -------------
-- Publish the SDK feature of the package.
-- Change the structure of the tests plugin.
+- Published the SDK feature of the package.
+- Changed the structure of the tests plugin.
