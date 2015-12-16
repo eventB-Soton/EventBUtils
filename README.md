@@ -11,6 +11,10 @@ The complete source code of the package can be downloaded as a zip file *ch.ethz
 Change Logs
 ===========
 
+Version 0.2.3
+-------------
+- add method getVariableType(…) to EventBSCUtils to get the type of a variable from the statically checked machine
+
 Version 0.2.2
 -------------
 
