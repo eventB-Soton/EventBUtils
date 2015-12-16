@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
 import org.eventb.core.IAxiom;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.ISCAxiom;
@@ -27,6 +28,8 @@ import org.eventb.core.ISCConstant;
 import org.eventb.core.ISCIdentifierElement;
 import org.eventb.core.ISCInternalContext;
 import org.eventb.core.ISCMachineRoot;
+import org.eventb.core.ISCVariable;
+import org.eventb.core.ast.Type;
 import org.rodinp.core.IInternalElementType;
 import org.rodinp.core.IRodinElement;
 import org.rodinp.core.RodinDBException;
@@ -37,10 +40,10 @@ import ch.ethz.eventb.internal.utils.Messages;
  * @author htson
  *         <p>
  *         Utility class containing some useful methods to handle Event-B
- *         statically-checked elements.</p>
+ *         statically-checked elements.
+ *         </p>
  */
 public final class EventBSCUtils {
-
 
 	private EventBSCUtils() {
 		// Utility classes shall not have a public or default constructor.
@@ -66,9 +69,8 @@ public final class EventBSCUtils {
 	 * @throws RodinDBException
 	 *             if a problem occurs while accessing the database.
 	 */
-	public static Map<String, String> getSCSeenAxioms(
-			IMachineRoot mchRoot, boolean isTheorem)
-			throws RodinDBException {
+	public static Map<String, String> getSCSeenAxioms(IMachineRoot mchRoot,
+			boolean isTheorem) throws RodinDBException {
 		// Assert preconditions.
 		Assert.isNotNull(mchRoot, Messages.error_NullMachine);
 		Assert.isTrue(mchRoot.exists(), Messages.bind(
@@ -82,7 +84,7 @@ public final class EventBSCUtils {
 
 		// Empty result.
 		Map<String, String> result = new HashMap<String, String>();
-		
+
 		// Get the list of seen contexts.
 		ISCInternalContext[] scSeenContexts = scMchRoot.getSCSeenContexts();
 
@@ -90,7 +92,7 @@ public final class EventBSCUtils {
 		for (ISCInternalContext scSeenContext : scSeenContexts) {
 			ISCAxiom[] scAxioms = scSeenContext.getSCAxioms();
 			for (ISCAxiom scAxiom : scAxioms) {
-				
+
 				if (scAxiom.isTheorem() == isTheorem) {
 					String key = scSeenContext.getElementName() + "/"
 							+ scAxiom.getLabel();
@@ -189,7 +191,7 @@ public final class EventBSCUtils {
 				result.add(seenElm.getIdentifierString());
 			}
 		}
-		
+
 		return result;
 	}
 
@@ -274,5 +276,34 @@ public final class EventBSCUtils {
 			ISCMachineRoot mch) throws RodinDBException {
 		return getSCSeenElementIdentifierStrings(mch, ISCConstant.ELEMENT_TYPE);
 	}
-	
+
+	/**
+	 * @param mchRoot
+	 * @param identifier
+	 * @return 
+	 * @throws CoreException 
+	 */
+	public static Type getVariableType(IMachineRoot mchRoot, String identifier)
+			throws CoreException {
+		// Assert preconditions.
+		Assert.isNotNull(mchRoot, Messages.error_NullMachine);
+		Assert.isTrue(mchRoot.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mchRoot.getRodinFile()
+						.getBareName()));
+		ISCMachineRoot scMchRoot = mchRoot.getSCMachineRoot();
+		Assert.isNotNull(scMchRoot, Messages.error_NullSCMachine);
+		Assert.isTrue(scMchRoot.exists(), Messages.bind(
+				Messages.error_NonExistingSCMachine, scMchRoot.getRodinFile()
+						.getBareName()));
+
+		ISCVariable[] scVariables = scMchRoot.getSCVariables();
+		for (ISCVariable scVariable : scVariables) {
+			if (scVariable.getIdentifierString().equals(identifier)) {
+				return scVariable.getType(scMchRoot.getFormulaFactory());
+			}
+		}
+
+		return null;
+	}
+
 }
