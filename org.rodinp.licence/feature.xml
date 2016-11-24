@@ -2,7 +2,7 @@
 <feature
       id="org.rodinp.license"
       label="%rodinpLicenseFeatureName"
-      version="1.0.0.qualifier"
+      version="1.0.0.release"
       provider-name="%rodinpLicenseFeatureVendor">
 
    <description>
