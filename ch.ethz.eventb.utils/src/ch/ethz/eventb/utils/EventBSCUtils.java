@@ -21,12 +21,14 @@ import java.util.Map;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eventb.core.IAxiom;
+import org.eventb.core.IInvariant;
 import org.eventb.core.IMachineRoot;
 import org.eventb.core.ISCAxiom;
 import org.eventb.core.ISCCarrierSet;
 import org.eventb.core.ISCConstant;
 import org.eventb.core.ISCIdentifierElement;
 import org.eventb.core.ISCInternalContext;
+import org.eventb.core.ISCInvariant;
 import org.eventb.core.ISCMachineRoot;
 import org.eventb.core.ISCVariable;
 import org.eventb.core.ast.Type;
@@ -192,6 +194,52 @@ public final class EventBSCUtils {
 			}
 		}
 
+		return result;
+	}
+
+	/**
+	 * Utility method for getting statically checked invariants of a machine
+	 * root. The invariants include those from the abstract machines. The result
+	 * is a map between the invariants' labels (including the machine name) and
+	 * the predicate string.
+	 * 
+	 * @param mchRoot
+	 *            the input machine root
+	 * @param theorem
+	 *            indicating if theorems in invariants are included
+	 * @return the map of invariants' labels and the corresponding predicate
+	 *         string.
+	 * @throws RodinDBException
+	 */
+	public static Map<String, String> getSCInvariants(IMachineRoot mchRoot,
+			boolean isTheorem) throws RodinDBException {
+		// Assert preconditions.
+		Assert.isNotNull(mchRoot, Messages.error_NullMachine);
+		Assert.isTrue(mchRoot.exists(), Messages.bind(
+				Messages.error_NonExistingMachine, mchRoot.getRodinFile()
+						.getBareName()));
+		ISCMachineRoot scMchRoot = mchRoot.getSCMachineRoot();
+		Assert.isNotNull(scMchRoot, Messages.error_NullSCMachine);
+		Assert.isTrue(scMchRoot.exists(), Messages.bind(
+				Messages.error_NonExistingSCMachine, scMchRoot.getRodinFile()
+						.getBareName()));
+
+		// Empty result.
+		Map<String, String> result = new HashMap<String, String>();
+		ISCInvariant[] scInvariants = scMchRoot.getSCInvariants();
+		for (ISCInvariant scInvariant : scInvariants) {
+			if (scInvariant.isTheorem() == isTheorem) {
+				String key = scMchRoot.getElementName() + "/"
+						+ scInvariant.getLabel();
+				IRodinElement source = scInvariant.getSource();
+//				Assert.isTrue(
+//						source instanceof IInvariant,
+//						Messages.bind(Messages.error_NotAnAxiom,
+//								source.getElementName()));
+				IInvariant invariant = (IInvariant) source;
+				result.put(key, invariant.getPredicateString());
+			}
+		}
 		return result;
 	}
 
