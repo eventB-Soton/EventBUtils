@@ -8,16 +8,12 @@
       license-feature-version="1.0.0.qualifier">
 
    <description>
-      %description
+      %featureDescription
    </description>
 
    <copyright>
-      %copyright
+      %featureCopyright
    </copyright>
-
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
-   </license>
 
    <url>
       <update label="%updateSiteName" url="http://rodin-b-sharp.sourceforge.net/updates"/>
@@ -27,25 +23,16 @@
          id="ch.ethz.eventb.utils_feature"
          version="0.0.0"/>
 
-   <plugin
-         id="ch.ethz.eventb.utils.source"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="ch.ethz.eventb.utils.source.feature"
+         version="0.0.0"/>
 
-   <plugin
-         id="ch.ethz.eventb.utils.tests.source"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="ch.ethz.eventb.utils.tests.feature"
+         version="0.0.0"/>
 
-   <plugin
-         id="ch.ethz.eventb.utils.tests"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="ch.ethz.eventb.utils.tests.source.feature"
+         version="0.0.0"/>
 
 </feature>
