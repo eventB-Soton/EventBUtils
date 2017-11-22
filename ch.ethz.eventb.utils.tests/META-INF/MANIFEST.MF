@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: ch.ethz.eventb.utils.tests
 Bundle-Localization: plugin
-Bundle-Version: 0.2.1.qualifier
+Bundle-Version: 0.2.4.release
 Bundle-Vendor: %pluginVendor
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.core.resources;bundle-version="[3.9.0,4.0.0)",

@@ -2,7 +2,7 @@
 <feature
       id="ch.ethz.eventb.utils.sdk"
       label="%featureName"
-      version="0.2.4.qualifier"
+      version="0.2.4.release"
       provider-name="%featureVendor"
       license-feature="org.rodinp.license"
       license-feature-version="1.0.0.qualifier">
