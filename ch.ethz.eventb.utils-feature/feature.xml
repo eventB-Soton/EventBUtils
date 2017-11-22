@@ -8,11 +8,11 @@
       license-feature-version="1.0.0.qualifier">
 
    <description>
-      %description
+      %featureDescription
    </description>
 
    <copyright>
-      %copyright
+      %featureCopyright
    </copyright>
 
    <license url="%licenseURL">
