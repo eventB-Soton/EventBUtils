@@ -1,0 +1,24 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ch.ethz.eventb.utils</groupId>
+  <artifactId>root</artifactId>
+  <name>Event-B Utility Root</name>
+  <description>Event-B Utility Root Build</description>
+  <version>0.2.5-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <parent>
+    <groupId>ch.ethz.eventb.utils</groupId>
+    <artifactId>releng</artifactId>
+    <version>0.2.5-SNAPSHOT</version>
+    <relativePath>./ch.ethz.eventb.utils.releng</relativePath>
+  </parent>
+
+  <modules>
+    <module>ch.ethz.eventb.utils</module>
+    <module>ch.ethz.eventb.utils-feature</module>
+    <module>org.rodinp.licence</module>
+    <module>ch.ethz.eventb.utils.tests</module>
+    <module>ch.ethz.eventb.utils.tests.feature</module>
+    <module>ch.ethz.eventb.utils.sdk</module>
+  </modules>
+</project>

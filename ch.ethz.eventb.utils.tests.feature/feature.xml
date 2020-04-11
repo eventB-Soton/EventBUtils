@@ -4,7 +4,7 @@
       label="%featureName"
       version="0.2.5.qualifier"
       provider-name="%featureVendor"
-      license-feature="org.rodinp.license"
+      license-feature="org.rodinp.licence"
       license-feature-version="1.0.0.release">
 
    <description>
