@@ -1,0 +1,7 @@
+language: generic
+
+before_install:
+  - sudo apt-get update 
+
+script:
+  - ./build.sh
