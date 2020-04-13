@@ -1,17 +1,15 @@
-build: --rodin-licence
+# Get the Rodin Licence
+rodin_licence = ../RodinLicence
+$(rodin_licence):
+	@echo "Rodin Licence does not exist, git clone required"
+	git clone "https://github.com/eventB-Soton/RodinLicence.git" $(rodin_licence)
+
+build: | $(rodin_licence)
 # Use Maven to build
 	mvn clean verify
-# Remove the Rodin licence
-	rm -r org.rodinp.licence
 
-clean: --rodin-licence
+clean: | $(rodin_licence)
 # Use Maven to build
 	mvn clean
-# Remove the Rodin licence
-	rm -r org.rodinp.licence
 
-# Get the Rodin Licence
-.PHONY --rodin-licence:
-	rm -rf org.rodinp.licence
-	svn export https://github.com/eventB-Soton/RodinLicence/trunk/org.rodinp.licence org.rodinp.licence
 
