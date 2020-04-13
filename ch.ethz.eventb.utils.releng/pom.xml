@@ -10,23 +10,33 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <eclipse-repo.url>http://download.eclipse.org/eclipse/updates/4.7/</eclipse-repo.url>
     <rodin-repo.url>http://rodin-b-sharp.sourceforge.net/core-updates</rodin-repo.url>
+    <!-- URL for the Rodin Licence Update site -->
+    <rodin_licence-repo.url>http://eventb-soton.github.io/media_bin/org.rodinp.licence.updateSite</rodin_licence-repo.url>
     <!-- Plug-in versions -->
     <tycho-version>1.6.0</tycho-version>
     <maven-resources-plugin-version>3.0.2</maven-resources-plugin-version>
   </properties>
   
   <repositories>
+    <!-- Rodin Platform repository -->
     <repository>
       <id>rodin-release</id>
       <url>${rodin-repo.url}</url>
       <layout>p2</layout>
     </repository>
+    <!-- Eclipse repository -->
     <repository>
       <id>oxygen-4.7</id>
       <url>${eclipse-repo.url}</url>
       <layout>p2</layout>
     </repository>
-    
+    <!-- OPTIONAL Additional repository -->
+    <!-- Rodin Licence repository -->
+    <repository>
+      <id>rodin-licence</id>
+      <url>${rodin_licence-repo.url}</url>
+      <layout>p2</layout>
+    </repository>
   </repositories>
 
   <build>

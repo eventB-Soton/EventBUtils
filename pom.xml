@@ -19,6 +19,5 @@
     <module>ch.ethz.eventb.utils.tests</module>
     <module>ch.ethz.eventb.utils.tests.feature</module>
     <module>ch.ethz.eventb.utils.sdk</module>
-    <module>../RodinLicence</module>
   </modules>
 </project>
