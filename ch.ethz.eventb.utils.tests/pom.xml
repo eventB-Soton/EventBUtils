@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>ch.ethz.eventb.utils</groupId>
+    <artifactId>releng</artifactId>
+    <version>0.2.5-SNAPSHOT</version>
+    <relativePath>../ch.ethz.eventb.utils.releng/pom.xml</relativePath>
+  </parent>
+  
+  <groupId>ch.ethz.eventb.utils</groupId>
+  <artifactId>ch.ethz.eventb.utils.tests</artifactId>
+  <version>0.2.5-SNAPSHOT</version>
+  <name>Event-B Utility Tests </name>
+  <description>Unit tests for Event-B Utility</description>
+  
+  <packaging>eclipse-test-plugin</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+	<version>${tycho.version}</version>
+        <configuration>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+          <excludes>
+            <exclude>**/Abstract*.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

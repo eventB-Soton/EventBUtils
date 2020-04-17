@@ -3,9 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: ch.ethz.eventb.utils
 Bundle-Localization: plugin
-Bundle-Version: 0.2.4.release
+Bundle-Version: 0.2.5.qualifier
 Bundle-Vendor: %pluginVendor
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.10.0,4.0.0)",
  org.rodinp.core;bundle-version="[1.7.0,2.0.0)",
  org.eventb.core;bundle-version="[3.2.0,4.0.0)",
@@ -14,3 +14,4 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.10.0,4.0.0)",
  org.eventb.core.ast;bundle-version="3.2.0"
 Export-Package: ch.ethz.eventb.ui.utils,
  ch.ethz.eventb.utils
+Automatic-Module-Name: ch.ethz.eventb.utils

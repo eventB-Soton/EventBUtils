@@ -2,10 +2,10 @@
 <feature
       id="ch.ethz.eventb.utils.sdk"
       label="%featureName"
-      version="0.2.4.release"
+      version="0.2.5.qualifier"
       provider-name="%featureVendor"
-      license-feature="org.rodinp.license"
-      license-feature-version="1.0.0.qualifier">
+      license-feature="org.rodinp.licence"
+      license-feature-version="1.0.0.release">
 
    <description>
       %featureDescription
@@ -24,15 +24,21 @@
          version="0.0.0"/>
 
    <includes
-         id="ch.ethz.eventb.utils.source.feature"
-         version="0.0.0"/>
-
-   <includes
          id="ch.ethz.eventb.utils.tests.feature"
          version="0.0.0"/>
 
-   <includes
-         id="ch.ethz.eventb.utils.tests.source.feature"
-         version="0.0.0"/>
+   <plugin
+         id="ch.ethz.eventb.utils.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="ch.ethz.eventb.utils.tests.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>
