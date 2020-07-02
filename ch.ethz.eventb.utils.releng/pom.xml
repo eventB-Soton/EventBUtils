@@ -31,7 +31,7 @@
     <!-- <!-\- URL for the Rodin Update site -\-> -->
     <!-- <rodin_update_site-repo.url>http://rodin-b-sharp.sourceforge.net/updates</rodin_update_site-repo.url> -->
     <!-- <!-\- URL for the Soton Prototype Update site -\-> -->
-    <!-- <soton_prototype-repo.url>http://eventb-soton.github.io/media_bin/ac.soton.prototypes.updateSite</soton_prototype-repo.url> -->
+    <!-- <soton_prototype-repo.url>http://eventb-soton.github.io/media_bin/ac.soton.eventb.prototypes.updateSite</soton_prototype-repo.url> -->
     <!-- URL for the Rodin Licence Update site -->
     <rodin_licence-repo.url>http://eventb-soton.github.io/media_bin/org.rodinp.licence.updateSite</rodin_licence-repo.url>
   </properties>
