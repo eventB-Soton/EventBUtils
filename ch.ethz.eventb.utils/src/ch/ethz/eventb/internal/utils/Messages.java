@@ -1,9 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2009 ETH Systerel and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2009,2020 Systerel and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     Systerel - initial API and implementation
@@ -14,8 +17,6 @@ import org.eclipse.osgi.util.NLS;
 
 public final class Messages extends NLS {
 	private static final String BUNDLE_NAME = "ch.ethz.eventb.internal.utils.messages"; //$NON-NLS-1$
-
-
 	
 	// Progress monitor strings
 	public static String progress_CreateEventBProject;
