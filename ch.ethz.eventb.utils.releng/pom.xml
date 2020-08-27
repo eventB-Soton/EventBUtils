@@ -27,7 +27,7 @@
     <!-- URL for Eclipse Updates repository (4.16) -->
     <eclipse_updates-repo.url>http://download.eclipse.org/eclipse/updates/4.16/</eclipse_updates-repo.url>
     <!-- URL for Eclipse Releases repository (2020-06) -->
-    <eclipse_releases-repo.url>http://download.eclipse.org/releases/2020-06</eclipse_releases-repo.url>
+    <!-- <eclipse_releases-repo.url>http://download.eclipse.org/releases/2020-06</eclipse_releases-repo.url> -->
     <!-- URL for Rodin Platform @ Soton -->
     <rodin-repo.url>http://eventb-soton.github.io/media_bin/org.rodinp.dev-3.4.0</rodin-repo.url>
     <!-- OPTIONAL Additional URLs -->

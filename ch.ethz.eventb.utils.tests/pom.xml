@@ -26,7 +26,7 @@
   <groupId>ch.ethz.eventb.utils</groupId>
   <artifactId>ch.ethz.eventb.utils.tests</artifactId>
   <version>0.2.5-SNAPSHOT</version>
-  <name>Event-B Utility Tests </name>
+  <name>Event-B Utilities (Tests) Plug-in </name>
   <description>Unit tests for Event-B Utility</description>
   
   <packaging>eclipse-test-plugin</packaging>
