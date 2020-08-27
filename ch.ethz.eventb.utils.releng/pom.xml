@@ -19,13 +19,15 @@
   <packaging>pom</packaging>
   
   <properties>
-    <tycho.version>1.6.0</tycho.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Plug-in versions -->
-    <tycho-version>1.6.0</tycho-version>
-    <maven-resources-plugin-version>3.0.2</maven-resources-plugin-version>
-    <!-- URL for Eclipse repository (Oxygen) -->
-    <eclipse-repo.url>http://download.eclipse.org/eclipse/updates/4.7/</eclipse-repo.url>
+    <tycho-version>2.0.0</tycho-version>
+    <maven-resources-plugin-version>3.2.0</maven-resources-plugin-version>
+    <maven-antrun-plugin-version>3.0.0</maven-antrun-plugin-version>
+    <!-- URL for Eclipse Updates repository (4.16) -->
+    <eclipse_updates-repo.url>http://download.eclipse.org/eclipse/updates/4.16/</eclipse_updates-repo.url>
+    <!-- URL for Eclipse Releases repository (2020-06) -->
+    <eclipse_releases-repo.url>http://download.eclipse.org/releases/2020-06</eclipse_releases-repo.url>
     <!-- URL for Rodin Platform @ Soton -->
     <rodin-repo.url>http://eventb-soton.github.io/media_bin/org.rodinp.dev-3.4.0</rodin-repo.url>
     <!-- OPTIONAL Additional URLs -->
@@ -50,12 +52,18 @@
   </properties>
 
   <repositories>
-    <!-- Eclipse repository -->
+    <!-- Eclipse Updates repository -->
     <repository>
-      <id>oxygen-4.7</id>
-      <url>${eclipse-repo.url}</url>
+      <id>eclipse_updates-repo</id>
+      <url>${eclipse_updates-repo.url}</url>
       <layout>p2</layout>
     </repository>
+    <!-- Eclipse Releases repository -->
+    <!-- <repository> -->
+    <!--   <id>eclipse_releases-repo</id> -->
+    <!--   <url>${eclipse_releases-repo.url}</url> -->
+    <!--   <layout>p2</layout> -->
+    <!-- </repository> -->
     <!-- Rodin Platform repository -->
     <repository>
       <id>rodin-platform</id>
@@ -164,7 +172,7 @@
 	<plugin>
 	  <groupId>org.apache.maven.plugins</groupId>
 	  <artifactId>maven-antrun-plugin</artifactId>
-	  <version>1.7</version>
+	  <version>${maven-antrun-plugin-version}</version>
 	</plugin>
 	<!-- Deactivate the Maven resource plug-in -->
 	<plugin>
