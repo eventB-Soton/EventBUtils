@@ -1,9 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2009--2015 ETH Zurich and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010,2020 ETH Zurich.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     ETH Zurich - initial API and implementation

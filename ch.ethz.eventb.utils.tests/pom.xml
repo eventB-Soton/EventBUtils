@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2020 University of Southampton.
+   
+    This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+   
+    SPDX-License-Identifier: EPL-2.0
+   
+    Contributors:
+        University of Southampton - initial API and implementation
+ -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
@@ -12,7 +26,7 @@
   <groupId>ch.ethz.eventb.utils</groupId>
   <artifactId>ch.ethz.eventb.utils.tests</artifactId>
   <version>0.2.5-SNAPSHOT</version>
-  <name>Event-B Utility Tests </name>
+  <name>Event-B Utilities (Tests) Plug-in </name>
   <description>Unit tests for Event-B Utility</description>
   
   <packaging>eclipse-test-plugin</packaging>
@@ -22,7 +36,7 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
-	<version>${tycho.version}</version>
+	<version>${tycho-version}</version>
         <configuration>
           <includes>
             <include>**/*.java</include>

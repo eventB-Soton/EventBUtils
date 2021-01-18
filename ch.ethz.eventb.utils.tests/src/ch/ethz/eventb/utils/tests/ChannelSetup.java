@@ -1,12 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2015 University of Southampton.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2010,2020 ETH Zurich.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *     University of Southampton - initial API and implementation
+ *     ETH Zurich - initial API and implementation
  *******************************************************************************/
 
 package ch.ethz.eventb.utils.tests;

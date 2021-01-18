@@ -2,8 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ch.ethz.eventb.utils</groupId>
   <artifactId>root</artifactId>
-  <name>Event-B Utility Root</name>
-  <description>Event-B Utility Root Build</description>
+  <name>Event-B Utilities Root Module</name>
+  <description>Event-B Utilities Root Build</description>
   <version>0.2.5-SNAPSHOT</version>
   <packaging>pom</packaging>
   <parent>
