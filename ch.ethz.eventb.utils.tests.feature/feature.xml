@@ -12,11 +12,10 @@
     Contributors:
         ETH Zurich - initial API and implementation
  -->
-
 <feature
       id="ch.ethz.eventb.utils.tests.feature"
       label="%featureName"
-      version="0.2.5.qualifier"
+      version="0.2.5.release"
       provider-name="%featureVendor"
       license-feature="org.rodinp.licence"
       license-feature-version="1.0.0.release">
@@ -30,7 +29,7 @@
    </copyright>
 
    <url>
-      <update label="%updateSiteName" url="http://rodin-b-sharp.sourceforge.net/updates"/>
+      <update label="%updateSiteName" url="http://eventb-soton.github.io/updateSite/releases"/>
    </url>
 
    <requires>
