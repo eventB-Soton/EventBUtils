@@ -25,14 +25,14 @@
     <maven-resources-plugin-version>3.2.0</maven-resources-plugin-version>
     <maven-antrun-plugin-version>3.0.0</maven-antrun-plugin-version>
     <!-- URL for Eclipse Updates repository (4.16) -->
-    <eclipse_updates-repo.url>http://download.eclipse.org/eclipse/updates/4.16/</eclipse_updates-repo.url>
+    <eclipse_updates-repo.url>https://download.eclipse.org/eclipse/updates/4.16/</eclipse_updates-repo.url>
     <!-- URL for Eclipse Releases repository (2020-06) -->
-    <eclipse_releases-repo.url>http://download.eclipse.org/releases/2020-06</eclipse_releases-repo.url>
+    <eclipse_releases-repo.url>https://download.eclipse.org/releases/2020-06</eclipse_releases-repo.url>
     <!-- URL for Rodin Platform (3.5) -->
     <rodin-repo.url>http://rodin-b-sharp.sourceforge.net/core-updates/3.5</rodin-repo.url>
     <!-- OPTIONAL Additional URLs -->
     <!-- URL for the Rodin Licence Update site -->
-    <rodin_licence-repo.url>http://eventb-soton.github.io/media_bin/org.rodinp.licence.updateSite</rodin_licence-repo.url>
+    <rodin_licence-repo.url>https://eventb-soton.github.io/media_bin/org.rodinp.licence.updateSite</rodin_licence-repo.url>
   </properties>
 
   <repositories>
