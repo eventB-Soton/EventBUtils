@@ -4,12 +4,12 @@
   <artifactId>root</artifactId>
   <name>Event-B Utilities Root Module</name>
   <description>Event-B Utilities Root Build</description>
-  <version>0.2.5.release</version>
+  <version>0.3.0.release</version>
   <packaging>pom</packaging>
   <parent>
     <groupId>ch.ethz.eventb.utils</groupId>
     <artifactId>releng</artifactId>
-    <version>0.2.5.release</version>
+    <version>0.3.0.release</version>
     <relativePath>./ch.ethz.eventb.utils.releng</relativePath>
   </parent>
 
