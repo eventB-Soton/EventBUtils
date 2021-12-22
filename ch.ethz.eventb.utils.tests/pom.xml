@@ -19,13 +19,13 @@
   <parent>
     <groupId>ch.ethz.eventb.utils</groupId>
     <artifactId>releng</artifactId>
-    <version>0.2.5.release</version>
+    <version>0.3.0.release</version>
     <relativePath>../ch.ethz.eventb.utils.releng/pom.xml</relativePath>
   </parent>
   
   <groupId>ch.ethz.eventb.utils</groupId>
   <artifactId>ch.ethz.eventb.utils.tests</artifactId>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.3.0.release</version>
   <name>Event-B Utilities (Tests) Plug-in </name>
   <description>Unit tests for Event-B Utility</description>
   
