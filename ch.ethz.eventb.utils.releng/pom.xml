@@ -24,9 +24,9 @@
     <tycho-version>2.7.5</tycho-version>
     <maven-resources-plugin-version>3.3.0</maven-resources-plugin-version>
     <!-- URL for Eclipse repository -->
-    <eclipse-repo.url>http://download.eclipse.org/eclipse/updates/4.22/</eclipse-repo.url>
+    <eclipse-repo.url>https://download.eclipse.org/eclipse/updates/4.22/</eclipse-repo.url>
     <!-- URL for Rodin Platform -->
-    <rodin-repo.url>http://rodin-b-sharp.sourceforge.net/core-updates/3.7</rodin-repo.url>
+    <rodin-repo.url>https://rodin-b-sharp.sourceforge.net/core-updates/3.7</rodin-repo.url>
     <!-- OPTIONAL Additional URLs -->
     <!-- URL for the Rodin Licence Update site -->
     <rodin_licence-repo.url>https://eventb-soton.github.io/media_bin/org.rodinp.licence.updateSite</rodin_licence-repo.url>
