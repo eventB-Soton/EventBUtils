@@ -1,3 +1,5 @@
+[![Latest Status](https://github.com/eventB-Soton/EventBUtils/actions/workflows/codeql-analysis.yml/badge.svg?branch=latest)](https://github.com/eventB-Soton/EventBUtils/actions/workflows/codeql-analysis.yml/badge.svg)
+
 Event-B Utilities Package
 =========================
 This package provides additional functionalities to manipulate Event-B
